@@ -1,10 +1,10 @@
-import { Task } from "./Task"
+import { Task } from './Task'
 
 export interface Comment {
-  Id: Number
-  Content: String
+  Id: number
+  Content: string
   CreatedDate: Date
   Status: 'ACTIVE' | 'INACTIVE'
-  TaskId: Number
+  TaskId: number
   Task: Task
 }

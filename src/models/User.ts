@@ -5,24 +5,24 @@ import { Transaction } from './Transaction'
 import { UserMajor } from './UserMajor'
 
 export interface User {
-  Id: Number
-  FullName: String
-  Password: String
-  Email: String
-  Phone: String
-  BirthDay: Date
-  Gender: Boolean
-  Description: String
-  Skill: String
-  OtherContact: String
-  Avatar: String
-  Theme: String
-  Status: 'ACTIVE' | 'INACTIVE'
-  IsAdmin: Boolean
-  ReceivedFeedbacks: Feedback[]
-  SentFeedbacks: Feedback[]
-  Transactions: Transaction[]
-  UserMajors: UserMajor[]
-  Members: Member[]
-  Applications: Application[]
+  Id?: number
+  FullName?: string
+  Password?: string
+  Email?: string
+  Phone?: string
+  BirthDay?: Date
+  Gender?: boolean
+  Description?: string
+  Skill?: string
+  OtherContact?: string
+  Avatar?: string
+  Theme?: string
+  Status?: 'ACTIVE' | 'INACTIVE'
+  IsAdmin?: boolean
+  ReceivedFeedbacks?: Feedback[]
+  SentFeedbacks?: Feedback[]
+  Transactions?: Transaction[]
+  UserMajors?: UserMajor[]
+  Members?: Member[]
+  Applications?: Application[]
 }

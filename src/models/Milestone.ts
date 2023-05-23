@@ -1,7 +1,7 @@
 import { Group } from './Group'
 
 export interface Milestone {
-  Id: Number
+  Id: number
   Name: string
   Description: string
   Order: number

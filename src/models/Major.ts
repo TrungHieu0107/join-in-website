@@ -1,9 +1,8 @@
-import { type } from 'os'
-import { GroupMajor, UserMajor } from '.'
-import { ApplicationMajor } from './ApplicationMajor'
+import { GroupMajor, UserMajor, ApplicationMajor } from './index'
+
 export interface Major {
-  Id: Number
-  Name: String
+  Id: number
+  Name: string
   ApplicationMajors: ApplicationMajor[]
   GroupMajors: GroupMajor[]
   UserMajors: UserMajor[]
