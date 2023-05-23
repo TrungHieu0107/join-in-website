@@ -219,7 +219,7 @@ const RegisterPage = () => {
             </Box>
             <Divider sx={{ my: 5 }}>or</Divider>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Link href='/' passHref>
+              {/* <Link href='/' passHref>
                 <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
                   <Facebook sx={{ color: '#497ce2' }} />
                 </IconButton>
@@ -235,7 +235,7 @@ const RegisterPage = () => {
                     sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : theme.palette.grey[300]) }}
                   />
                 </IconButton>
-              </Link>
+              </Link> */}
               <Link href='/' passHref>
                 <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
                   <Google sx={{ color: '#db4437' }} />
