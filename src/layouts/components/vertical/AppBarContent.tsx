@@ -18,6 +18,9 @@ import ModeToggler from 'src/@core/layouts/components/shared-components/ModeTogg
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
 import NotificationDropdown from 'src/@core/layouts/components/shared-components/NotificationDropdown'
 
+import {useToasts} from 'react-toast-notifications';
+import { Button } from '@mui/material'
+
 interface Props {
   hidden: boolean
   settings: Settings
@@ -31,6 +34,10 @@ const AppBarContent = (props: Props) => {
 
   // ** Hook
   const hiddenSm = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
+  const addToast = useToasts();
+  const notify=() =>{
+    addToast.addToast('Click', { appearance: 'success' })
+  }
 
   return (
     <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -44,7 +51,7 @@ const AppBarContent = (props: Props) => {
             <Menu />
           </IconButton>
         ) : null}
-        <TextField
+        {/* <TextField
           size='small'
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
           InputProps={{
@@ -54,10 +61,10 @@ const AppBarContent = (props: Props) => {
               </InputAdornment>
             )
           }}
-        />
+        /> */}
       </Box>
       <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
-        {hiddenSm ? null : (
+        {/* {hiddenSm ? null : (
           <Box
             component='a'
             target='_blank'
@@ -71,7 +78,10 @@ const AppBarContent = (props: Props) => {
               src='https://img.shields.io/github/stars/themeselection/materio-mui-react-nextjs-admin-template-free?style=social'
             />
           </Box>
-        )}
+        )} */}
+        <Button onClick={notify}>
+          Click
+        </Button>
         <ModeToggler settings={settings} saveSettings={saveSettings} />
         <NotificationDropdown />
         <UserDropdown />
