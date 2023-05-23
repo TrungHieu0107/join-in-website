@@ -1,3 +1,4 @@
+
 // ** Icon imports
 import Login from 'mdi-material-ui/Login'
 import Table from 'mdi-material-ui/Table'
@@ -12,9 +13,46 @@ import GoogleCirclesExtended from 'mdi-material-ui/GoogleCirclesExtended'
 
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
+import { Account, AccountGroup, Cog, FileOutline, Logout } from 'mdi-material-ui'
 
 const navigation = (): VerticalNavItemsType => {
   return [
+    {
+      sectionTitle: 'My Pages'
+    },
+    {
+      title: 'My Groups',
+      icon: HomeOutline,
+      path: '/my-groups'
+    },
+    {
+      title: 'To do',
+      icon: FileOutline,
+      path: '/to-do'
+    },
+    {
+      title: 'Finding Groups',
+      icon: AccountGroup,
+      path: '/finding-groups'
+    },
+    {
+      title: 'Profile',
+      icon: Account,
+      path: '/profile'
+    },
+    {
+      title: 'Options',
+      icon: Cog,
+      path: '/options'
+    },
+    {
+      title: 'Log Out',
+      icon: Logout,
+      path: '/pages/login'
+    },
+    {
+      sectionTitle: 'Template'
+    },
     {
       title: 'Dashboard',
       icon: HomeOutline,
