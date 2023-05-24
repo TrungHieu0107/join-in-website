@@ -1,28 +1,43 @@
 // ** React Imports
-import { useState } from 'react'
+import { ChangeEvent, useState } from 'react'
+import * as React from 'react'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
 import { Card, Grid, InputAdornment, Pagination, TextField } from '@mui/material'
 import CardGroup from 'src/views/finding-groups/CardGroup'
 import { Magnify } from 'mdi-material-ui'
+import { useRouter } from 'next/router'
 
 
-const FindingGroups = () => {
-  // ** State
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
-  const totalItems = 100;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+// export interface FindingGroupsPageProps {
+// }
 
-  const handlePageChange = (event, page) => {
-    setCurrentPage(page);
-  };
+export default function FindingGroupsPage () {
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 12
+  const totalItems = 100
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedItems = Array.from(Array(totalItems).keys()).slice(startIndex, endIndex);
+  const router = useRouter();
 
+  const handlePageChange = (event: ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page)
+    router.push(
+      {
+        pathname: `/finding-groups`,
+        query: {
+          page
+        }
+      },
+      `/finding-groups?page=${page}`,
+      { shallow: true }
+    )
+  }
+
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedItems = Array.from(Array(totalItems).keys()).slice(startIndex, endIndex)
 
   return (
     <Card sx={{padding: '15px'}}>
@@ -38,22 +53,16 @@ const FindingGroups = () => {
           }}
         />
     <Grid container spacing={7}>
-      {paginatedItems.map((index) => (
+      {paginatedItems.map(index => (
         <Grid item xs={12} sm={6} md={4} key={index}>
-          <CardGroup/>
+          <CardGroup />
         </Grid>
       ))}
-       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={handlePageChange}
-          color="primary"
-        />
+      <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Pagination count={totalPages} page={currentPage} onChange={handlePageChange} color='primary' />
       </Grid>
     </Grid>
     </Card>
   );
 }
 
-export default FindingGroups
