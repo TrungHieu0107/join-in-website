@@ -32,10 +32,9 @@ export default function MyTableStickyHeader({ columns, rows }: IMyTableStickyHea
     setPage(newPage)
   }
 
-useEffect(() => {
-  console.log(columns)
-
-}, [])  
+  useEffect(() => {
+    console.log(columns)
+  }, [])
 
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
@@ -62,7 +61,7 @@ useEffect(() => {
             {rows?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
                 <TableRow hover role='checkbox' tabIndex={-1} key={row?.Id}>
-                  <TableCell align='center'>{(page) * rowsPerPage + index + 1}</TableCell>
+                  <TableCell align='center'>{page * rowsPerPage + index + 1}</TableCell>
                   {columns.map(column => {
                     const value = row[column.id]
 
