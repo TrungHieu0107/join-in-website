@@ -14,6 +14,7 @@ import MuiTab, { TabProps } from '@mui/material/Tab'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FormatListGroup, Handshake, KeyVariant } from 'mdi-material-ui'
 import TabGroup from 'src/views/my-groups/TabGroup'
+import { GroupRenderType } from 'src/constants'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -79,13 +80,13 @@ const MyGroups = () => {
         </TabList>
 
         <TabPanel sx={{ p: 0 }} value='All'>
-          <TabGroup />
+          <TabGroup renderType={GroupRenderType.All}/>
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='Owner Group'>
-          <TabGroup />
+          <TabGroup renderType={GroupRenderType.Owner}/>
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='Joined Group'>
-          <TabGroup />
+          <TabGroup renderType={GroupRenderType.Member}/>
         </TabPanel>
       </TabContext>
     </Card>

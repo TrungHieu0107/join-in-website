@@ -10,11 +10,13 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
-import { InputAdornment, TextField } from '@mui/material'
-import { Magnify } from 'mdi-material-ui'
+import { Alert, IconButton, InputAdornment, Menu, MenuItem, TextField } from '@mui/material'
+import { DotsHorizontal, Magnify } from 'mdi-material-ui'
+import { GroupRenderType } from 'src/constants'
+import { GroupRenderProps } from 'src/type/types'
 
 interface Column {
-  id: 'name' | 'code' | 'member' | 'leader'
+  id: 'name' | 'subject' | 'member' | 'leader'
   label: string
   minWidth?: number
   align?: 'right'
@@ -22,50 +24,64 @@ interface Column {
 }
 
 const columns: readonly Column[] = [
-  { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'code', label: 'Code', minWidth: 100 },
+  { id: 'name', label: 'Name', minWidth: 200 },
+  { id: 'subject', label: 'Subject', minWidth: 100 },
   {
     id: 'member',
     label: 'Member',
-    minWidth: 170,
-    align: 'right',
-    format: (value: number) => value.toLocaleString('en-US')
+    minWidth: 100,
   },
   {
     id: 'leader',
     label: 'Leader',
-    minWidth: 170,
+    minWidth: 200,
   }
 ]
 
-interface Data {
-  id: string
-  name: string
-  code: string
-  member: string
-  leader: string
-}
-
-function createData(id: string,name: string, code: string, member: string, leader: string): Data {
-
-  return {id, name, code, member, leader }
-}
-
 const rows = [
-  createData('1','JoinIn Group', 'EXE201', '4/5', 'Thanh Huy'),
-  createData('2','JoinIn Group', 'EXE201', '4/5', 'Thanh Huy'),
-  createData('3','JoinIn Group', 'EXE201', '4/5', 'Thanh Huy'),
-  createData('4','JoinIn Group', 'EXE201', '4/5', 'Thanh Huy'),
-  createData('5','JoinIn Group', 'EXE201', '4/5', 'Thanh Huy'),
-  createData('6','JoinIn Group', 'EXE201', '4/5', 'Thanh Huy'),
-  createData('7','JoinIn Group', 'EXE201', '4/5', 'Thanh Huy'),
-
+  {id:'1',name:'JoinIn Group',subject: 'EXE201',member: '4/5',leader: 'Thanh Huy'},
+  {id:'2',name:'JoinIn Group',subject: 'EXE201',member: '4/5',leader: 'Thanh Huy'},
+  {id:'3',name:'JoinIn Group',subject: 'EXE201',member: '4/5',leader: 'Thanh Huy'},
+  {id:'4',name:'JoinIn Group',subject: 'EXE201',member: '4/5',leader: 'Thanh Huy'},
+  {id:'5',name:'JoinIn Group',subject: 'EXE201',member: '4/5',leader: 'Thanh Huy'},
+  {id:'6',name:'JoinIn Group',subject: 'EXE201',member: '4/5',leader: 'Thanh Huy'},
+  {id:'7',name:'JoinIn Group',subject: 'EXE201',member: '4/5',leader: 'Thanh Huy'},
 ]
 
-const TabGroup = () => {
+
+const TabGroup = ({renderType}: GroupRenderProps ) => {
   // ** States
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedRow, setSelectedRow] = useState<any>(null);
+
+  const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>, row: any) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleOptionsClose = () => {
+    setAnchorEl(null);
+    setSelectedRow(null);
+  };
+
+  const handleDelete = () => {
+    // Handle delete action
+    handleOptionsClose();
+  };
+
+  const handleViewDetail = () => {
+    // Handle view detail action
+    handleOptionsClose();
+  };
+
+  const handleChangeStatus = () => {
+    // Handle change status action
+    handleOptionsClose();
+  };
+
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -75,9 +91,29 @@ const TabGroup = () => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
+  let result: React.ReactNode;
+
+  // Load API
+  switch (renderType) {
+    case GroupRenderType.All:
+      result = 'All';
+      break;
+    case GroupRenderType.Owner:
+      result = 'Owner';
+      break;
+    case GroupRenderType.Member:
+      result = 'Member';
+      break;
+    default:
+      // get all
+      return null
+  }
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      <Alert severity="success" color="info">
+        {result} — demo tab! (views/my-groups/TabGroup.tsx/line102)
+      </Alert>
       <TextField
           size='small'
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 }, padding: '15px' }}
@@ -98,26 +134,43 @@ const TabGroup = () => {
                   {column.label}
                 </TableCell>
               ))}
+              <TableCell align="right">Options</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.code}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.id}>
                   {columns.map(column => {
                     const value = row[column.id]
 
                     return (
                       <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
+                        {/* {column.format && typeof value === 'number' ? column.format(value) : value} */}
+                        {value}
                       </TableCell>
+
                     )
                   })}
+                  <TableCell align="right">
+                    <IconButton onClick={(event) => handleOptionsClick(event, row)}>
+                      <DotsHorizontal />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               )
             })}
           </TableBody>
         </Table>
+        <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleOptionsClose}
+      >
+        <MenuItem onClick={handleViewDetail}>View Detail</MenuItem>
+        <MenuItem onClick={handleChangeStatus}>Change Status</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
+      </Menu>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}

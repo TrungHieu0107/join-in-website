@@ -3,8 +3,9 @@ import { useState } from 'react'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
-import { Grid, Pagination } from '@mui/material'
+import { Card, Grid, InputAdornment, Pagination, TextField } from '@mui/material'
 import CardGroup from 'src/views/finding-groups/CardGroup'
+import { Magnify } from 'mdi-material-ui'
 
 
 const FindingGroups = () => {
@@ -24,6 +25,18 @@ const FindingGroups = () => {
 
 
   return (
+    <Card sx={{padding: '15px'}}>
+      <TextField
+          size='small'
+          sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 }, padding: '15px' }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position='start'>
+                <Magnify fontSize='small' />
+              </InputAdornment>
+            )
+          }}
+        />
     <Grid container spacing={7}>
       {paginatedItems.map((index) => (
         <Grid item xs={12} sm={6} md={4} key={index}>
@@ -39,6 +52,7 @@ const FindingGroups = () => {
         />
       </Grid>
     </Grid>
+    </Card>
   );
 }
 

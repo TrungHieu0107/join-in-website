@@ -293,13 +293,17 @@ const LoginPage = () => {
               </Typography>
             </Box>
             <Divider sx={{ my: 5 }}>or</Divider>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Link href='/' passHref>
                 <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
                   <Google sx={{ color: '#db4437' }} />
                 </IconButton>
               </Link>
-            </Box>
+            </Box> */}
+            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} >
+                <Google sx={{ color: '#FFFFFF', marginRight:'10px'}} />
+                <Typography fontWeight='bold' color='#FFFFFF'>Login with Google</Typography>
+            </Button>
           </form>
         </CardContent>
       </Card>
