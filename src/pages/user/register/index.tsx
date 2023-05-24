@@ -175,7 +175,7 @@ const RegisterPage = () => {
         router.push('/')
       })
   }
-
+  
   return (
     <Box className='content-center'>
       <Card sx={{ zIndex: 1 }}>

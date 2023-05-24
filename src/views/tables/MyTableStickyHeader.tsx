@@ -41,6 +41,7 @@ useEffect(() => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
+
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <TableContainer sx={{ maxHeight: 500 }}>
@@ -64,6 +65,7 @@ useEffect(() => {
                   <TableCell align='center'>{(page) * rowsPerPage + index + 1}</TableCell>
                   {columns.map(column => {
                     const value = row[column.id]
+
                     return (
                       <TableCell key={column.id} align={column.align}>
                         {column.format ? column.format(value) : value}
