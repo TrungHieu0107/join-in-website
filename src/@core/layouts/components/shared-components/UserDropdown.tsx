@@ -22,7 +22,6 @@ import LogoutVariant from 'mdi-material-ui/LogoutVariant'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import MessageOutline from 'mdi-material-ui/MessageOutline'
 import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
-import { authApi } from 'src/api-client'
 
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({

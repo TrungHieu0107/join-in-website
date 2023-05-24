@@ -9,7 +9,6 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
@@ -41,7 +40,6 @@ import { Message, QueryKeys } from 'src/constants'
 import { authApi } from 'src/api-client'
 import { useRouter } from 'next/router'
 import { User } from 'src/models'
-import { log } from 'console'
 
 interface State {
   password: string
