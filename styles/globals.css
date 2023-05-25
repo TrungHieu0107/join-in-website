@@ -22,3 +22,16 @@ code:not([class*='language-']):after {
 code[class*='language-'] {
   padding: 0;
 }
+
+.MuiCollapse-container {
+  width: 0px;
+ transition-property: width;
+}
+
+.MuiCollapse-entered {
+  width: 100%
+}
+
+.MuiCollapse-hidden {
+  width: 0px
+}

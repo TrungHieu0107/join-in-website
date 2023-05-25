@@ -51,6 +51,7 @@ const AppBarContent = (props: Props) => {
         {/* <TextField
           size='small'
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
+          placeholder='Find group'
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>

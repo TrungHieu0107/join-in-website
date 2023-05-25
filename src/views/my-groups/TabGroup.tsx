@@ -14,6 +14,7 @@ import { Alert, IconButton, InputAdornment, Menu, MenuItem, TextField } from '@m
 import { DotsHorizontal, Magnify } from 'mdi-material-ui'
 import { GroupRenderType } from 'src/constants'
 import { GroupRenderProps } from 'src/type/types'
+import { useRouter} from 'next/router'
 
 interface Column {
   id: 'name' | 'subject' | 'member' | 'leader'
@@ -48,13 +49,14 @@ const rows = [
   { id: '7', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' }
 ]
 
-const TabGroup = ({ renderType }: GroupRenderProps) => {
+export default function TabGroup ({ renderType }: GroupRenderProps) {
   // ** States
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedRow, setSelectedRow] = useState<any>(null)
+  const router = useRouter()
 
   const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>, row: any) => {
     setAnchorEl(event.currentTarget)
@@ -74,7 +76,12 @@ const TabGroup = ({ renderType }: GroupRenderProps) => {
 
   const handleViewDetail = () => {
     // Handle view detail action
+    router.push({
+      pathname: '/group/task/[name]',
+      query: { name: 'Joinin' }
+    })
     handleOptionsClose()
+
   }
 
   const handleChangeStatus = () => {
@@ -196,5 +203,3 @@ const TabGroup = ({ renderType }: GroupRenderProps) => {
     </Paper>
   )
 }
-
-export default TabGroup

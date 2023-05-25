@@ -12,13 +12,49 @@ import GoogleCirclesExtended from 'mdi-material-ui/GoogleCirclesExtended'
 
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
-import { Account, AccountGroup, Cog, FileOutline, Logout } from 'mdi-material-ui'
+import { Account, AccountGroup, ArrowLeftCircleOutline, Cog, FileOutline, FileTree, Logout } from 'mdi-material-ui'
+import { useRouter } from 'next/router'
 
-const navigation = (): VerticalNavItemsType => {
+export default function Navigation(): VerticalNavItemsType {
+  const router = useRouter()
+
+  if (router.pathname.startsWith('/group')) {
+    return [
+      {
+        title: 'Task',
+        icon: FileTree,
+        path: '/group/task'
+      },
+      {
+        title: 'Member',
+        icon: AccountGroup,
+        path: '/group/member'
+      },
+      {
+        sectionTitle: 'Personal'
+      },
+      {
+        title: 'Profile',
+        icon: Account,
+        path: '/profile'
+      },
+      {
+        title: 'Log Out',
+        icon: Logout,
+        path: '/user/login'
+      },
+      {
+        sectionTitle: 'Others'
+      },
+      {
+        title: 'Back',
+        icon: ArrowLeftCircleOutline,
+        path: '/my-groups'
+      }
+    ]
+  }
+
   return [
-    {
-      sectionTitle: 'My Pages'
-    },
     {
       title: 'My Groups',
       icon: HomeOutline,
@@ -35,15 +71,19 @@ const navigation = (): VerticalNavItemsType => {
       path: '/finding-groups'
     },
     {
-      title: 'Profile',
-      icon: Account,
-      path: '/profile'
-    },
-    {
       title: 'Options',
       icon: Cog,
       path: '/options'
     },
+    {
+      sectionTitle: 'Personal'
+    },
+    {
+      title: 'Profile',
+      icon: Account,
+      path: '/profile'
+    },
+
     {
       title: 'Log Out',
       icon: Logout,
@@ -113,5 +153,3 @@ const navigation = (): VerticalNavItemsType => {
     }
   ]
 }
-
-export default navigation

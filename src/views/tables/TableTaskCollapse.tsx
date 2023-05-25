@@ -1,7 +1,5 @@
-// ** React Imports
-import { useState, ChangeEvent, useEffect } from 'react'
-
-// ** MUI Imports
+import { ChangeEvent, Fragment, useState } from 'react'
+import { Column } from 'src/models/common/Column'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
@@ -10,32 +8,43 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
+import { Task } from 'src/models'
 
-export interface IMyTableStickyHeaderProps {
-  columns: Column[]
-  rows: any[]
+export interface ITableTaskCollapseProps {
+  column: Column[]
+  row: Task[]
 }
 
-export interface Column {
-  id: string
-  label: string
-  minWidth?: number
-  align?: 'right' | 'center' | 'left'
-  format?: (value: any) => string
+function Row(props: { row: any; page: number; rowsPerPage: number; index: number; column: Column[] }) {
+  const { row, page, rowsPerPage, index, column } = props
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Fragment>
+      <TableRow aria-label='expand row' onClick={() => setOpen(!open)}>
+        <TableCell align='center'>{page * rowsPerPage + index + 1}</TableCell>
+        {column.map(column => {
+          const value = row[column.id]
+
+          return (
+            <TableCell key={column.id} align={column.align}>
+              {column.format ? column.format(value) : value}
+            </TableCell>
+          )
+        })}
+      </TableRow>
+    </Fragment>
+  )
 }
 
-export default function MyTableStickyHeader(props: IMyTableStickyHeaderProps) {
+export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
+  const [values] = useState<ITableTaskCollapseProps>(props)
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
-  const { columns, rows } = props
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
-
-  useEffect(() => {
-    console.log(columns)
-  }, [])
 
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
@@ -51,7 +60,7 @@ export default function MyTableStickyHeader(props: IMyTableStickyHeaderProps) {
               <TableCell align='center' sx={{ minWidth: '30px' }}>
                 Index
               </TableCell>
-              {columns?.map(column => (
+              {values.column?.map(column => (
                 <TableCell key={column.id} align={column.align} sx={{ minWidth: column.minWidth }}>
                   {column.label}
                 </TableCell>
@@ -59,20 +68,16 @@ export default function MyTableStickyHeader(props: IMyTableStickyHeaderProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+            {values.row?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row?.Id}>
-                  <TableCell align='center'>{page * rowsPerPage + index + 1}</TableCell>
-                  {columns.map(column => {
-                    const value = row[column.id]
-
-                    return (
-                      <TableCell key={column.id} align={column.align}>
-                        {column.format ? column.format(value) : value}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
+                <Row
+                  key={index}
+                  row={row}
+                  page={page}
+                  rowsPerPage={rowsPerPage}
+                  index={index}
+                  column={values.column}
+                ></Row>
               )
             })}
           </TableBody>
@@ -81,7 +86,7 @@ export default function MyTableStickyHeader(props: IMyTableStickyHeaderProps) {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'
-        count={rows?.length}
+        count={values.row?.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

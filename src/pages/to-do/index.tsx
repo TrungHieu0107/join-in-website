@@ -5,6 +5,7 @@ import TableStickyHeader from 'src/views/tables/MyTableStickyHeader'
 
 import { Column } from 'src/views/tables/MyTableStickyHeader'
 
+
 const col: Column[] = [
   {
     id: 'Name',
