@@ -9,6 +9,10 @@ import { useState } from 'react'
 import { Magnify, Plus } from 'mdi-material-ui'
 import InputAdornment from '@mui/material/InputAdornment'
 
+export interface ISubTaskPageProps {
+  id: string
+}
+
 interface StatusObj {
   [key: string]: {
     color: ThemeColor
@@ -165,9 +169,8 @@ const column: Column[] = [
     align: 'left',
     format: (value: any[]) => (
       <AvatarGroup total={value?.length}>
-        {value?.map(
-          (val, index) =>
-            index < 2 ? <Avatar key={index} alt='Test' src={val?.AssignedFor?.User?.Avatar} sizes='small' /> : ""
+        {value?.map((val, index) =>
+          index < 2 ? <Avatar key={index} alt='Test' src={val?.AssignedFor?.User?.Avatar} sizes='small' /> : ''
         )}
       </AvatarGroup>
     )
@@ -214,8 +217,30 @@ const statusObj: StatusObj = {
   FINISHED: { color: 'success' }
 }
 
-export default function TaskListPage() {
+const getTask = () : Task => ({
+  Id: 1,
+  Name: "Main Task",
+  StartDateDeadline: new Date('2023-01-01'),
+  EndDateDeadline: new Date('2023-01-01'),
+  FinishedDate: new Date('2023-01-01'),
+  ImpotantLevel: 1,
+  EstimatedDays: 1,
+  Description: "Description",
+  Status: 'NOT_STARTED_YET',
+  GroupId: 1,
+  CreatedById: 1,
+  // SubTasks: []
+  // AssignedTasks: AssignedTask[],
+  Comments: [{}] as Comment[]
+})
+
+export default function SubTaskPage(props: ISubTaskPageProps) {
   const [searchValue, setSearchValue] = useState('')
+  const { id } = props
+
+  // useEffect(() => {
+
+  // },[])
 
   return (
     <div>
