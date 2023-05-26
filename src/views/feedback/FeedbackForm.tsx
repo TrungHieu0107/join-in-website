@@ -1,5 +1,3 @@
-// ** React Imports
-import { useState, ElementType, ChangeEvent } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -8,12 +6,11 @@ import { styled } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
-import FormControl from '@mui/material/FormControl'
-import Button, { ButtonProps } from '@mui/material/Button'
+import Button from '@mui/material/Button'
 
 // ** Icons Imports
-import { FormControlLabel, FormLabel, InputAdornment, Radio, RadioGroup } from '@mui/material'
-import { AccountGroup, AccountMultiple, AlphaACircleOutline, Book,  InformationVariant, School, Star, TownHall } from 'mdi-material-ui'
+import { InputAdornment  } from '@mui/material'
+import {  InformationVariant, Star  } from 'mdi-material-ui'
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -22,22 +19,6 @@ const ImgStyled = styled('img')(({ theme }) => ({
   borderRadius: theme.shape.borderRadius
 }))
 
-const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
-  [theme.breakpoints.down('sm')]: {
-    width: '100%',
-    textAlign: 'center'
-  }
-}))
-
-const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
-  marginLeft: theme.spacing(4.5),
-  [theme.breakpoints.down('sm')]: {
-    width: '100%',
-    marginLeft: 0,
-    textAlign: 'center',
-    marginTop: theme.spacing(4)
-  }
-}))
 
 
 const GroupForm  = () => {
