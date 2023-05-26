@@ -12,7 +12,7 @@ import GoogleCirclesExtended from 'mdi-material-ui/GoogleCirclesExtended'
 
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
-import { Account, AccountGroup, ArrowLeftCircleOutline, Cog, FileOutline, FileTree, Logout } from 'mdi-material-ui'
+import { Account, AccountGroup, ArrowLeftCircleOutline, Cog, CommentAlert, FileOutline, FileTree, Logout } from 'mdi-material-ui'
 import { useRouter } from 'next/router'
 
 export default function Navigation(): VerticalNavItemsType {
@@ -83,7 +83,11 @@ export default function Navigation(): VerticalNavItemsType {
       icon: Account,
       path: '/profile'
     },
-
+    {
+      title: 'Feedback',
+      icon: CommentAlert,
+      path: '/feedback'
+    },
     {
       title: 'Log Out',
       icon: Logout,
