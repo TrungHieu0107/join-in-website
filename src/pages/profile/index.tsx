@@ -20,6 +20,7 @@ import TabSecurity from 'src/views/profile/TabSecurity'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
+import ProfileView from 'src/views/profile/ProfileView'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -73,6 +74,15 @@ const Profile = () => {
               </Box>
             }
           />
+           <Tab
+            value='view'
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <LockOpenOutline />
+                <TabName>View</TabName>
+              </Box>
+            }
+          />
         </TabList>
 
         <TabPanel sx={{ p: 0 }} value='account'>
@@ -80,6 +90,9 @@ const Profile = () => {
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='security'>
           <TabSecurity />
+        </TabPanel>
+        <TabPanel sx={{ p: 0 }} value='view'>
+          <ProfileView />
         </TabPanel>
       </TabContext>
     </Card>
