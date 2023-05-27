@@ -31,6 +31,11 @@ export default function Navigation(): VerticalNavItemsType {
         path: '/group/member'
       },
       {
+        title: 'Group Info',
+        icon: AccountGroup,
+        path: '/group/info'
+      },
+      {
         sectionTitle: 'Personal'
       },
       {
@@ -47,7 +52,7 @@ export default function Navigation(): VerticalNavItemsType {
         sectionTitle: 'Others'
       },
       {
-        title: 'Back',
+        title: 'Return Home',
         icon: ArrowLeftCircleOutline,
         path: '/my-groups'
       }

@@ -36,14 +36,16 @@
     "themeselection"
   ],
   "scripts": {
-    "dev": "next dev -p 8080",
+    "dev": "next dev -p 8000",
     "build": "next build",
-    "start": "next start -p 8080",
+    "start": "next start -p 8000",
     "export": "next export",
     "lint": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^38.0.1",
+    "@ckeditor/ckeditor5-react": "^6.0.0",
     "@emotion/cache": "^11.6.0",
     "@emotion/react": "^11.7.0",
     "@emotion/server": "^11.4.0",

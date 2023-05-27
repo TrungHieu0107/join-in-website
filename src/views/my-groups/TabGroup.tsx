@@ -76,7 +76,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const handleViewDetail = () => {
     // Handle view detail action
-    router.push('/group/task', '/group/task/Joinin')
+    router.push('/group/task')
     handleOptionsClose()
   }
 

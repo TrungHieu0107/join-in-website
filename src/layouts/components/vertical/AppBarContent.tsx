@@ -17,6 +17,8 @@ import NotificationDropdown from 'src/@core/layouts/components/shared-components
 
 import {useToasts} from 'react-toast-notifications';
 import { Button } from '@mui/material'
+import { ArrowLeftBold } from 'mdi-material-ui'
+import { useRouter } from 'next/router'
 
 interface Props {
   hidden: boolean
@@ -31,10 +33,12 @@ const AppBarContent = (props: Props) => {
 
   // ** Hook
   const hiddenSm = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
-  const addToast = useToasts();
+  const addToast = useToasts()
+  const router = useRouter()
   const notify=() =>{
     addToast.addToast('Click', { appearance: 'success' })
   }
+
 
   return (
     <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -48,18 +52,9 @@ const AppBarContent = (props: Props) => {
             <Menu />
           </IconButton>
         ) : null}
-        {/* <TextField
-          size='small'
-          sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
-          placeholder='Find group'
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position='start'>
-                <Magnify fontSize='small' />
-              </InputAdornment>
-            )
-          }}
-        /> */}
+          <Button onClick={() => router.back()} startIcon={<ArrowLeftBold/>}>
+            Back
+          </Button>
       </Box>
       <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
         {/* {hiddenSm ? null : (

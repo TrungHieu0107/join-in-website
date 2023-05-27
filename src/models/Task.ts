@@ -8,7 +8,7 @@ export interface Task {
   StartDateDeadline?: Date
   EndDateDeadline?: Date
   FinishedDate?: Date
-  ImpotantLevel?: number
+  ImpotantLevel?: 'OPTIONAL' | ' LOW' | ' MEDIUM' | ' HIGH' | ' VERY_HIGH'
   EstimatedDays?: number
   Description?: string
   Status?: 'NOT_STARTED_YET' | 'WORKING' | 'FINISHED'

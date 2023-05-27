@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { Magnify, Plus } from 'mdi-material-ui'
 import InputAdornment from '@mui/material/InputAdornment'
 
+
 export interface ISubTaskPageProps {
   id: string
 }
@@ -217,29 +218,14 @@ const statusObj: StatusObj = {
   FINISHED: { color: 'success' }
 }
 
-const getTask = () : Task => ({
-  Id: 1,
-  Name: "Main Task",
-  StartDateDeadline: new Date('2023-01-01'),
-  EndDateDeadline: new Date('2023-01-01'),
-  FinishedDate: new Date('2023-01-01'),
-  ImpotantLevel: 1,
-  EstimatedDays: 1,
-  Description: "Description",
-  Status: 'NOT_STARTED_YET',
-  GroupId: 1,
-  CreatedById: 1,
-  // SubTasks: []
-  // AssignedTasks: AssignedTask[],
-  Comments: [{}] as Comment[]
-})
-
-export default function SubTaskPage(props: ISubTaskPageProps) {
+export default function SubTaskPage() {
   const [searchValue, setSearchValue] = useState('')
-  const { id } = props
 
   // useEffect(() => {
-
+  //   let data: Task[] = JSON.parse(JSON.stringify(dataJson))['data'] as Task[]
+  //   data.map((e) => {
+  //     console.log(e.id);
+  //   })
   // },[])
 
   return (
