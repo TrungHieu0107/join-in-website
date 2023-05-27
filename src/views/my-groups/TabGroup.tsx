@@ -10,11 +10,12 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
-import { Alert, IconButton, InputAdornment, Menu, MenuItem, TextField } from '@mui/material'
+import { Box, Alert, Button, IconButton, InputAdornment, Menu, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { DotsHorizontal, Magnify } from 'mdi-material-ui'
 import { GroupRenderType } from 'src/constants'
 import { GroupRenderProps } from 'src/type/types'
 import { useRouter } from 'next/router'
+import GroupForm from './GroupForm'
 
 interface Column {
   id: 'name' | 'subject' | 'member' | 'leader'
@@ -57,6 +58,16 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedRow, setSelectedRow] = useState<any>(null)
   const router = useRouter()  
+
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>, row: any) => {
     setAnchorEl(event.currentTarget)
@@ -116,17 +127,41 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
       <Alert severity='success' color='info'>
         {result} — demo tab! (views/my-groups/TabGroup.tsx/line102)
       </Alert>
-      <TextField
-        size='small'
-        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 }, padding: '15px' }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position='start'>
-              <Magnify fontSize='small' />
-            </InputAdornment>
-          )
+      <Box
+        sx={{
+          ml: 4,
+          width: '100%',
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          padding: '15px'
         }}
-      />
+      >
+        <TextField
+          size='small'
+          sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position='start'>
+                <Magnify fontSize='small' />
+              </InputAdornment>
+            )
+          }}
+        />
+        <Button size='small' variant='contained' sx={{marginRight: '20px'}} onClick={handleClickOpen}>
+          Create Group
+        </Button>
+        <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Create Group</DialogTitle>
+        <DialogContent>
+          <GroupForm/>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+      </Box>
+
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
