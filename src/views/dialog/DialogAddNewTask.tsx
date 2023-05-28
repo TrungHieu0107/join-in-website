@@ -1,5 +1,5 @@
 // ** React Imports
-import { forwardRef, SetStateAction, useEffect, useState } from 'react'
+import { forwardRef, SetStateAction, useState } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -45,12 +45,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
   // ** States
   const [language, setLanguage] = useState<string[]>([])
   const [date, setDate] = useState<Date | null | undefined>(null)
-  const [editorLoaded, setEditorLoaded] = useState(false)
   const [data, setData] = useState('')
-
-  useEffect(() => {
-    setEditorLoaded(true)
-  }, [])
 
   const { mainTask, close } = props
 
@@ -203,7 +198,6 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                               console.log(data)
 
                             }}
-                            editorLoaded={editorLoaded}
                           />
                         </div>
                       </Grid>
