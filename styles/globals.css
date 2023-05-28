@@ -35,3 +35,31 @@ code[class*='language-'] {
 .MuiCollapse-hidden {
   width: 0px
 }
+.modal-size {
+  position: absolute;
+  width: 1200px !important;
+  border-radius: 15px;
+}
+
+.large-2 {
+  float: left;
+  overflow-y: scroll;
+  margin-bottom: 25px;
+  height: 400px;
+}
+
+.large-2::-webkit-scrollbar-track {
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  padding: 2px 0;
+  background-color: #fafaf8;
+}
+
+.large-2::-webkit-scrollbar {
+  width: 5px;
+}
+
+.large-2::-webkit-scrollbar-thumb {
+  border-radius: 15px;
+  background-color: #f1f1ec;
+}

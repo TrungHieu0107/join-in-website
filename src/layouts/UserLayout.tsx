@@ -2,7 +2,6 @@
 import { ReactNode } from 'react'
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
@@ -37,19 +36,19 @@ const UserLayout = ({ children }: Props) => {
    */
   const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
 
-  const UpgradeToProImg = () => {
-    return (
-      <Box sx={{ mx: 'auto' }}>
-        <a
-          target='_blank'
-          rel='noreferrer'
-          href='https://themeselection.com/products/materio-mui-react-nextjs-admin-template/'
-        >
-          <img width={230} alt='upgrade to premium' src={`/images/misc/upgrade-banner-${settings.mode}.png`} />
-        </a>
-      </Box>
-    )
-  }
+  // const UpgradeToProImg = () => {
+  //   return (
+  //     <Box sx={{ mx: 'auto' }}>
+  //       <a
+  //         target='_blank'
+  //         rel='noreferrer'
+  //         href='https://themeselection.com/products/materio-mui-react-nextjs-admin-template/'
+  //       >
+  //         <img width={230} alt='upgrade to premium' src={`/images/misc/upgrade-banner-${settings.mode}.png`} />
+  //       </a>
+  //     </Box>
+  //   )
+  // }
 
   return (
     <VerticalLayout
@@ -57,7 +56,7 @@ const UserLayout = ({ children }: Props) => {
       settings={settings}
       saveSettings={saveSettings}
       verticalNavItems={VerticalNavItems()} // Navigation Items
-      afterVerticalNavMenuContent={UpgradeToProImg}
+      // afterVerticalNavMenuContent={UpgradeToProImg}
       verticalAppBarContent={(
         props // AppBar Content
       ) => (
