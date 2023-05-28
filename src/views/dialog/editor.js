@@ -1,20 +1,20 @@
 import { CKEditor } from '@ckeditor/ckeditor5-react'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import { useEffect, useRef } from 'react'
+import dynamic from 'next/dynamic'
 
 function Editor({ onChange, editorLoaded, name, value }) {
+  
   const editorRef = useRef()
 
   // const { CKEditor, ClassicEditor } = editorRef.current || {}
 
-  useEffect(async () => {
-    async () => {
-      const editor = await import('@ckeditor/ckeditor5-react')
-      const classic = await import('@ckeditor/ckeditor5-build-classic')
-      editorRef.current = {
-        CKEditor: editor.CKEditor, // v3+
-        ClassicEditor: classic
-      }
+  useEffect( async () => {
+    const editor = dynamic(() => import('@ckeditor/ckeditor5-react'), { ssr: false });
+    const classic = await import('@ckeditor/ckeditor5-build-classic')
+    editorRef.current = {
+      CKEditor: editor.CKEditor, // v3+
+      ClassicEditor: classic
     }
   }, [])
 
