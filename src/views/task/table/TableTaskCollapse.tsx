@@ -8,18 +8,17 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
-import { Task } from 'src/models'
+import { Task } from 'src/models/class'
 import { useRouter } from 'next/router'
 import { Menu, MenuItem, Button, IconButton } from '@mui/material'
 import { Delete, InformationVariant, DotsVertical } from 'mdi-material-ui'
 
 export interface ITableTaskCollapseProps {
   column: Column[]
-  row: any[]
+  row: Task[] | undefined
 }
-
 function Row(props: {
-  row: any
+  row: Task
   page: number
   rowsPerPage: number
   index: number
@@ -29,21 +28,23 @@ function Row(props: {
   const { row, page, rowsPerPage, index, column, clicktoDetail } = props
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedRow, setSelectedRow] = useState<Task>()
+  const data: any = row
 
   const handleOptionsClose = () => {
     setAnchorEl(null)
-    setSelectedRow({})
+    setSelectedRow(undefined)
   }
 
   const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>, row: Task) => {
     setAnchorEl(event.currentTarget)
     setSelectedRow(row)
-    console.log(selectedRow)
   }
 
   const handleViewDetail = () => {
-    if (selectedRow?.Id) {
-      clicktoDetail(selectedRow?.Id)
+    console.log(selectedRow);
+    
+    if (selectedRow?.id) {
+      clicktoDetail(selectedRow?.id)
     }
   }
 
@@ -56,7 +57,7 @@ function Row(props: {
       <TableRow aria-label='expand row' >
         <TableCell align='center'>{page * rowsPerPage + index + 1}</TableCell>
         {column.map(column => {
-          const value = row[column.id]
+          const value = data[column.id]
 
           return (
             <TableCell key={column.id} align={column.align}>
@@ -160,7 +161,7 @@ export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'
-        count={values.row?.length}
+        count={values.row !== undefined ? values.row.length : 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

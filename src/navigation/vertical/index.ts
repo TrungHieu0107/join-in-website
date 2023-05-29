@@ -12,7 +12,16 @@ import GoogleCirclesExtended from 'mdi-material-ui/GoogleCirclesExtended'
 
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
-import { Account, AccountGroup, Application, ArrowLeftCircleOutline, Cog, CommentAlert, FileOutline, FileTree, Logout } from 'mdi-material-ui'
+import {
+  Account,
+  AccountGroup,
+  ArrowLeftCircleOutline,
+  Cog,
+  CommentAlert,
+  FileOutline,
+  FileTree,
+  Logout
+} from 'mdi-material-ui'
 import { useRouter } from 'next/router'
 
 export default function Navigation(): VerticalNavItemsType {
@@ -62,8 +71,29 @@ export default function Navigation(): VerticalNavItemsType {
         path: '/my-groups'
       }
     ]
+  } else if (router.pathname.startsWith('/admin')) {
+    return [
+      {
+        title: 'Dashboard',
+        icon: ArrowLeftCircleOutline,
+        path: '/admin/dashboard'
+      },
+      {
+        sectionTitle: 'Personal'
+      },
+      {
+        title: 'Profile',
+        icon: Account,
+        path: '/profile'
+      },
+      {
+        title: 'Log Out',
+        icon: Logout,
+        path: '/user/login'
+      }
+    ]
   }
-
+  
   return [
     {
       title: 'My Groups',

@@ -3,7 +3,7 @@ import { Task } from './Task'
 export class Comment {
   private _id: number | undefined
   private _content: string | undefined
-  private _createdDate: Date | undefined
+  private _createdDate: Date | string | undefined
   private _status: 'ACTIVE' | 'INACTIVE' | undefined
   private _taskId: number | undefined
   private _task: Task | undefined
@@ -37,7 +37,7 @@ export class Comment {
     return this._createdDate
   }
 
-  set createdDate(val: Date | undefined) {
+  set createdDate(val: Date | string | undefined) {
     this._createdDate = val
   }
 
