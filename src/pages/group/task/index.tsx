@@ -1,7 +1,7 @@
 import Chip from '@mui/material/Chip'
-import { Task, User } from 'src/models'
+import { Task, User } from 'src/models/class'
 import { Column } from 'src/models/common/Column'
-import TableTaskCollapse from 'src/views/tables/TableTaskCollapse'
+import TableTaskCollapse from 'src/views/task/table/TableTaskCollapse'
 import Grid from '@mui/material/Grid'
 import { Avatar, AvatarGroup, Button, TextField, Fade, Box } from '@mui/material'
 import { useEffect, useState } from 'react'
@@ -15,187 +15,75 @@ import DialogCreateNewTask from 'src/views/dialog/DialogAddNewTask'
 
 import 'react-datepicker/dist/react-datepicker.css'
 
-const taskList = [
-  {
-    Id: 1,
-    Name: 'Task',
-    ImpotantLevel: 'VERY_HIGH',
-    StartDateDeadline: new Date('2023-01-01'),
-    EndDateDeadline: new Date('2023-02-02'),
-    Status: 'FINISHED',
-    CreatedBy: {
-      Avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-      FullName: 'Hieu'
+const getData = () => {
+  const task = new Task({
+    id: 1,
+    name: 'Task',
+    impotantLevel: 'VERY_HIGH',
+    startDateDeadline: new Date('2023-01-01'),
+    endDateDeadline: new Date('2023-02-02'),
+    status: 'FINISHED',
+    createdBy: {
+      avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
+      fullName: 'Hieu'
     } as User,
-    AssignedTasks: [
+    assignedTasks: [
       {
-        AssignedFor: {
-          User: {
-            Avatar:
+        assignedFor: {
+          user: {
+            avatar:
               'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            FullName: 'Hieu'
-          }
+            fullName: 'Hieu'
+          } as User
         }
       }
     ]
-  },
-  {
-    Id: 1,
-    Name: 'Task',
-    StartDateDeadline: new Date('2023-01-01'),
-    EndDateDeadline: new Date('2023-02-02'),
-    Status: 'FINISHED',
-    CreatedBy: {
-      Avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU'
-    } as User,
-    AssignedTasks: [
-      {
-        AssignedFor: {
-          User: {
-            Avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            FullName: 'Hieu'
-          }
-        }
-      }
-    ]
-  },
-  {
-    Id: 1,
-    Name: 'Task',
-    StartDateDeadline: new Date('2023-01-01'),
-    EndDateDeadline: new Date('2023-02-02'),
-    Status: 'FINISHED',
-    CreatedBy: {
-      Avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU'
-    } as User,
-    AssignedTasks: [
-      {
-        AssignedFor: {
-          User: {
-            Avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            FullName: 'Hieu'
-          }
-        }
-      }
-    ]
-  },
-  {
-    Id: 1,
-    Name: 'Task',
-    StartDateDeadline: new Date('2023-01-01'),
-    EndDateDeadline: new Date('2023-02-02'),
-    Status: 'FINISHED',
-    CreatedBy: {
-      Avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU'
-    } as User,
-    AssignedTasks: [
-      {
-        AssignedFor: {
-          User: {
-            Avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            FullName: 'Nguyễn Trung Hiếu'
-          }
-        }
-      }
-    ]
-  },
-  {
-    Id: 1,
-    Name: 'Task',
-    StartDateDeadline: new Date('2023-01-01'),
-    EndDateDeadline: new Date('2023-02-02'),
-    Status: 'NOT_STARTED_YET',
-    CreatedBy: {
-      Avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU'
-    } as User,
-    AssignedTasks: [
-      {
-        AssignedFor: {
-          User: {
-            Avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            FullName: 'Hieu'
-          }
-        }
-      },
-      {
-        AssignedFor: {
-          User: {
-            Avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            FullName: 'Hieu'
-          }
-        }
-      },
-      {
-        AssignedFor: {
-          User: {
-            Avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            FullName: 'Hieu'
-          }
-        }
-      },
-      {
-        AssignedFor: {
-          User: {
-            Avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            FullName: 'Hieu'
-          }
-        }
-      },
-      {
-        AssignedFor: {
-          User: {
-            Avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            FullName: 'Hieu'
-          }
-        }
-      }
-    ]
+  })
+  const list = []
+  for (let i = 0; i < 50; i++) {
+    task.id = i
+    list.push(task)
   }
-] as Task[]
+  console.log(list);
+  
+  return list
+}
 
 const column: Column[] = [
   {
-    id: 'Name',
+    id: 'name',
     label: 'Name',
     minWidth: 100,
     align: 'left'
   },
   {
-    id: 'CreatedBy',
+    id: 'createdBy',
     label: 'Created By',
     minWidth: 100,
     align: 'left',
     format: (value: any) => (
-      <Tooltip title={value?.FullName} placement='bottom'>
-        <Avatar alt='Test' src={value?.Avatar} sizes='small' />
+      <Tooltip title={value?.fullName} placement='bottom'>
+        <Avatar alt='Test' src={value?.avatar} sizes='small' />
       </Tooltip>
     )
   },
 
   {
-    id: 'StartDateDeadline',
+    id: 'startDateDeadline',
     label: 'Start Date',
     minWidth: 100,
     align: 'left',
     format: (value: any) => new Date(value).toLocaleDateString()
   },
   {
-    id: 'EndDateDeadline',
+    id: 'endDateDeadline',
     label: 'End Date',
     minWidth: 100,
     align: 'left',
     format: (value: any) => new Date(value).toLocaleDateString()
   },
   {
-    id: 'ImpotantLevel',
+    id: 'impotantLevel',
     label: 'Level',
     minWidth: 100,
     align: 'left',
@@ -216,7 +104,7 @@ const column: Column[] = [
       )
   },
   {
-    id: 'Status',
+    id: 'status',
     label: 'Status',
     minWidth: 100,
     align: 'left',
@@ -235,16 +123,16 @@ const column: Column[] = [
   },
 
   {
-    id: 'AssignedTasks',
-    label: 'Assign',
+    id: 'assignedTasks',
+    label: 'Assignee',
     minWidth: 100,
     align: 'left',
     format: (value: any[]) => (
       <AvatarGroup total={value?.length}>
         {value?.map((val, index) =>
           index < 2 ? (
-            <Tooltip key={index} title={val?.AssignedFor?.User?.FullName} placement='bottom'>
-              <Avatar alt='Test' src={val?.AssignedFor?.User?.Avatar} sizes='small' />
+            <Tooltip key={index} title={val?.assignedFor?.user?.fullName} placement='bottom'>
+              <Avatar alt='Test' src={val?.assignedFor?.user?.avatar} sizes='small' />
             </Tooltip>
           ) : (
             ''
@@ -279,20 +167,20 @@ export default function TaskListPage() {
     setAddNewModal(true)
   }
 
-   const handleClose = () => {
-     setAddNewModal(false)
-   }
+  const handleClose = () => {
+    setAddNewModal(false)
+  }
 
   return (
     <div>
       <Grid container spacing={4} style={{ margin: '5px' }}>
-        <Grid container xs={6} md={8} spacing={2}>
+        <Grid container xs={6} sm={8} spacing={2}>
           <Grid item xs={6} md={5}>
             <TextField
               fullWidth
               id='outlined-controlled'
               label='Seach'
-              value={searchValue}
+              value={searchValue || ''}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 setSearchValue(event.target.value)
               }}
@@ -340,7 +228,7 @@ export default function TaskListPage() {
           </Button>
         </Grid>
       </Grid>
-      <TableTaskCollapse column={column} row={taskList}></TableTaskCollapse>
+      <TableTaskCollapse column={column} row={getData()}></TableTaskCollapse>
       <Modal
         open={addNewModal}
         onClose={handleClose}

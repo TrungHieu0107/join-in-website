@@ -1,77 +1,77 @@
 import { Member, Task } from '.'
 
 export class AssignedTask {
-  private _TaskId: number | undefined
-  private _AssignedForId: number | undefined
-  private _AssignedById: number | undefined
-  private _AssignedDate: Date | undefined
-  private _Task: Task | undefined
-  private _AssignedFor: Member | undefined
-  private _AssignedBy: Member | undefined
+  private _taskId: number | undefined
+  private _assignedForId: number | undefined
+  private _assignedById: number | undefined
+  private _assignedDate: Date | undefined
+  private _task: Task | undefined
+  private _assignedFor: Member | undefined
+  private _assignedBy: Member | undefined
 
   constructor(value: any) {
-    this.TaskId = value?.TaskId
-    this.AssignedForId = value?.AssignedForId
-    this.AssignedById = value?.AssignedById
-    this.AssignedDate = value?.AssignedDate
-    this.Task = value?.Task
-    this.AssignedFor = value?.AssignedFor
-    this.AssignedBy = value?.AssignedBy
+    this.taskId = value?.taskId
+    this.assignedForId = value?.assignedForId
+    this.assignedById = value?.assignedById
+    this.assignedDate = value?.assignedDate
+    this.task = value?.task
+    this.assignedFor = value?.assignedFor
+    this.assignedBy = value?.assignedBy
   }
 
-  get TaskId() {
-    return this._TaskId
+  get taskId() {
+    return this._taskId
   }
 
-  set TaskId(val: number | undefined) {
-    this._TaskId = val
+  set taskId(val: number | undefined) {
+    this._taskId = val
   }
 
-  get AssignedForId() {
-    return this._AssignedForId
+  get assignedForId() {
+    return this._assignedForId
   }
 
-  set AssignedForId(val: number | undefined) {
-    this._AssignedForId = val
+  set assignedForId(val: number | undefined) {
+    this._assignedForId = val
   }
 
-  get AssignedById() {
-    return this._AssignedById
+  get assignedById() {
+    return this._assignedById
   }
 
-  set AssignedById(val: number | undefined) {
-    this._AssignedById = val
+  set assignedById(val: number | undefined) {
+    this._assignedById = val
   }
 
-  get AssignedDate() {
-    return this._AssignedDate
+  get assignedDate() {
+    return this._assignedDate
   }
 
-  set AssignedDate(val: Date | undefined) {
-    this._AssignedDate = val
+  set assignedDate(val: Date | undefined) {
+    this._assignedDate = val
   }
 
-  get Task() {
-    return this._Task
+  get task() {
+    return this._task
   }
 
-  set Task(val: Task | undefined) {
-    this._Task = val
+  set task(val: Task | undefined) {
+    this._task = val
   }
 
-  get AssignedFor() {
-    return this._AssignedFor
+  get assignedFor() {
+    return this._assignedFor
   }
 
-  set AssignedFor(val: Member | undefined) {
-    this._AssignedFor = val
+  set assignedFor(val: Member | undefined) {
+    this._assignedFor = val
   }
 
-  get AssignedBy() {
-    return this._AssignedBy
+  get assignedBy() {
+    return this._assignedBy
   }
 
-  set AssignedBy(val: Member | undefined) {
-    this._AssignedBy = val
+  set assignedBy(val: Member | undefined) {
+    this._assignedBy = val
   }
 }

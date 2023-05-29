@@ -1,12 +1,12 @@
-import { AssignedTask, Group, User } from './index'
+import { AssignedTask, Group, User, Comment } from './index'
 
 export class Task {
-  private _id: number | undefined
+  private _id: number | undefined | string
   private _name: string | undefined
-  private _startDateDeadline: Date | undefined
-  private _endDateDeadline: Date | undefined
-  private _finishedDate: Date | undefined
-  private _impotantLevel: 'OPTIONAL' | ' LOW' | ' MEDIUM' | ' HIGH' | ' VERY_HIGH' | undefined
+  private _startDateDeadline: string | undefined
+  private _endDateDeadline: string | undefined
+  private _finishedDate: string | undefined
+  private _impotantLevel: 'OPTIONAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'VERY_HIGH' | undefined
   private _estimatedDays: number | undefined
   private _description: string | undefined
   private _status: 'NOT_STARTED_YET' | 'WORKING' | 'FINISHED' | undefined
@@ -45,7 +45,7 @@ export class Task {
     return this._id
   }
 
-  set id(val: number | undefined) {
+  set id(val: number | undefined | string) {
     this._id = val
   }
 
@@ -61,7 +61,7 @@ export class Task {
     return this._startDateDeadline
   }
 
-  set startDateDeadline(val: Date | undefined) {
+  set startDateDeadline(val: string | undefined) {
     this._startDateDeadline = val
   }
 
@@ -69,7 +69,7 @@ export class Task {
     return this._endDateDeadline
   }
 
-  set endDateDeadline(val: Date | undefined) {
+  set endDateDeadline(val: string | undefined) {
     this._endDateDeadline = val
   }
 
@@ -77,7 +77,7 @@ export class Task {
     return this._finishedDate
   }
 
-  set finishedDate(val: Date | undefined) {
+  set finishedDate(val: string | undefined) {
     this._finishedDate = val
   }
 
@@ -85,7 +85,7 @@ export class Task {
     return this._impotantLevel
   }
 
-  set impotantLevel(val: 'OPTIONAL' | ' LOW' | ' MEDIUM' | ' HIGH' | ' VERY_HIGH' | undefined) {
+  set impotantLevel(val: 'OPTIONAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'VERY_HIGH' | undefined) {
     this._impotantLevel = val
   }
 
