@@ -149,9 +149,7 @@ const TabAccount = () => {
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
               <InputLabel>Major</InputLabel>
-              <Select label='Role' defaultValue='IT'
-
-              >
+              <Select label='Role' defaultValue='IT'>
                 <MenuItem value='IT'>Information Technology</MenuItem>
                 <MenuItem value='BA'>Business Administration</MenuItem>
                 <MenuItem value='EN'>English</MenuItem>

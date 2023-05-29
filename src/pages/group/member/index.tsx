@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ChangeEvent } from 'react'
+import { useState, ChangeEvent, ReactNode } from 'react'
 
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
@@ -10,54 +10,69 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
-import { Box, Alert, Button, IconButton, InputAdornment, Menu, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
+import { Box, Button, IconButton, InputAdornment, Menu, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Chip } from '@mui/material'
 import { DotsHorizontal, Magnify } from 'mdi-material-ui'
-import { GroupRenderType } from 'src/constants'
-import { GroupRenderProps } from 'src/type/types'
-import { useRouter } from 'next/router'
-import GroupForm from './GroupForm'
+import InviteForm from 'src/views/group/member/InviteForm'
+import { StatusObj } from 'src/constants/task-status'
 
 interface Column {
-  id: 'name' | 'subject' | 'member' | 'leader'
+  id: 'name' | 'role'| 'major' | 'joindate' | 'status'
   label: string
   minWidth?: number
   align?: 'right'
-  format?: (value: number) => string
+  format?: (value: any) => string | ReactNode
 }
 
 const columns: readonly Column[] = [
   { id: 'name', label: 'Name', minWidth: 200 },
-  { id: 'subject', label: 'Subject', minWidth: 100 },
+  { id: 'role', label: 'Role', minWidth: 100 },
   {
-    id: 'member',
-    label: 'Member',
+    id: 'major',
+    label: 'Major',
     minWidth: 100
   },
   {
-    id: 'leader',
-    label: 'Leader',
-    minWidth: 200
+    id: 'joindate',
+    label: 'Join Date',
+    minWidth: 100
+  },
+  {
+    id: 'status',
+    label: 'Status',
+    minWidth: 200,
+    format: (value: any) => (
+      <Chip
+        label={value}
+        color={statusObj[value].color}
+        sx={{
+          height: 24,
+          fontSize: '0.75rem',
+          textTransform: 'capitalize',
+          '& .MuiChip-label': { fontWeight: 500 }
+        }}
+      />
+    )
   }
 ]
 
+const statusObj: StatusObj = {
+  ACTIVE: { color: 'info' },
+  OUT: { color: 'error' }
+}
+
 const rows = [
-  { id: '1', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '2', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '3', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '4', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '5', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '6', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '7', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' }
+  { id: '1', name: 'Xuan Kien',role: 'Member', major: 'Information Technology', joindate: '30-5-2023', status: 'ACTIVE' },
+  { id: '2', name: 'Trung Hieu',role: 'Member', major: 'Information Technology', joindate: '30-5-2023', status: 'ACTIVE' },
+  { id: '3', name: 'Quoc Bao',role: 'Member', major: 'Information Technology', joindate: '30-5-2023', status: 'OUT' },
 ]
 
-export default function TabGroup({ renderType }: GroupRenderProps) {
+const Application = () =>{
   // ** States
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedRow, setSelectedRow] = useState<any>(null)
-  const router = useRouter()
 
   const [open, setOpen] = useState(false);
 
@@ -87,7 +102,6 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const handleViewDetail = () => {
     // Handle view detail action
-    router.push('/group/task')
     handleOptionsClose()
   }
 
@@ -104,29 +118,9 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
-  let result: React.ReactNode
-
-  // Load API
-  switch (renderType) {
-    case GroupRenderType.All:
-      result = 'All'
-      break
-    case GroupRenderType.Owner:
-      result = 'Owner'
-      break
-    case GroupRenderType.Member:
-      result = 'Member'
-      break
-    default:
-      // get all
-      return null
-  }
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <Alert severity='success' color='info'>
-        {result} — demo tab! (views/my-groups/TabGroup.tsx/line102)
-      </Alert>
       <Box
         sx={{
           ml: 4,
@@ -149,12 +143,12 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           }}
         />
         <Button size='small' variant='contained' sx={{marginRight: '20px'}} onClick={handleClickOpen}>
-          Create Group
+          Invite
         </Button>
         <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Create Group</DialogTitle>
+        <DialogTitle>Invite</DialogTitle>
         <DialogContent>
-          <GroupForm/>
+          <InviteForm/>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
@@ -189,8 +183,8 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
                     return (
                       <TableCell key={column.id} align={column.align}>
-                        {/* {column.format && typeof value === 'number' ? column.format(value) : value} */}
-                        {value}
+                        {column.format && typeof value === 'string' ? column.format(value) : value}
+                        {/* {value} */}
                       </TableCell>
                     )
                   })}
@@ -234,3 +228,5 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     </Paper>
   )
 }
+
+export default Application
