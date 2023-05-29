@@ -15,6 +15,7 @@ import { VerticalNavItemsType } from 'src/@core/layouts/types'
 import {
   Account,
   AccountGroup,
+  Application,
   ArrowLeftCircleOutline,
   Cog,
   CommentAlert,
@@ -93,7 +94,7 @@ export default function Navigation(): VerticalNavItemsType {
       }
     ]
   }
-  
+
   return [
     {
       title: 'My Groups',
