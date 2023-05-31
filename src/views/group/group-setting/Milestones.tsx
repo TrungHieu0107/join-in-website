@@ -32,12 +32,24 @@ const steps = [
 
 export default function Milestone() {
   const [activeStep, setActiveStep] = React.useState(0)
+  const [currentStep, setcurrentStep] = React.useState(0)
 
   const handleNext = () => {
+    setcurrentStep(activeStep +1)
     setActiveStep(prevActiveStep => prevActiveStep + 1)
   }
 
+  const handleChangeStep = (index:number) => {
+    if (index === currentStep){
+      setcurrentStep(activeStep);
+    } else {
+      setcurrentStep(index);
+    }
+
+  }
+
   const handleBack = () => {
+    setcurrentStep(activeStep -1)
     setActiveStep(prevActiveStep => prevActiveStep - 1)
   }
 
@@ -49,17 +61,22 @@ export default function Milestone() {
     <Grid container spacing={10}>
       <Grid item xs={6} md={6}>
         <Card>
+          <Box sx={{  display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <CardHeader
             title='Change Milestone'
           />
+          <Button variant='contained' size='small' sx={{mr:5}}>
+            Add New
+          </Button>
+        </Box>
           <CardContent>
             <Stepper activeStep={activeStep} orientation='vertical'>
               {steps.map((step, index) => (
-                <Step key={step.label}>
-                  <StepLabel optional={index === 2 ? <Typography variant='caption'>Last step</Typography> : null}>
+                <Step key={step.label} expanded= {currentStep == index}  >
+                  <StepLabel onClick={()=>handleChangeStep(index)} optional={index === 2 ? <Typography variant='caption'>Last step</Typography> : null}>
                     {step.label}
                   </StepLabel>
-                  <StepContent>
+                  <StepContent >
                     <Typography>{step.description}</Typography>
                     <Box sx={{ mb: 2 }}>
                       <div>
@@ -85,11 +102,12 @@ export default function Milestone() {
             )}
           </CardContent>
         </Card>
+
       </Grid>
       <Grid item xs={6} md={6}>
         <Card>
           <CardHeader
-          title='Create Form'
+          title='Create | Update Step 2'
           />
           <CardContent>
             <MilestoneForm/>

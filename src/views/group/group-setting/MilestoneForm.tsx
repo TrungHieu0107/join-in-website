@@ -8,7 +8,7 @@ import Button from '@mui/material/Button'
 
 // ** Icons Imports
 import { InputAdornment } from '@mui/material'
-import { Pen,  InformationVariant, Numeric} from 'mdi-material-ui'
+import { Pen,  InformationVariant} from 'mdi-material-ui'
 
 
 const MilestoneForm  = () => {
@@ -25,18 +25,6 @@ const MilestoneForm  = () => {
               startAdornment: (
                 <InputAdornment position='start'>
                   <Pen />
-                </InputAdornment>
-              )
-            }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth type='number' label='Order' placeholder='1'
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <Numeric />
                 </InputAdornment>
               )
             }}
@@ -67,8 +55,11 @@ const MilestoneForm  = () => {
             <Button variant='contained' sx={{ marginRight: 3.5 }}>
               Create
             </Button>
-            <Button type='reset' variant='outlined' color='secondary'>
+            <Button type='reset' variant='outlined' color='secondary' sx={{ marginRight: 3.5 }}>
               Reset
+            </Button>
+            <Button  variant='outlined' color='error'>
+              Delete
             </Button>
           </Grid>
         </Grid>

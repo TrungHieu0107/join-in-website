@@ -230,7 +230,7 @@ export default function TaskListPage() {
             style={{ marginRight: '15px' }}
             onClick={handleClickOpen}
           >
-            Add new
+            Add New Task
           </Button>
         </Grid>
       </Grid>
