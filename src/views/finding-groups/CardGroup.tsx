@@ -6,8 +6,14 @@ import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import AvatarGroup from '@mui/material/AvatarGroup'
+import { Button, ButtonGroup } from '@mui/material'
 
 const CardGroup = () => {
+
+  const handleClickOpen = () => {
+    //handle Click Open View Group
+  }
+
   return (
     <Card sx={{ position: 'relative' }}>
       <CardMedia sx={{ height: '12.625rem' }} image='/images/cards/glass-house.png' />
@@ -27,20 +33,36 @@ const CardGroup = () => {
         <Box
           sx={{
             mt: 5.75,
-            mb: 8.75,
+            mb: 3,
             display: 'flex',
             flexWrap: 'wrap',
-            alignItems: 'center',
+            alignItems: 'start',
             justifyContent: 'space-between'
           }}
         >
           <Box sx={{ mr: 2, mb: 1, display: 'flex', flexDirection: 'column' }}>
             <Typography variant='h6'>JoinIn Group</Typography>
-            <Typography variant='caption'>EXE201</Typography>
+            <Typography variant='caption'>
+              Subject: <b>EXE201</b>
+            </Typography>
+            <Typography variant='caption'>
+              Class: <b>EXE201_1</b>{' '}
+            </Typography>
+            <Typography variant='caption'>
+              School: <b>FPTU</b>{' '}
+            </Typography>
           </Box>
-          {/* <Button variant='contained'>Send Request</Button> */}
+          <Button variant='contained' onClick={handleClickOpen}>Open</Button>
         </Box>
-        <Box sx={{ gap: 2, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
+
+        <ButtonGroup variant='text' aria-label='text button group' size='small'>
+          <Typography variant='body1'>Recruit: </Typography>
+          <Button>IT</Button>
+          <Button>BA</Button>
+          <Button>EN</Button>
+        </ButtonGroup>
+
+        <Box sx={{mt: 3, gap: 2, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant='subtitle2' sx={{ whiteSpace: 'nowrap', color: 'text.primary' }}>
             8 members
           </Typography>

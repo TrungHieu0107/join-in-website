@@ -8,17 +8,25 @@ import { styled } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
-import FormControl from '@mui/material/FormControl'
 import Button, { ButtonProps } from '@mui/material/Button'
 
 // ** Icons Imports
-import { FormControlLabel, FormLabel, InputAdornment, Radio, RadioGroup } from '@mui/material'
-import { AccountGroup, AccountMultiple, AlphaACircleOutline, Book,  InformationVariant, School, TownHall } from 'mdi-material-ui'
+import {  Divider, InputAdornment } from '@mui/material'
+import { AccountGroup, AlphaACircleOutline, Book,  InformationVariant, School, TownHall } from 'mdi-material-ui'
+import Editor from '../dialog/editor'
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
   height: 120,
   marginRight: theme.spacing(6.25),
+  borderRadius: theme.shape.borderRadius
+}))
+
+const ImgBackgroundStyled = styled('img')(({ theme }) => ({
+  width: '100%',
+  height: 200,
+  marginRight: theme.spacing(6.25),
+  marginBottom: theme.spacing(6.25),
   borderRadius: theme.shape.borderRadius
 }))
 
@@ -43,6 +51,7 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
 const GroupForm  = () => {
   // ** State
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
+  const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
 
   const onChange = (file: ChangeEvent) => {
     const reader = new FileReader()
@@ -54,33 +63,21 @@ const GroupForm  = () => {
     }
   }
 
+  const onChangeBackground = (file: ChangeEvent) => {
+    const reader = new FileReader()
+    const { files } = file.target as HTMLInputElement
+    if (files && files.length !== 0) {
+      reader.onload = () => setImgBackground(reader.result as string)
+
+      reader.readAsDataURL(files[0])
+    }
+  }
+
   return (
     <CardContent>
       <form>
         <Grid container spacing={7}>
-          <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ImgStyled src={imgSrc} alt='Profile Pic' />
-              <Box>
-                <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
-                  Upload New Photo
-                  <input
-                    hidden
-                    type='file'
-                    onChange={onChange}
-                    accept='image/png, image/jpeg'
-                    id='account-settings-upload-image'
-                  />
-                </ButtonStyled>
-                <ResetButtonStyled color='error' variant='outlined' onClick={() => setImgSrc('/images/avatars/1.png')}>
-                  Reset
-                </ResetButtonStyled>
-                <Typography variant='body2' sx={{ marginTop: 5 }}>
-                  Allowed PNG or JPEG. Max size of 800K.
-                </Typography>
-              </Box>
-            </Box>
-          </Grid>
+
 
           <Grid item xs={12} >
             <TextField fullWidth label='Group Name' placeholder='Group Name'
@@ -136,7 +133,7 @@ const GroupForm  = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          {/* <Grid item xs={12} sm={6}>
             <TextField fullWidth type='number' label='Size' placeholder='1' defaultValue='1'
             InputProps={{
               startAdornment: (
@@ -146,57 +143,76 @@ const GroupForm  = () => {
               )
             }}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl>
-              <FormLabel sx={{ fontSize: '0.875rem' }}>Visibile</FormLabel>
-              <RadioGroup row defaultValue='public' aria-label='visibile' name='account-settings-info-radio'>
-                <FormControlLabel value='public' label='Public' control={<Radio />} />
-                <FormControlLabel value='private' label='Private' control={<Radio />} />
-              </RadioGroup>
-            </FormControl>
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12} sm={12}>
-          <TextField
-             id="skills"
-            label="Skills"
-            multiline
-            rows={4}
-            placeholder='Your skills'
-            defaultValue="Your skills"
-            fullWidth
-            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <AlphaACircleOutline />
-                </InputAdornment>
-              )
-            }}
-          />
+          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <AlphaACircleOutline sx={{ marginRight: 1 }} />
+              <Typography variant='body1'>Skills</Typography>
+            </Box>
+            <Editor name='skill' onChange={undefined} value={undefined} />
           </Grid>
           <Grid item xs={12} sm={12}>
-          <TextField
-             id="description"
-            label="Description"
-            multiline
-            rows={4}
-            placeholder='Description'
-            defaultValue="Description"
-            fullWidth
-            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <InformationVariant />
-                </InputAdornment>
-              )
-            }}
-          />
+          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <InformationVariant sx={{ marginRight: 1 }} />
+              <Typography variant='body1'>Description</Typography>
+            </Box>
+            <Editor name='description' onChange={undefined} value={undefined} />
+          </Grid>
+
+          <Grid item xs={12}  sx={{ marginTop: 4.8, marginBottom: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <ImgStyled src={imgSrc} alt='Profile Pic' />
+              <Box>
+                <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
+                  Upload Logo
+                  <input
+                    hidden
+                    type='file'
+                    onChange={onChange}
+                    accept='image/png, image/jpeg'
+                    id='account-settings-upload-image'
+                  />
+                </ButtonStyled>
+                <ResetButtonStyled color='error' variant='outlined' onClick={() => setImgSrc('/images/avatars/1.png')}>
+                  Reset
+                </ResetButtonStyled>
+                <Typography variant='body2' sx={{ marginTop: 5 }}>
+                  Allowed PNG or JPEG. Max size of 800K.
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={12}  sx={{ marginTop: 4.8, marginBottom: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+              <ImgBackgroundStyled src={imgBackgroud} alt='Profile Pic' />
+              <Box>
+                <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-background'>
+                  Upload Background
+                  <input
+                    hidden
+                    type='file'
+                    onChange={onChangeBackground}
+                    accept='image/png, image/jpeg'
+                    id='account-settings-upload-background'
+                  />
+                </ButtonStyled>
+                <ResetButtonStyled
+                  color='error'
+                  variant='outlined'
+                  onClick={() => setImgBackground('/images/cards/background-user.png')}
+                >
+                  Reset
+                </ResetButtonStyled>
+                <Typography variant='body2' sx={{ marginTop: 5 }}>
+                  Allowed PNG or JPEG. Max size of 800K.
+                </Typography>
+              </Box>
+            </Box>
           </Grid>
 
           <Grid item xs={12}>
+          <Divider sx={{mb: 7}}/>
             <Button variant='contained' sx={{ marginRight: 3.5 }}>
               Create
             </Button>

@@ -10,10 +10,12 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
-import { Box, Button, IconButton, InputAdornment, Menu, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Chip } from '@mui/material'
-import { DotsHorizontal, Magnify } from 'mdi-material-ui'
+import { Box, Button, IconButton, InputAdornment, Menu, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Chip, DialogContentText, Typography, Grid, Avatar, FormControl, InputLabel, Select } from '@mui/material'
+import { Account, Close, DotsHorizontal, ExitToApp, InformationVariant, Magnify } from 'mdi-material-ui'
 import InviteForm from 'src/views/group/member/InviteForm'
 import { StatusObj } from 'src/constants/task-status'
+import AvatarName from 'src/layouts/components/AvatarName'
+import { useRouter } from 'next/router'
 
 interface Column {
   id: 'name' | 'role'| 'major' | 'joindate' | 'status'
@@ -61,12 +63,16 @@ const statusObj: StatusObj = {
 }
 
 const rows = [
-  { id: '1', name: 'Xuan Kien',role: 'Member', major: 'Information Technology', joindate: '30-5-2023', status: 'ACTIVE' },
-  { id: '2', name: 'Trung Hieu',role: 'Member', major: 'Information Technology', joindate: '30-5-2023', status: 'ACTIVE' },
-  { id: '3', name: 'Quoc Bao',role: 'Member', major: 'Information Technology', joindate: '30-5-2023', status: 'OUT' },
+  { id: '1', avatar: '/images/avatars/2.png', name: 'Xuan Kien',role: 'Member', major: 'Information Technology', joindate: '30-5-2023', status: 'ACTIVE' },
+  { id: '2', avatar: '/images/avatars/2.png', name: 'Trung Hieu',role: 'Member', major: 'Information Technology', joindate: '30-5-2023', status: 'ACTIVE' },
+  { id: '3', avatar: '/images/avatars/2.png', name: 'Quoc Bao',role: 'Member', major: 'Information Technology', joindate: '30-5-2023', status: 'OUT' },
 ]
 
 const Application = () =>{
+
+  const router = useRouter()
+  const imgSrc = '/images/avatars/1.png'
+
   // ** States
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -75,6 +81,26 @@ const Application = () =>{
   const [selectedRow, setSelectedRow] = useState<any>(null)
 
   const [open, setOpen] = useState(false);
+
+  const [openAlertDelete, setOpenAlertDelete] = useState(false);
+
+  const [openPopupChangeRole, setOpenPopupChangeRole] = useState(false);
+
+  const handleClickPopupChangeRole = () => {
+    setOpenPopupChangeRole(true);
+  };
+
+  const handlePopupChangeRole = () => {
+    setOpenPopupChangeRole(false);
+  };
+
+  const handleClickOpenAlertDelete = () => {
+    setOpenAlertDelete(true);
+  };
+
+  const handleCloseAlertDelete = () => {
+    setOpenAlertDelete(false);
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -85,6 +111,7 @@ const Application = () =>{
   };
 
   const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>, row: any) => {
+    event.stopPropagation();
     setAnchorEl(event.currentTarget)
     setSelectedRow(row)
     console.log(selectedRow)
@@ -97,16 +124,19 @@ const Application = () =>{
 
   const handleDelete = () => {
     // Handle delete action
+    handleClickOpenAlertDelete()
     handleOptionsClose()
   }
 
   const handleViewDetail = () => {
     // Handle view detail action
+    router.push('/profile')
     handleOptionsClose()
   }
 
   const handleChangeStatus = () => {
     // Handle change status action
+    handleClickPopupChangeRole()
     handleOptionsClose()
   }
 
@@ -146,13 +176,17 @@ const Application = () =>{
           Invite
         </Button>
         <Dialog open={open} onClose={handleClose}>
+        <Box sx={{  display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <DialogTitle>Invite</DialogTitle>
+        <DialogActions>
+          <Button onClick={handleClose}>
+            <Close sx={{color: 'red'}}/>
+          </Button>
+        </DialogActions>
+        </Box>
         <DialogContent>
           <InviteForm/>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-        </DialogActions>
       </Dialog>
       </Box>
 
@@ -174,7 +208,7 @@ const Application = () =>{
           <TableBody>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.id}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={handleViewDetail}>
                   <TableCell align='center' sx={{ minWidth: '20px' }}>
                     {page * rowsPerPage + index + 1}
                   </TableCell>
@@ -183,8 +217,16 @@ const Application = () =>{
 
                     return (
                       <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'string' ? column.format(value) : value}
+                        {/* {column.format && typeof value === 'string' ? column.format(value) : value} */}
                         {/* {value} */}
+                        {column.id === 'name' ? (
+                          <AvatarName
+                            avatar={ row.avatar }
+                            title={value}
+                          />
+                        ) : <div>
+                          {column.format && typeof value === 'string' ? column.format(value) : value}
+                          </div>}
                       </TableCell>
                     )
                   })}
@@ -211,9 +253,15 @@ const Application = () =>{
             horizontal: 'center'
           }}
         >
-          <MenuItem onClick={handleViewDetail}>View Detail</MenuItem>
-          <MenuItem onClick={handleChangeStatus}>Change Status</MenuItem>
-          <MenuItem onClick={handleDelete}>Delete</MenuItem>
+          <MenuItem onClick={handleViewDetail}>
+          <InformationVariant fontSize='small' sx={{mr:3}} /> Detail
+          </MenuItem>
+          <MenuItem onClick={handleChangeStatus}>
+          <Account fontSize='small' sx={{mr:3}} /> Change Role
+          </MenuItem>
+          <MenuItem onClick={handleDelete}>
+            <ExitToApp fontSize='small' sx={{mr:3}} /> Move Out
+          </MenuItem>
         </Menu>
       </TableContainer>
       <TablePagination
@@ -225,6 +273,73 @@ const Application = () =>{
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+
+{/* Dialog Cofirm Kick out member */}
+      <Dialog
+        open={openAlertDelete}
+        onClose={handleCloseAlertDelete}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Kicked out of the group EXE"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+          Do you want to kick <b>Pham Xuan Kien</b> out of the group <b>EXE</b>?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAlertDelete}>Cancel</Button>
+          <Button onClick={handleCloseAlertDelete} autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog change role */}
+      <Dialog
+        open={openPopupChangeRole}
+        onClose={handlePopupChangeRole}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Change Role"}
+        </DialogTitle>
+        <DialogContent>
+        <form>
+        <Grid container spacing={7}>
+          <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+              <Avatar src={imgSrc} alt='Profile Pic'  sx={{ width: 120, height: 120 }}/>
+              <Typography variant='h5'>Pham Xuan Kien</Typography>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={12}>
+          <FormControl fullWidth>
+              <InputLabel>Role</InputLabel>
+              <Select label='Role' defaultValue='member'>
+                <MenuItem value='leader'>Leader</MenuItem>
+                <MenuItem value='sub-leader'>Sub Leader</MenuItem>
+                <MenuItem value='member'>Member</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+      </form>
+      <Typography mt={7}>
+          Do you want to change <b>member</b> to <b>sub-leader</b>?
+      </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handlePopupChangeRole}>Cancel</Button>
+          <Button onClick={handlePopupChangeRole} autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   )
 }

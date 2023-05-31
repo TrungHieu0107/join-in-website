@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ChangeEvent } from 'react'
+import { useState, ChangeEvent, ReactNode } from 'react'
 
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
@@ -10,44 +10,130 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
-import { Box, Alert, Button, IconButton, InputAdornment, Menu, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
-import { DotsHorizontal, Magnify } from 'mdi-material-ui'
+import {
+  Box,
+  Alert,
+  Button,
+  IconButton,
+  InputAdornment,
+  Menu,
+  MenuItem,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText
+} from '@mui/material'
+import { Close, DotsHorizontal, ExitToApp, InformationVariant, Magnify } from 'mdi-material-ui'
 import { GroupRenderType } from 'src/constants'
 import { GroupRenderProps } from 'src/type/types'
 import { useRouter } from 'next/router'
 import GroupForm from './GroupForm'
+import AvatarName from 'src/layouts/components/AvatarName'
 
 interface Column {
-  id: 'name' | 'subject' | 'member' | 'leader'
+  id: 'name' | 'subject' | 'class' | 'member' | 'leader'
   label: string
   minWidth?: number
-  align?: 'right'
-  format?: (value: number) => string
+  align?: 'right' | 'center'
+  format?: (value: number) => string | ReactNode
 }
 
 const columns: readonly Column[] = [
   { id: 'name', label: 'Name', minWidth: 200 },
+
   { id: 'subject', label: 'Subject', minWidth: 100 },
+
   {
     id: 'member',
     label: 'Member',
+    align: 'center',
     minWidth: 100
   },
   {
     id: 'leader',
     label: 'Leader',
     minWidth: 200
+  },
+  {
+    id: 'class',
+    label: 'Class',
+    minWidth: 100
   }
 ]
 
 const rows = [
-  { id: '1', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '2', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '3', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '4', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '5', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '6', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' },
-  { id: '7', name: 'JoinIn Group', subject: 'EXE201', member: '4/5', leader: 'Thanh Huy' }
+  {
+    id: '1',
+    name: 'JoinIn Group',
+    avatarGroup: '/images/avatars/1.png',
+    class: 'EXE201_1',
+    subject: 'EXE201',
+    member: '4/5',
+    leader: 'Thanh Huy',
+    avatarLeader: '/images/avatars/2.png'
+  },
+  {
+    id: '2',
+    name: 'JoinIn Group',
+    avatarGroup: '/images/avatars/1.png',
+    class: 'EXE201_1',
+    subject: 'EXE201',
+    member: '4/5',
+    leader: 'Thanh Huy',
+    avatarLeader: '/images/avatars/2.png'
+  },
+  {
+    id: '3',
+    name: 'JoinIn Group',
+    avatarGroup: '/images/avatars/1.png',
+    class: 'EXE201_1',
+    subject: 'EXE201',
+    member: '4/5',
+    leader: 'Thanh Huy',
+    avatarLeader: '/images/avatars/2.png'
+  },
+  {
+    id: '4',
+    name: 'JoinIn Group',
+    avatarGroup: '/images/avatars/1.png',
+    class: 'EXE201_1',
+    subject: 'EXE201',
+    member: '4/5',
+    leader: 'Thanh Huy',
+    avatarLeader: '/images/avatars/2.png'
+  },
+  {
+    id: '5',
+    name: 'JoinIn Group',
+    avatarGroup: '/images/avatars/1.png',
+    class: 'EXE201_1',
+    subject: 'EXE201',
+    member: '4/5',
+    leader: 'Thanh Huy',
+    avatarLeader: '/images/avatars/2.png'
+  },
+  {
+    id: '6',
+    name: 'JoinIn Group',
+    avatarGroup: '/images/avatars/1.png',
+    class: 'EXE201_1',
+    subject: 'EXE201',
+    member: '4/5',
+    leader: 'Thanh Huy',
+    avatarLeader: '/images/avatars/2.png'
+  },
+  {
+    id: '7',
+    name: 'JoinIn Group',
+    avatarGroup: '/images/avatars/1.png',
+    class: 'EXE201_1',
+    subject: 'EXE201',
+    member: '4/5',
+    leader: 'Thanh Huy',
+    avatarLeader: '/images/avatars/2.png'
+  }
 ]
 
 export default function TabGroup({ renderType }: GroupRenderProps) {
@@ -59,17 +145,28 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   const [selectedRow, setSelectedRow] = useState<any>(null)
   const router = useRouter()
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
+
+  const [openAlert, setOpenAlert] = useState(false);
+
+  const handleClickOpenAlert = () => {
+    setOpenAlert(true);
+  };
+
+  const handleCloseAlert = () => {
+    setOpenAlert(false);
+  };
 
   const handleClickOpen = () => {
-    setOpen(true);
-  };
+    setOpen(true)
+  }
 
   const handleClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>, row: any) => {
+    event.stopPropagation();
     setAnchorEl(event.currentTarget)
     setSelectedRow(row)
     console.log(selectedRow)
@@ -82,17 +179,13 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const handleDelete = () => {
     // Handle delete action
+    handleClickOpenAlert();
     handleOptionsClose()
   }
 
   const handleViewDetail = () => {
     // Handle view detail action
     router.push('/group/task')
-    handleOptionsClose()
-  }
-
-  const handleChangeStatus = () => {
-    // Handle change status action
     handleOptionsClose()
   }
 
@@ -127,6 +220,9 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
       <Alert severity='success' color='info'>
         {result} — demo tab! (views/my-groups/TabGroup.tsx/line102)
       </Alert>
+
+
+
       <Box
         sx={{
           ml: 4,
@@ -148,18 +244,22 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             )
           }}
         />
-        <Button size='small' variant='contained' sx={{marginRight: '20px'}} onClick={handleClickOpen}>
+        <Button size='small' variant='contained' sx={{ marginRight: '20px' }} onClick={handleClickOpen}>
           Create Group
         </Button>
         <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Create Group</DialogTitle>
-        <DialogContent>
-          <GroupForm/>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <DialogTitle>Create Group</DialogTitle>
+            <DialogActions>
+              <Button onClick={handleClose}>
+                <Close sx={{ color: 'red' }} />
+              </Button>
+            </DialogActions>
+          </Box>
+          <DialogContent>
+            <GroupForm />
+          </DialogContent>
+        </Dialog>
       </Box>
 
       <TableContainer sx={{ maxHeight: 440 }}>
@@ -180,7 +280,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           <TableBody>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.id}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={handleViewDetail}>
                   <TableCell align='center' sx={{ minWidth: '20px' }}>
                     {page * rowsPerPage + index + 1}
                   </TableCell>
@@ -190,7 +290,14 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
                     return (
                       <TableCell key={column.id} align={column.align}>
                         {/* {column.format && typeof value === 'number' ? column.format(value) : value} */}
-                        {value}
+                        {column.id === 'name' || column.id === 'leader' ? (
+                          <AvatarName
+                            avatar={column.id === 'name' ? row.avatarGroup : row.avatarLeader}
+                            title={value}
+                          />
+                        ) : (
+                          value
+                        )}
                       </TableCell>
                     )
                   })}
@@ -217,11 +324,37 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             horizontal: 'center'
           }}
         >
-          <MenuItem onClick={handleViewDetail}>View Detail</MenuItem>
-          <MenuItem onClick={handleChangeStatus}>Change Status</MenuItem>
-          <MenuItem onClick={handleDelete}>Delete</MenuItem>
+          <MenuItem onClick={handleViewDetail}>
+          <InformationVariant fontSize='small' sx={{mr:3}} /> Detail
+          </MenuItem>
+          <MenuItem onClick={handleDelete}>
+          <ExitToApp fontSize='small' sx={{mr:3}} /> Out Group
+            </MenuItem>
         </Menu>
       </TableContainer>
+
+      <Dialog
+        open={openAlert}
+        onClose={handleCloseAlert}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Group EXE"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Do you want to move out this group?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAlert}>Cancel</Button>
+          <Button onClick={handleCloseAlert} autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'

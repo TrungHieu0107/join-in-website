@@ -9,7 +9,7 @@ function Editor({ onChange, name, value }) {
   const [editorLoaded, setEditorLoaded] = useState(false)
   const { CKEditor, ClassicEditor } = editorRef.current || {}
 
-  useEffect(async () => {
+  useEffect(() => {
     editorRef.current = {
       CKEditor: require('@ckeditor/ckeditor5-react').CKEditor,
       ClassicEditor: require('@ckeditor/ckeditor5-build-classic')

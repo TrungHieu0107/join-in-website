@@ -112,11 +112,6 @@ export default function Navigation(): VerticalNavItemsType {
       path: '/finding-groups'
     },
     {
-      title: 'Options',
-      icon: Cog,
-      path: '/options'
-    },
-    {
       sectionTitle: 'Personal'
     },
     {

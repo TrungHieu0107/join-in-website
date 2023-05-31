@@ -3,7 +3,7 @@ import { Task, User } from 'src/models/class'
 import { Column } from 'src/models/common/Column'
 import TableTaskCollapse from 'src/views/task/table/TableTaskCollapse'
 import Grid from '@mui/material/Grid'
-import { Avatar, AvatarGroup, Button, TextField, Fade, Box } from '@mui/material'
+import {Card,  Avatar, AvatarGroup, Button, TextField, Fade, Box, CardContent, CardHeader } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { Magnify, Plus } from 'mdi-material-ui'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -14,11 +14,13 @@ import Modal from '@mui/material/Modal'
 import DialogCreateNewTask from 'src/views/dialog/DialogAddNewTask'
 
 import 'react-datepicker/dist/react-datepicker.css'
+import CustomizedSteppers from 'src/layouts/components/CustomizedSteppers'
 
 const getData = () => {
   const task = new Task({
     id: 1,
     name: 'Task',
+    estimatedDays: 2,
     impotantLevel: 'VERY_HIGH',
     startDateDeadline: new Date('2023-01-01'),
     endDateDeadline: new Date('2023-02-02'),
@@ -45,48 +47,42 @@ const getData = () => {
     list.push(task)
   }
   console.log(list);
-  
+
   return list
 }
 
 const column: Column[] = [
   {
     id: 'name',
-    label: 'Name',
-    minWidth: 100,
+    label: 'Title',
+    minWidth: 200,
     align: 'left'
   },
   {
-    id: 'createdBy',
-    label: 'Created By',
+    id: 'estimatedDays',
+    label: 'Estimate Days',
     minWidth: 100,
-    align: 'left',
-    format: (value: any) => (
-      <Tooltip title={value?.fullName} placement='bottom'>
-        <Avatar alt='Test' src={value?.avatar} sizes='small' />
-      </Tooltip>
-    )
+    align: 'center'
   },
-
   {
     id: 'startDateDeadline',
     label: 'Start Date',
     minWidth: 100,
-    align: 'left',
+    align: 'center',
     format: (value: any) => new Date(value).toLocaleDateString()
   },
   {
     id: 'endDateDeadline',
     label: 'End Date',
     minWidth: 100,
-    align: 'left',
+    align: 'center',
     format: (value: any) => new Date(value).toLocaleDateString()
   },
   {
     id: 'impotantLevel',
     label: 'Level',
     minWidth: 100,
-    align: 'left',
+    align: 'center',
     format: (value?: any) =>
       value ? (
         <Chip
@@ -107,7 +103,7 @@ const column: Column[] = [
     id: 'status',
     label: 'Status',
     minWidth: 100,
-    align: 'left',
+    align: 'center',
     format: (value: any) => (
       <Chip
         label={statusObj[value].label}
@@ -121,12 +117,11 @@ const column: Column[] = [
       />
     )
   },
-
   {
     id: 'assignedTasks',
     label: 'Assignee',
     minWidth: 100,
-    align: 'left',
+    align: 'center',
     format: (value: any[]) => (
       <AvatarGroup total={value?.length}>
         {value?.map((val, index) =>
@@ -139,6 +134,17 @@ const column: Column[] = [
           )
         )}
       </AvatarGroup>
+    )
+  },
+  {
+    id: 'createdBy',
+    label: 'Created By',
+    minWidth: 100,
+    align: 'center',
+    format: (value: any) => (
+      <Tooltip title={value?.fullName} placement='bottom'>
+        <Avatar alt='Test' src={value?.avatar} sizes='small' />
+      </Tooltip>
     )
   }
 ]
@@ -242,6 +248,12 @@ export default function TaskListPage() {
           </Box>
         </Fade>
       </Modal>
+      <Card sx={{mt: 5}}>
+      <CardHeader title='Milestone' />
+        <CardContent>
+          <CustomizedSteppers/>
+        </CardContent>
+      </Card>
     </div>
   )
 }

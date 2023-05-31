@@ -64,7 +64,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
 
   const handleChange = (prop: string, event: any) => {
     const val = new Task(value)
-        console.log(event.target.value)
+    console.log(event.target.value)
 
     switch (prop) {
       case 'name':
@@ -122,7 +122,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
                         autoComplete='off'
                         label='Task name'
                         value={value.name}
-                        onChange={e => handleChange('name',e)}
+                        onChange={e => handleChange('name', e)}
                         InputProps={{
                           style: { width: `${inputWidth}px`, overflow: 'break-word' },
                           autoComplete: 'off'
@@ -145,7 +145,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
                         id='demo-select-small'
                         value={value.impotantLevel}
                         label='Important Level'
-                        onChange={(e) => handleChange('impotantLevel', e)}
+                        onChange={e => handleChange('impotantLevel', e)}
                       >
                         {importantLevelList.map(val => {
                           return (
@@ -178,22 +178,6 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
             <Box sx={{ marginLeft: 5 }}>
               <Grid container spacing={1} alignItems={'center'}>
                 <Grid item>
-                  <Typography variant='subtitle2'>Belong</Typography>
-                </Grid>
-                <Grid item>
-                  <Chip
-                    avatar={<Avatar alt='Natacha' src={value.createdBy?.avatar} />}
-                    label={value.createdBy?.fullName ? value.group?.name : 'group name'}
-                    variant='outlined'
-                  />
-                </Grid>
-                <Divider
-                  orientation='vertical'
-                  textAlign='left'
-                  flexItem
-                  style={{ height: '20px', width: '0.5px', borderColor: '#d4d2d5', marginLeft: '4px' }}
-                />
-                <Grid item>
                   <Typography variant='subtitle2'>Created by</Typography>
                 </Grid>
                 <Grid item>
@@ -210,6 +194,22 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
                   style={{ height: '20px', width: '0.5px', borderColor: '#d4d2d5', marginLeft: '4px' }}
                 />
                 <Grid item>
+                  <Typography variant='subtitle2'>Estimate </Typography>
+                </Grid>
+                <Grid item>
+                  <Chip
+                    label= '5 Days'
+                    variant='outlined'
+                  />
+                </Grid>
+
+                <Divider
+                  orientation='vertical'
+                  textAlign='left'
+                  flexItem
+                  style={{ height: '20px', width: '0.5px', borderColor: '#d4d2d5', marginLeft: '4px' }}
+                />
+                <Grid item>
                   {editable ? (
                     <FormControl sx={{ m: 1, minWidth: 120 }} size='small'>
                       {editable ? <InputLabel id='status-select-label'>Status</InputLabel> : ''}
@@ -218,7 +218,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
                         id='demo-select-small'
                         value={value.status}
                         label={'Status'}
-                        onChange={(e) => handleChange('status', e)}
+                        onChange={e => handleChange('status', e)}
                       >
                         {listTaskStatusSelect.map(val => {
                           return (

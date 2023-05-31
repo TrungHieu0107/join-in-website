@@ -72,7 +72,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                         </Typography>
                       </Grid>
                       <Grid item xs={12} sm={12}>
-                        <TextField fullWidth label='Name' value={mainTask?.Name} disabled />
+                        <TextField fullWidth label='Title' value={mainTask?.Name} disabled />
                       </Grid>
                       <Grid item xs={12} sm={12}>
                         <TextField fullWidth label='From' value={mainTask?.StartDateDeadline} disabled />
@@ -86,7 +86,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                       <Grid item xs={12} sm={12}>
                         <TextField fullWidth label='Important' value={mainTask?.ImpotantLevel} disabled />
                       </Grid>
-                      
+
                     </Grid>
                   </Box>
                 </Grid>

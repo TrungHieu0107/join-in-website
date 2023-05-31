@@ -6,12 +6,9 @@ import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import Alert from '@mui/material/Alert'
-import Select from '@mui/material/Select'
 import { styled } from '@mui/material/styles'
-import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import InputLabel from '@mui/material/InputLabel'
 import AlertTitle from '@mui/material/AlertTitle'
 import IconButton from '@mui/material/IconButton'
 import CardContent from '@mui/material/CardContent'
@@ -20,15 +17,56 @@ import Button, { ButtonProps } from '@mui/material/Button'
 
 // ** Icons Imports
 import Close from 'mdi-material-ui/Close'
-import { FormControlLabel, FormLabel, InputAdornment, Radio, RadioGroup } from '@mui/material'
+import { Autocomplete, FormControlLabel, FormLabel, InputAdornment, Radio, RadioGroup } from '@mui/material'
 import DatePicker from 'react-datepicker'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-import { AccountOutline, AlphaACircleOutline, Calendar, Contacts, EmailOutline, InformationVariant, Phone } from 'mdi-material-ui'
+import {
+  AccountOutline,
+  AlphaACircleOutline,
+  Calendar,
+  Contacts,
+  EmailOutline,
+  InformationVariant,
+  Phone
+} from 'mdi-material-ui'
+import Editor from '../dialog/editor'
+
+interface Option {
+  id: number;
+  name: string;
+}
+
+const options: Option[] = [
+  {
+    id: 1,
+    name: 'Information Technology',
+  },
+  {
+    id: 2,
+    name: 'Business Administration',
+  },
+  {
+    id: 3,
+    name: 'English',
+  },
+  {
+    id: 4,
+    name: 'Japan',
+  }
+];
 
 const ImgStyled = styled('img')(({ theme }) => ({
-  width: 120,
-  height: 120,
+  width: 150,
+  height: 150,
   marginRight: theme.spacing(6.25),
+  borderRadius: theme.shape.borderRadius
+}))
+
+const ImgBackgroundStyled = styled('img')(({ theme }) => ({
+  width: '100%',
+  height: 200,
+  marginRight: theme.spacing(6.25),
+  marginBottom: theme.spacing(6.25),
   borderRadius: theme.shape.borderRadius
 }))
 
@@ -50,22 +88,34 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
 }))
 
 const CustomInput = forwardRef((props, ref) => {
-  return <TextField inputRef={ref} label='Birth Date' fullWidth {...props}
-  InputProps={{
-    startAdornment: (
-      <InputAdornment position='start'>
-        <Calendar />
-      </InputAdornment>
-    )
-  }}
-  />
+  return (
+    <TextField
+      inputRef={ref}
+      label='Birth Date'
+      fullWidth
+      {...props}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position='start'>
+            <Calendar />
+          </InputAdornment>
+        )
+      }}
+    />
+  )
 })
 
 const TabAccount = () => {
   // ** State
   const [openAlert, setOpenAlert] = useState<boolean>(true)
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
+  const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
   const [date, setDate] = useState<Date | null | undefined>(null)
+  const [selectedValues, setSelectedValues] = useState<Option[]>([]);
+
+  const handleButtonClick = () => {
+    console.log('Selected Values:', selectedValues);
+  };
 
   const onChange = (file: ChangeEvent) => {
     const reader = new FileReader()
@@ -77,16 +127,26 @@ const TabAccount = () => {
     }
   }
 
+  const onChangeBackground = (file: ChangeEvent) => {
+    const reader = new FileReader()
+    const { files } = file.target as HTMLInputElement
+    if (files && files.length !== 0) {
+      reader.onload = () => setImgBackground(reader.result as string)
+
+      reader.readAsDataURL(files[0])
+    }
+  }
+
   return (
     <CardContent>
       <form>
         <Grid container spacing={7}>
-          <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
+          <Grid item xs={12} sm={6} sx={{ marginTop: 4.8, marginBottom: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <ImgStyled src={imgSrc} alt='Profile Pic' />
               <Box>
                 <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
-                  Upload New Photo
+                  Upload New Avatar
                   <input
                     hidden
                     type='file'
@@ -104,16 +164,47 @@ const TabAccount = () => {
               </Box>
             </Box>
           </Grid>
+          <Grid item xs={12} sm={6} sx={{ marginTop: 4.8, marginBottom: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+              <ImgBackgroundStyled src={imgBackgroud} alt='Profile Pic' />
+              <Box>
+                <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-background'>
+                  Upload New Background
+                  <input
+                    hidden
+                    type='file'
+                    onChange={onChangeBackground}
+                    accept='image/png, image/jpeg'
+                    id='account-settings-upload-background'
+                  />
+                </ButtonStyled>
+                <ResetButtonStyled
+                  color='error'
+                  variant='outlined'
+                  onClick={() => setImgBackground('/images/cards/background-user.png')}
+                >
+                  Reset
+                </ResetButtonStyled>
+                <Typography variant='body2' sx={{ marginTop: 5 }}>
+                  Allowed PNG or JPEG. Max size of 800K.
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='FullName' placeholder='FullName' defaultValue='John Doe'
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <AccountOutline />
-                </InputAdornment>
-              )
-            }}
+            <TextField
+              fullWidth
+              label='FullName'
+              placeholder='FullName'
+              defaultValue='John Doe'
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <AccountOutline />
+                  </InputAdornment>
+                )
+              }}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -134,7 +225,7 @@ const TabAccount = () => {
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <DatePickerWrapper >
+            <DatePickerWrapper>
               <DatePicker
                 selected={date}
                 showYearDropdown
@@ -147,25 +238,30 @@ const TabAccount = () => {
             </DatePickerWrapper>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel>Major</InputLabel>
-              <Select label='Role' defaultValue='IT'>
-                <MenuItem value='IT'>Information Technology</MenuItem>
-                <MenuItem value='BA'>Business Administration</MenuItem>
-                <MenuItem value='EN'>English</MenuItem>
-                <MenuItem value='JP'>Japan</MenuItem>
-              </Select>
-            </FormControl>
+
+<Autocomplete
+      multiple
+      options={options}
+      getOptionLabel={(option) => option.name}
+      onChange={(event, value) => setSelectedValues(value)}
+      renderInput={(params) => (
+        <TextField {...params} label="Major" variant="outlined" />
+      )}
+    />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth type='number' label='Phone' placeholder='(123) 456-7890'
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <Phone />
-                </InputAdornment>
-              )
-            }}
+            <TextField
+              fullWidth
+              type='number'
+              label='Phone'
+              placeholder='(123) 456-7890'
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <Phone />
+                  </InputAdornment>
+                )
+              }}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -178,61 +274,25 @@ const TabAccount = () => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={12}>
-          <TextField
-             id="othercontacts"
-            label="Other Contacts"
-            multiline
-            rows={4}
-            placeholder='Other Contacts'
-            defaultValue="Other Contacts"
-            fullWidth
-            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <Contacts />
-                </InputAdornment>
-              )
-            }}
-          />
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <Contacts sx={{ marginRight: 1 }} />
+              <Typography variant='body1'>Other Contacts</Typography>
+            </Box>
+            <Editor name='contacts' onChange={undefined} value={undefined} />
           </Grid>
           <Grid item xs={12} sm={12}>
-          <TextField
-             id="skills"
-            label="Skills"
-            multiline
-            rows={4}
-            placeholder='Your skills'
-            defaultValue="Your skills"
-            fullWidth
-            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <AlphaACircleOutline />
-                </InputAdornment>
-              )
-            }}
-          />
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <AlphaACircleOutline sx={{ marginRight: 1 }} />
+              <Typography variant='body1'>Your skills</Typography>
+            </Box>
+            <Editor name='skills' onChange={undefined} value={undefined} />
           </Grid>
           <Grid item xs={12} sm={12}>
-          <TextField
-             id="description"
-            label="Description"
-            multiline
-            rows={4}
-            placeholder='Description'
-            defaultValue="Description"
-            fullWidth
-            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <InformationVariant />
-                </InputAdornment>
-              )
-            }}
-          />
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <InformationVariant sx={{ marginRight: 1 }} />
+              <Typography variant='body1'>Description</Typography>
+            </Box>
+            <Editor name='description' onChange={undefined} value={undefined} />
           </Grid>
 
           {openAlert ? (
@@ -255,7 +315,7 @@ const TabAccount = () => {
           ) : null}
 
           <Grid item xs={12}>
-            <Button variant='contained' sx={{ marginRight: 3.5 }}>
+            <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleButtonClick}>
               Save Changes
             </Button>
             <Button type='reset' variant='outlined' color='secondary'>
