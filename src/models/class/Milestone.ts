@@ -9,7 +9,7 @@ export class Milestone {
   private _group: Group | undefined
   private _groupForCurrent: Group | undefined
 
-  constructor(value?: any) {
+  constructor(value: Partial<Milestone>) {
     this.id = value?.id
     this.name = value?.name
     this.description = value?.description

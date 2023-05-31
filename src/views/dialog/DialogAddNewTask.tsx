@@ -136,7 +136,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                             id='form-layouts-separator-select'
                             labelId='form-layouts-separator-select-label'
                           >
-                            <MenuItem value='UK'>UK</MenuItem>
+                            <MenuItem value='UK' >UK</MenuItem>
                             <MenuItem value='USA'>USA</MenuItem>
                             <MenuItem value='Australia'>Australia</MenuItem>
                             <MenuItem value='Germany'>Germany</MenuItem>
@@ -147,8 +147,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                         <FormControl fullWidth>
                           <InputLabel id='form-layouts-separator-multiple-select-label'>Important Level *</InputLabel>
                           <Select
-                            multiple
-                            value={language}
+                            value={[]}
                             onChange={handleSelectChange}
                             id='form-layouts-separator-multiple-select'
                             labelId='form-layouts-separator-multiple-select-label'

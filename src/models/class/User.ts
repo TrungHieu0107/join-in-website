@@ -6,7 +6,7 @@ export class User {
   private _password: string | undefined
   private _email: string | undefined
   private _phone: string | undefined
-  private _birthDay: Date | undefined
+  private _birthDay: Date | string | undefined
   private _gender: boolean | undefined
   private _description: string | undefined
   private _skill: string | undefined
@@ -22,7 +22,7 @@ export class User {
   private _members: Member[] | undefined
   private _applications: Application[] | undefined
 
-  constructor(value?: any) {
+  constructor(value?: Partial<User>) {
     this.id = value?.id
     this.fullName = value?.fullName
     this.password = value?.password
@@ -89,7 +89,7 @@ export class User {
     return this._birthDay
   }
 
-  set birthDay(val: Date | undefined) {
+  set birthDay(val: Date | string | undefined) {
     this._birthDay = val
   }
 
