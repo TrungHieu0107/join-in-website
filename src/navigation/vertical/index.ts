@@ -15,13 +15,15 @@ import { VerticalNavItemsType } from 'src/@core/layouts/types'
 import {
   Account,
   AccountGroup,
+  AccountGroupOutline,
   Application,
   ArrowLeftCircleOutline,
   Cog,
   CommentAlert,
   FileOutline,
   FileTree,
-  Logout
+  Logout,
+  CashMultiple
 } from 'mdi-material-ui'
 import { useRouter } from 'next/router'
 
@@ -76,8 +78,23 @@ export default function Navigation(): VerticalNavItemsType {
     return [
       {
         title: 'Dashboard',
-        icon: ArrowLeftCircleOutline,
+        icon: HomeOutline,
         path: '/admin/dashboard'
+      },
+      {
+        title: 'Transaction',
+        icon: CashMultiple,
+        path: '/admin/transaction'
+      },
+      {
+        title: 'User Manage',
+        icon: AccountCogOutline,
+        path: '/admin/user'
+      },
+      {
+        title: 'Group Manage',
+        icon: AccountGroupOutline,
+        path: '/admin/group'
       },
       {
         sectionTitle: 'Personal'

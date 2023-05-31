@@ -3,7 +3,8 @@ import { Application, GroupMajor, Member, Milestone, Task } from '.'
 export class Group {
   private _id: number | undefined
   private _name: string | undefined
-  private _createdDate: Date | undefined
+  private _avatar: string | undefined
+  private _createdDate: Date | string | undefined
   private _groupSize: number | undefined
   private _memberCount: number | undefined
   private _schoolName: string | undefined
@@ -20,7 +21,7 @@ export class Group {
   private _applications: Application[] | undefined
   private _members: Member[] | undefined
 
-  constructor(value?: any) {
+  constructor(value: Partial<Group>) {
     this.id = value?.id
     this.name = value?.name
     this.createdDate = value?.createdDate
@@ -39,6 +40,7 @@ export class Group {
     this.groupMajors = value?.groupMajors
     this.applications = value?.applications
     this.members = value?.members
+    this.avatar = value?.avatar
   }
 
   get id() {
@@ -57,11 +59,19 @@ export class Group {
     this._name = val
   }
 
+  get avatar() {
+    return this._avatar
+  }
+
+  set avatar(val: string | undefined) {
+    this._avatar = val
+  }
+
   get createdDate() {
     return this._createdDate
   }
 
-  set createdDate(val: Date | undefined) {
+  set createdDate(val: Date | string | undefined) {
     this._createdDate = val
   }
 

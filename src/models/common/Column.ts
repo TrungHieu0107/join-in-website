@@ -7,3 +7,5 @@ export interface Column {
   align?: 'right' | 'center' | 'left'
   format?: (value: any) => string | ReactNode
 }
+
+

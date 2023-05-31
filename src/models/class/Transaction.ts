@@ -2,13 +2,13 @@ import { User } from './index'
 
 export class Transaction {
   private _id: number | undefined
-  private _transactionDate: Date | undefined
+  private _transactionDate: Date | string | undefined
   private _status: 'SUCCESS' | 'FAIL' | 'CANCELED' | undefined
-  private _type: '' | undefined
+  private _type: string | undefined
   private _userId: number | undefined
   private _user: User | undefined
 
-  constructor(value?: any) {
+  constructor(value: Partial<Transaction>) {
     this.id = value?.id
     this.transactionDate = value?.transactionDate
     this.status = value?.status
@@ -29,7 +29,7 @@ export class Transaction {
     return this._transactionDate
   }
 
-  set transactionDate(val: Date | undefined) {
+  set transactionDate(val: Date | string | undefined) {
     this._transactionDate = val
   }
 
@@ -45,7 +45,7 @@ export class Transaction {
     return this._type
   }
 
-  set type(val: '' | undefined) {
+  set type(val: string | undefined) {
     this._type = val
   }
 
