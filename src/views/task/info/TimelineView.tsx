@@ -37,7 +37,6 @@ export default function TimeLineView(props: ITimeLineViewProps) {
     if (moment(present).isAfter(moment(values.data.endDateDeadline).format('yyyy-MM-DD'))) {
       setInProgress(false)
     }
-    console.log(values)
 
     setEditable(props.editable)
   }, [props])
@@ -86,7 +85,7 @@ export default function TimeLineView(props: ITimeLineViewProps) {
           </TimelineOppositeContent>
           <TimelineSeparator>
             <TimelineConnector />
-            <TimelineDot color='primary'>
+            <TimelineDot color='success'>
               <MapMarkerCheckOutline />
             </TimelineDot>
             <TimelineConnector />

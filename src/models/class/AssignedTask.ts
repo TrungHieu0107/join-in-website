@@ -9,7 +9,7 @@ export class AssignedTask {
   private _assignedFor: Member | undefined
   private _assignedBy: Member | undefined
 
-  constructor(value: any) {
+  constructor(value: Partial<AssignedTask>) {
     this.taskId = value?.taskId
     this.assignedForId = value?.assignedForId
     this.assignedById = value?.assignedById

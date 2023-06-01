@@ -50,13 +50,16 @@ export default function TaskCommentView(props: ITaskCommentViewProps) {
   const processData = () => {
     let result: CommentMapper
     const list: string[] = []
+    
+    if(value.length === 0) 
+      return
+
     let currentDate = value[0].createdDate
     result = { ...result!, [moment(value[0].createdDate).format('yyyy-MM-DD')]: [value[0]] }
     list.push(moment(value[0].createdDate).format('yyyy-MM-DD'))
     for (let index = 1; index < value.length; index++) {
       const val = value[index]
       if (moment(val.createdDate).isSame(currentDate, 'day')) {
-        console.log('same')
 
         result = {
           ...result,

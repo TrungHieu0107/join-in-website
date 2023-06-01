@@ -1,10 +1,10 @@
 import Chip from '@mui/material/Chip'
-import { Task, User } from 'src/models/class'
+import { AssignedTask, Member, Task, User } from 'src/models/class'
 import { Column } from 'src/models/common/Column'
 import TableTaskCollapse from 'src/views/task/table/TableTaskCollapse'
 import Grid from '@mui/material/Grid'
 import {Card,  Avatar, AvatarGroup, Button, TextField, Fade, Box, CardContent, CardHeader } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { Magnify, Plus } from 'mdi-material-ui'
 import InputAdornment from '@mui/material/InputAdornment'
 import { statusObj } from 'src/constants/task-status'
@@ -15,6 +15,9 @@ import DialogCreateNewTask from 'src/views/dialog/DialogAddNewTask'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import CustomizedSteppers from 'src/layouts/components/CustomizedSteppers'
+import moment from 'moment'
+import { StorageKeys } from 'src/constants'
+import UserGroupLayout from 'src/layouts/UserGroupLayout'
 
 const getData = () => {
   const task = new Task({
@@ -22,23 +25,23 @@ const getData = () => {
     name: 'Task',
     estimatedDays: 2,
     impotantLevel: 'VERY_HIGH',
-    startDateDeadline: new Date('2023-01-01'),
-    endDateDeadline: new Date('2023-02-02'),
+    startDateDeadline: moment('2022-02-02').format(StorageKeys.KEY_FORMAT_DATE),
+    endDateDeadline: moment('2023-02-02').format(StorageKeys.KEY_FORMAT_DATE),
     status: 'FINISHED',
     createdBy: {
       avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
       fullName: 'Hieu'
     } as User,
     assignedTasks: [
-      {
-        assignedFor: {
-          user: {
+      new AssignedTask({
+        assignedFor: new Member({
+          user: new User({
+            fullName: 'Nguyen Van A',
             avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            fullName: 'Hieu'
-          } as User
-        }
-      }
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU'
+          })
+        })
+      })
     ]
   })
   const list = []
@@ -46,7 +49,6 @@ const getData = () => {
     task.id = i
     list.push(task)
   }
-  console.log(list);
 
   return list
 }
@@ -257,3 +259,5 @@ export default function TaskListPage() {
     </div>
   )
 }
+
+TaskListPage.getLayout = (page: ReactNode) => <UserGroupLayout>{page}</UserGroupLayout>
