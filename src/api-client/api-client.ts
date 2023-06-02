@@ -4,12 +4,17 @@ import { QueryKeys } from 'src/constants'
 const axiosClient = axios.create({
   baseURL: QueryKeys.BASE_URL,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    'Access-Control-Allow-Origin': 'http://localhost:8000',
+    'Access-Control-Allow-Methods': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Credentials': 'true'
   }
 })
 
 // Add a request interceptor
-axios.interceptors.request.use(
+axiosClient.interceptors.request.use(
   function (config) {
     // Do something before request is sent
     return config
@@ -21,7 +26,7 @@ axios.interceptors.request.use(
 )
 
 // Add a response interceptor
-axios.interceptors.response.use(
+axiosClient.interceptors.response.use(
   function (response) {
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data

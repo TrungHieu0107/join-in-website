@@ -3,7 +3,7 @@ import axiosClient from './api-client'
 
 export const authApi = {
   login(payload: User) {
-    return axiosClient.post('login', payload)
+    return axiosClient.post('/authenticate', payload)
   },
 
   logout() {

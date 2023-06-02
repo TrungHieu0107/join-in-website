@@ -1,6 +1,7 @@
 {
   "name": "materio-mui-react-nextjs-admin-template-free",
   "description": "Most Powerful & Comprehensive Free MUI React NextJS Admin Dashboard Template built for developers! 🚀",
+  "homepage": "http://localhost:8000/my-groups/",
   "license": "MIT",
   "version": "1.0.0",
   "author": {
@@ -15,7 +16,6 @@
     "type": "git",
     "url": "https://github.com/themeselection/materio-mui-react-nextjs-admin-template-free.git"
   },
-  "homepage": "https://themeselection.com/products/materio-free-mui-react-nextjs-admin-template/",
   "keywords": [
     "react",
     "javascript",

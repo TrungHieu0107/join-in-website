@@ -37,10 +37,10 @@ import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 
 import * as yup from 'yup'
 import { Message, QueryKeys } from 'src/constants'
-import { useRouter } from 'next/router'
 import { authApi } from 'src/api-client'
 import { User } from 'src/models'
 import MyLogo from 'src/layouts/components/MyLogo'
+import { CommonResponse } from 'src/models/common/CommonResponse'
 
 interface State {
   email: string
@@ -92,10 +92,6 @@ const LoginPage = () => {
       .required(Message.PASSWORD_REQUIRED)
   })
 
-  // ** Hook
-  // const theme = useTheme()
-  const router = useRouter()
-
   const handleChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value })
   }
@@ -133,14 +129,15 @@ const LoginPage = () => {
     if (isError) {
       return
     }
-    const user = { Email: values.email, Password: values.password } as User
+    const user = { userName: values.email, password: values.password } as User
 
-    authApi
+    await authApi
       .login(user)
-      .then()
-      .catch(() => {
-        router.push('/')
+      .then((res) => {
+        console.log('user', new CommonResponse(res))
+
       })
+      .catch(error => console.log(error))
   }
 
   return (
@@ -148,7 +145,7 @@ const LoginPage = () => {
       <Card sx={{ zIndex: 1 }}>
         <CardContent sx={{ padding: theme => `${theme.spacing(12, 9, 7)} !important` }}>
           <Box sx={{ mb: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <MyLogo width='50' height='50'/>
+            <MyLogo width='50' height='50' />
             <Typography
               variant='h6'
               sx={{
@@ -243,9 +240,11 @@ const LoginPage = () => {
                 </IconButton>
               </Link>
             </Box> */}
-            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} >
-                <Google sx={{ color: '#FFFFFF', marginRight:'10px'}} />
-                <Typography fontWeight='bold' color='#FFFFFF'>Login with Google</Typography>
+            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }}>
+              <Google sx={{ color: '#FFFFFF', marginRight: '10px' }} />
+              <Typography fontWeight='bold' color='#FFFFFF'>
+                Login with Google
+              </Typography>
             </Button>
           </form>
         </CardContent>
