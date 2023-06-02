@@ -1,14 +1,10 @@
 // ** React Imports
-import { useState, Fragment, ChangeEvent, MouseEvent, ReactNode } from 'react'
+import { useState, ChangeEvent, MouseEvent, ReactNode } from 'react'
 
-// ** Next Imports
-import Link from 'next/link'
 
 // ** MUI Components
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
@@ -18,11 +14,9 @@ import OutlinedInput from '@mui/material/OutlinedInput'
 import { styled } from '@mui/material/styles'
 import MuiCard, { CardProps } from '@mui/material/Card'
 import InputAdornment from '@mui/material/InputAdornment'
-import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
 import FormHelperText from '@mui/material/FormHelperText'
 
 // ** Icons Imports
-import Google from 'mdi-material-ui/Google'
 import EyeOutline from 'mdi-material-ui/EyeOutline'
 import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
 
@@ -36,7 +30,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 
 import * as yup from 'yup'
-import { Message, QueryKeys } from 'src/constants'
+import { Message } from 'src/constants'
 import { authApi } from 'src/api-client'
 import { useRouter } from 'next/router'
 import { User } from 'src/models'
@@ -55,22 +49,8 @@ const Card = styled(MuiCard)<CardProps>(({ theme }) => ({
   [theme.breakpoints.up('sm')]: { width: '28rem' }
 }))
 
-const LinkStyled = styled('a')(({ theme }) => ({
-  fontSize: '0.875rem',
-  textDecoration: 'none',
-  color: theme.palette.primary.main
-}))
 
-const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ theme }) => ({
-  marginTop: theme.spacing(1.5),
-  marginBottom: theme.spacing(4),
-  '& .MuiFormControlLabel-label': {
-    fontSize: '0.875rem',
-    color: theme.palette.text.secondary
-  }
-}))
-
-const RegisterPage = () => {
+const ForgotPassPage = () => {
   // ** States
   const [values, setValues] = useState<State>({
     showPassword: false,
@@ -79,11 +59,10 @@ const RegisterPage = () => {
     password: '',
     passwordConfirm: ''
   })
-  const [emailError, setEmailError] = useState('')
+
   const [passwordError, setPasswordError] = useState('')
   const [passwordConfirmError, setPasswordConfirmError] = useState('')
 
-  // ** Hook
   const router = useRouter()
 
   const handleChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -99,13 +78,6 @@ const RegisterPage = () => {
     event.preventDefault()
   }
 
-  const emailValidate = yup.object().shape({
-    email: yup
-      .string()
-      .email(Message.INVALID_EMAIL)
-      .required(Message.EMAIL_REQUIRED)
-      .matches(QueryKeys.EMAIL_REGEX, Message.INVALID_EMAIL)
-  })
 
   const passwordValidate = yup.object().shape({
     password: yup
@@ -126,15 +98,6 @@ const RegisterPage = () => {
   const handleSubmit = async () => {
     let isError = false
     console.log(values)
-    await emailValidate
-      .validate({ email: values.email })
-      .then(() => {
-        setEmailError('')
-      })
-      .catch(err => {
-        isError = true
-        setEmailError(err.errors)
-      })
 
     await passwordValidate
       .validate({ password: values.password })
@@ -197,32 +160,14 @@ const RegisterPage = () => {
           </Box>
           <Box sx={{ mb: 6 }}>
             <Typography variant='h5' sx={{ fontWeight: 600, marginBottom: 1.5 }}>
-              Adventure starts here 🚀
+              Forgot Password
             </Typography>
-            <Typography variant='body2'>Make your app management easy and fun!</Typography>
+            <Typography variant='body2'>Pls write password in paper</Typography>
           </Box>
           <form noValidate autoComplete='on' onSubmit={e => e.preventDefault()}>
             <FormControl fullWidth sx={{ marginBottom: 4 }}>
-              <InputLabel error={emailError.length > 0} htmlFor='auth-register-email'>
-                Email
-              </InputLabel>
-              <OutlinedInput
-                error={emailError.length > 0}
-                label='Email'
-                value={values.email}
-                id='auth-register-password'
-                onChange={handleChange('email')}
-                type='text'
-              />
-              {emailError.length > 0 && (
-                <FormHelperText error id='email-error'>
-                  {emailError}
-                </FormHelperText>
-              )}
-            </FormControl>
-            <FormControl fullWidth sx={{ marginBottom: 4 }}>
               <InputLabel error={passwordError.length > 0} htmlFor='auth-register-password'>
-                Password
+               New Password
               </InputLabel>
               <OutlinedInput
                 error={passwordError.length > 0}
@@ -284,19 +229,6 @@ const RegisterPage = () => {
                 </FormHelperText>
               )}
             </FormControl>
-            <FormControlLabel
-              control={<Checkbox />}
-              label={
-                <Fragment>
-                  <span>I agree to </span>
-                  <Link href='/' passHref>
-                    <LinkStyled onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                      privacy policy & terms
-                    </LinkStyled>
-                  </Link>
-                </Fragment>
-              }
-            />
             <Button
               fullWidth
               size='large'
@@ -305,30 +237,9 @@ const RegisterPage = () => {
               sx={{ marginBottom: 7 }}
               onClick={handleSubmit}
             >
-              Sign up
+              Change
             </Button>
-            <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <Typography variant='body2' sx={{ marginRight: 2 }}>
-                Already have an account?
-              </Typography>
-              <Typography variant='body2'>
-                <Link passHref href='/user/login'>
-                  <LinkStyled>Sign in instead</LinkStyled>
-                </Link>
-              </Typography>
-            </Box>
-            <Divider sx={{ my: 5 }}>or</Divider>
-            {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Link href='/' passHref>
-                <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Google sx={{ color: '#db4437' }} />
-                </IconButton>
-              </Link>
-            </Box> */}
-            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} >
-                <Google sx={{ color: '#FFFFFF', marginRight:'10px'}} />
-                <Typography fontWeight='bold' color='#FFFFFF'>Login with Google</Typography>
-            </Button>
+
           </form>
         </CardContent>
       </Card>
@@ -337,6 +248,6 @@ const RegisterPage = () => {
   )
 }
 
-RegisterPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
+ForgotPassPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 
-export default RegisterPage
+export default ForgotPassPage
