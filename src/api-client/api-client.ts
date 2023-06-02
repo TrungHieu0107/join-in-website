@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { QueryKeys } from 'src/constants'
+import { userDBDexie } from 'src/models/db/UserDB'
 
 const axiosClient = axios.create({
   baseURL: QueryKeys.BASE_URL,
@@ -15,12 +16,17 @@ const axiosClient = axios.create({
 
 // Add a request interceptor
 axiosClient.interceptors.request.use(
-  function (config) {
-    // Do something before request is sent
+  async config => {
+    const token = await userDBDexie.getToken()
+    console.log('token axios', token)
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+
     return config
   },
-  function (error) {
-    // Do something with request error
+  error => {
     return Promise.reject(error)
   }
 )

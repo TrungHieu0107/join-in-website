@@ -41,6 +41,7 @@ import { authApi } from 'src/api-client'
 import { User } from 'src/models'
 import MyLogo from 'src/layouts/components/MyLogo'
 import { CommonResponse } from 'src/models/common/CommonResponse'
+import { userDBDexie } from 'src/models/db/UserDB'
 
 interface State {
   email: string
@@ -131,13 +132,19 @@ const LoginPage = () => {
     }
     const user = { userName: values.email, password: values.password } as User
 
-    await authApi
-      .login(user)
-      .then((res) => {
-        console.log('user', new CommonResponse(res))
-
-      })
-      .catch(error => console.log(error))
+    try {
+      await authApi
+        .login(user)
+        .then(async res => {
+          console.log('user', new CommonResponse(res))
+          const token: string = new CommonResponse(res).data
+          console.log('123',await userDBDexie.saveToken(token))
+          console.log('token ', userDBDexie.getToken())
+        })
+        .catch(error => console.log('authApi', error))
+    } catch (error) {
+      console.log('login page', error)
+    }
   }
 
   return (
