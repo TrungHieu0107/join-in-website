@@ -19,7 +19,7 @@ import {
   Checkbox
 } from '@mui/material'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { UserAPI } from 'src/api-client/user'
+import { userAPI } from 'src/api-client/user'
 import { User, UserMajor } from 'src/models/class'
 import { Column } from 'src/models/common/Column'
 import moment from 'moment'
@@ -85,12 +85,12 @@ const UserManagemePage = () => {
   const [searchValue, setSearchValue] = useState('')
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
-  const [data, setData] = useState<User[]>(UserAPI.Admin.getListUser())
+  const [data, setData] = useState<User[]>(userAPI.Admin.getListUser())
   const [rowsSelected, setRowsSelected] = useState<number[]>([])
   const [currentData, setCurrentData] = useState<User[]>()
 
   useEffect(() => {
-    setData(UserAPI.Admin.getListUser())
+    setData(userAPI.Admin.getListUser())
     setCurrentData(data?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage))
   }, [searchValue, page, rowsPerPage])
 

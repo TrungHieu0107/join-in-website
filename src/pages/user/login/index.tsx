@@ -38,7 +38,6 @@ import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 import * as yup from 'yup'
 import { Message, QueryKeys } from 'src/constants'
 import { authAPI } from 'src/api-client'
-import { User } from 'src/models'
 import MyLogo from 'src/layouts/components/MyLogo'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { userDBDexie } from 'src/models/db/UserDB'
@@ -130,7 +129,7 @@ const LoginPage = () => {
     if (isError) {
       return
     }
-    const user = { userName: values.email, password: values.password } as User
+    const user : any = { userName: values.email, password: values.password }
 
     try {
       await authAPI

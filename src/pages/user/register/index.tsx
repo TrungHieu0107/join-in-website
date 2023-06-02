@@ -37,10 +37,10 @@ import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 
 import * as yup from 'yup'
 import { Message, QueryKeys } from 'src/constants'
-import { authApi } from 'src/api-client'
+import { authAPI } from 'src/api-client'
 import { useRouter } from 'next/router'
-import { User } from 'src/models'
 import MyLogo from 'src/layouts/components/MyLogo'
+import { User } from 'src/models/class'
 
 interface State {
   password: string
@@ -166,9 +166,12 @@ const RegisterPage = () => {
     if (isError) {
       return
     }
-    const user = { Email: values.email, Password: values.password } as User
+    const user = new User({
+      email: values.email,
+      password: values.password
+    })
 
-    authApi
+    authAPI
       .signUp(user)
       .then()
       .catch(() => {

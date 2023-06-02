@@ -31,9 +31,9 @@ import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 
 import * as yup from 'yup'
 import { Message } from 'src/constants'
-import { authApi } from 'src/api-client'
+import { authAPI } from 'src/api-client'
 import { useRouter } from 'next/router'
-import { User } from 'src/models'
+import { User } from 'src/models/class'
 import MyLogo from 'src/layouts/components/MyLogo'
 
 interface State {
@@ -129,9 +129,11 @@ const ForgotPassPage = () => {
     if (isError) {
       return
     }
-    const user = { Email: values.email, Password: values.password } as User
-
-    authApi
+    const user = new User({
+      email: values.email,
+      password: values.password
+    })
+    authAPI
       .signUp(user)
       .then()
       .catch(() => {

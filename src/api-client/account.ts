@@ -1,8 +1,8 @@
-import { User } from 'src/models'
+import { User } from 'src/models/class'
 import axiosClient from './api-client'
 
 export const authAPI = {
-  login(payload: User) {
+  login(payload: any) {
     return axiosClient.post('/authenticate', payload)
   },
 
