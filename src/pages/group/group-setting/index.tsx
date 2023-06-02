@@ -15,6 +15,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { FlagVariant, Information } from 'mdi-material-ui'
 import GroupForm from 'src/views/my-groups/GroupForm'
 import Milestone from 'src/views/group/group-setting/Milestones'
+import withAuth from 'src/pages/withAuth'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -81,4 +82,4 @@ const GroupSetting = () => {
   )
 }
 
-export default GroupSetting
+export default withAuth(GroupSetting)

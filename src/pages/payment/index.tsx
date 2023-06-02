@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import MuiDivider, { DividerProps } from '@mui/material/Divider'
 import { Avatar } from '@mui/material'
+import withAuth from '../withAuth'
 
 // Styled Divider component
 const Divider = styled(MuiDivider)<DividerProps>(({ theme }) => ({
@@ -75,4 +76,4 @@ const Payment = () => {
     </Card>
   )
 }
-export default Payment
+export default withAuth(Payment)

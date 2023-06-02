@@ -21,8 +21,10 @@ import StatisticsCard from 'src/views/dashboard/StatisticsCard'
 import WeeklyOverview from 'src/views/dashboard/WeeklyOverview'
 import DepositWithdraw from 'src/views/dashboard/DepositWithdraw'
 import SalesByCountries from 'src/views/dashboard/SalesByCountries'
+import withAuth from './withAuth'
 
 const Dashboard = () => {
+
   return (
     <ApexChartWrapper>
       <Grid container spacing={6}>
@@ -98,4 +100,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default withAuth(Dashboard)

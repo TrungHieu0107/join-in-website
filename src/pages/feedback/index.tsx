@@ -4,6 +4,7 @@ import { Close, Magnify } from 'mdi-material-ui'
 import * as React from 'react'
 import { ChangeEvent, ReactNode, useState } from 'react'
 import FeedbackForm from 'src/views/feedback/FeedbackForm'
+import withAuth from '../withAuth'
 
 interface Column {
   id: 'Rating' | 'FeedbackedDate' | 'Content'
@@ -70,7 +71,7 @@ const rows = [
   createData()
 ]
 
-export default function FeedbackList() {
+const FeedbackList = () => {
 
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -193,3 +194,5 @@ export default function FeedbackList() {
   )
 
 }
+
+export default withAuth(FeedbackList)

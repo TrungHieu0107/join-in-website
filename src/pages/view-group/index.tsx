@@ -19,6 +19,7 @@ import {
 } from 'mdi-material-ui'
 import ApplicationForm from 'src/views/group/application/ApplicationForm'
 import { useState } from 'react'
+import withAuth from '../withAuth'
 
 const textDemo =
   'One of the key skills that is highly valued is communication. Effective communication skills enable you to express your ideas clearly, listen actively, and engage in productive discussions. It encompasses both verbal and written communication, allowing you to convey your message effectively and build strong relationships.'
@@ -214,4 +215,4 @@ const GroupView = () => {
   )
 }
 
-export default GroupView
+export default withAuth(GroupView)

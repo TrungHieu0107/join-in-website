@@ -23,6 +23,7 @@ import { UserAPI } from 'src/api-client/user'
 import { User, UserMajor } from 'src/models/class'
 import { Column } from 'src/models/common/Column'
 import moment from 'moment'
+import withAuth from 'src/pages/withAuth'
 
 const columns: Column[] = [
   {
@@ -80,7 +81,7 @@ const columns: Column[] = [
   }
 ]
 
-export default function UserManagemePage() {
+const UserManagemePage = () => {
   const [searchValue, setSearchValue] = useState('')
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -213,3 +214,5 @@ export default function UserManagemePage() {
     </Card>
   )
 }
+
+export default withAuth(UserManagemePage)

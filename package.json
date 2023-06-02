@@ -56,6 +56,7 @@
     "@mui/styles": "^5.13.2",
     "@mui/x-data-grid": "^6.5.0",
     "@popperjs/core": "^2.11.2",
+    "@types/jwt-decode": "^3.1.0",
     "@types/yup": "^0.32.0",
     "apexcharts-clevision": "3.28.5",
     "axios": "^1.4.0",

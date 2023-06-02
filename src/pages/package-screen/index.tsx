@@ -1,6 +1,7 @@
 import { Grid } from "@mui/material"
 import FreemiumPackage from "src/views/package-screen/FreemiumPackage"
 import PremiumPackage from "src/views/package-screen/PremiumPackage"
+import withAuth from "../withAuth"
 
 const PackageScreen = () =>{
   return (
@@ -15,4 +16,4 @@ const PackageScreen = () =>{
   )
 }
 
-export default PackageScreen
+export default withAuth(PackageScreen)

@@ -15,6 +15,7 @@ import { Close, DotsHorizontal, Magnify } from 'mdi-material-ui'
 import RecruitmentForm from 'src/views/group/application/RecruitmentForm'
 import { StatusObj } from 'src/constants/task-status'
 import AvatarName from 'src/layouts/components/AvatarName'
+import withAuth from 'src/pages/withAuth'
 
 interface Column {
   id: 'name' | 'position' | 'createddate' | 'description' | 'status' | 'confirmeddate'
@@ -303,4 +304,4 @@ const Application = () =>{
   )
 }
 
-export default Application
+export default withAuth(Application)

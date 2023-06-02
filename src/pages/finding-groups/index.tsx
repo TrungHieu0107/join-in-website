@@ -8,12 +8,13 @@ import {  Card, Grid, InputAdornment, Pagination, TextField } from '@mui/materia
 import CardGroup from 'src/views/finding-groups/CardGroup'
 import { Magnify } from 'mdi-material-ui'
 import { useRouter } from 'next/router'
+import withAuth from '../withAuth'
 
 
 // export interface FindingGroupsPageProps {
 // }
 
-export default function FindingGroupsPage () {
+const FindingGroupsPage = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 12
   const totalItems = 100
@@ -69,3 +70,4 @@ export default function FindingGroupsPage () {
   );
 }
 
+export default withAuth(FindingGroupsPage)

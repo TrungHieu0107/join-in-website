@@ -32,6 +32,7 @@ import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 import * as yup from 'yup'
 import { Message, QueryKeys } from 'src/constants'
 import MyLogo from 'src/layouts/components/MyLogo'
+import withAuth from 'src/pages/withAuth'
 
 interface State {
   password: string
@@ -175,4 +176,4 @@ const ForgotEmailPage = () => {
 
 ForgotEmailPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 
-export default ForgotEmailPage
+export default withAuth(ForgotEmailPage)

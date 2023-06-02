@@ -62,7 +62,7 @@ export const userDBDexie = {
     try {
       const data = await db.user.toArray()
 
-      return data[data.length - 1].token
+      return data.length > 0 ? data[data.length - 1].token : ''
     } catch (error) {
       console.log('getToken \n', error)
     } finally {

@@ -16,6 +16,7 @@ import InviteForm from 'src/views/group/member/InviteForm'
 import { StatusObj } from 'src/constants/task-status'
 import AvatarName from 'src/layouts/components/AvatarName'
 import { useRouter } from 'next/router'
+import withAuth from 'src/pages/withAuth'
 
 interface Column {
   id: 'name' | 'role'| 'major' | 'joindate' | 'status'
@@ -344,4 +345,4 @@ const Application = () =>{
   )
 }
 
-export default Application
+export default withAuth(Application)

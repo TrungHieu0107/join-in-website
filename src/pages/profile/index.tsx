@@ -21,6 +21,7 @@ import TabSecurity from 'src/views/profile/TabSecurity'
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
 import ProfileView from 'src/views/profile/ProfileView'
+import withAuth from '../withAuth'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -99,4 +100,4 @@ const Profile = () => {
   )
 }
 
-export default Profile
+export default withAuth(Profile)

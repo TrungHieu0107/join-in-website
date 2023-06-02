@@ -27,6 +27,7 @@ import {
 } from '@mui/material'
 import { Column } from 'src/models/common/Column'
 import { transactionAPI } from 'src/api-client/transaction'
+import withAuth from 'src/pages/withAuth'
 
 const columns: Column[] = [
   {
@@ -58,7 +59,7 @@ const columns: Column[] = [
   }
 ]
 
-export default function TransactionPage() {
+ const TransactionPage = () => {
   const [transactionList, setTransactionList] = useState<Transaction[]>(transactionAPI.Admin.getListTraction())
   const [searchValue, setSearchValue] = useState<string>('')
   const [page, setPage] = useState<number>(0)
@@ -215,3 +216,5 @@ export default function TransactionPage() {
     </Paper>
   )
 }
+
+export default withAuth(TransactionPage)

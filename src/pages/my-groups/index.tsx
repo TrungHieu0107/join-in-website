@@ -15,6 +15,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { FormatListGroup, Handshake, KeyVariant } from 'mdi-material-ui'
 import TabGroup from 'src/views/my-groups/TabGroup'
 import { GroupRenderType } from 'src/constants'
+import withAuth from '../withAuth'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -93,4 +94,4 @@ const MyGroups = () => {
   )
 }
 
-export default MyGroups
+export default withAuth(MyGroups)

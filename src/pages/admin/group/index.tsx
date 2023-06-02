@@ -23,6 +23,7 @@ import {
   Typography
 } from '@mui/material'
 import { Column } from 'src/models/common/Column'
+import withAuth from 'src/pages/withAuth'
 
 const columns: Column[] = [
   {
@@ -74,7 +75,7 @@ const columns: Column[] = [
   }
 ]
 
-export default function GroupManagePage() {
+ const  GroupManagePage = () => {
   const [groupList, setGroupList] = useState<Group[]>(groupAPI.Admin.getListGroup())
   const [searchValue, setSearchValue] = useState<string>('')
   const [page, setPage] = useState<number>(0)
@@ -209,3 +210,5 @@ export default function GroupManagePage() {
     </Card>
   )
 }
+
+export default withAuth(GroupManagePage)
