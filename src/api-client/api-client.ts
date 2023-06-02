@@ -3,7 +3,7 @@ import { QueryKeys } from 'src/constants'
 import { userDBDexie } from 'src/models/db/UserDB'
 
 const axiosClient = axios.create({
-  baseURL: QueryKeys.BASE_URL,
+  baseURL: process.env.NODE_ENV === 'development' ? QueryKeys.BASE_LOCAL : QueryKeys.BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -18,7 +18,6 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
   async config => {
     const token = await userDBDexie.getToken()
-    console.log('token axios', token)
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`

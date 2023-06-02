@@ -1,7 +1,7 @@
 import { User } from 'src/models'
 import axiosClient from './api-client'
 
-export const authApi = {
+export const authAPI = {
   login(payload: User) {
     return axiosClient.post('/authenticate', payload)
   },

@@ -1,8 +1,33 @@
 import moment from 'moment'
 import { StorageKeys } from 'src/constants'
 import { AssignedTask, Group, Member, Task, User, Comment } from 'src/models/class'
+import axiosClient from './api-client'
+
+const URL = '/tasks';
 
 export const taskAPI = {
+  getList() {
+    return axiosClient.get(`${URL}`)
+  },
+
+  getById(id:string) {
+    return axiosClient.get(`${URL}/${id}`)
+  },
+
+  post(data: Task) {
+    return axiosClient.post(`${URL}`,data)
+  },
+
+  delete(id:string) {
+    return axiosClient.delete(`${URL}/${id}`)
+  },
+
+  put(data: Task) {
+    return axiosClient.put(`${URL}`,data)
+  },
+
+
+
   User: {
     getListTodo(): Task[] {
       const result: Task[] = []

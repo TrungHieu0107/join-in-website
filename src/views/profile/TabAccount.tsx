@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent, SyntheticEvent, forwardRef } from 'react'
+import { useState, ElementType, ChangeEvent, SyntheticEvent, forwardRef, SetStateAction } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -32,28 +32,28 @@ import {
 import Editor from '../dialog/editor'
 
 interface Option {
-  id: number;
-  name: string;
+  id: number
+  name: string
 }
 
 const options: Option[] = [
   {
     id: 1,
-    name: 'Information Technology',
+    name: 'Information Technology'
   },
   {
     id: 2,
-    name: 'Business Administration',
+    name: 'Business Administration'
   },
   {
     id: 3,
-    name: 'English',
+    name: 'English'
   },
   {
     id: 4,
-    name: 'Japan',
+    name: 'Japan'
   }
-];
+]
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 150,
@@ -111,13 +111,16 @@ const TabAccount = () => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
   const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
   const [date, setDate] = useState<Date | null | undefined>(null)
-  const [selectedValues, setSelectedValues] = useState<Option[]>([]);
+  const [selectedMajor, setSelectedMajor] = useState<Option[]>([])
+  const [description, setDescription] = useState('');
+  const [contacts, setContacts] = useState('');
+  const [skills, setSkills] = useState('');
 
   const handleButtonClick = () => {
-    console.log('Selected Values:', selectedValues);
-  };
+    console.log('Selected Values:', selectedMajor)
+  }
 
-  const onChange = (file: ChangeEvent) => {
+  const onChangeAvatar = (file: ChangeEvent) => {
     const reader = new FileReader()
     const { files } = file.target as HTMLInputElement
     if (files && files.length !== 0) {
@@ -150,7 +153,7 @@ const TabAccount = () => {
                   <input
                     hidden
                     type='file'
-                    onChange={onChange}
+                    onChange={onChangeAvatar}
                     accept='image/png, image/jpeg'
                     id='account-settings-upload-image'
                   />
@@ -238,16 +241,13 @@ const TabAccount = () => {
             </DatePickerWrapper>
           </Grid>
           <Grid item xs={12} sm={6}>
-
-<Autocomplete
-      multiple
-      options={options}
-      getOptionLabel={(option) => option.name}
-      onChange={(event, value) => setSelectedValues(value)}
-      renderInput={(params) => (
-        <TextField {...params} label="Major" variant="outlined" />
-      )}
-    />
+            <Autocomplete
+              multiple
+              options={options}
+              getOptionLabel={option => option.name}
+              onChange={(event, value) => setSelectedMajor(value)}
+              renderInput={params => <TextField {...params} label='Major' variant='outlined' />}
+            />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
@@ -278,21 +278,33 @@ const TabAccount = () => {
               <Contacts sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Other Contacts</Typography>
             </Box>
-            <Editor name='contacts' onChange={undefined} value={undefined} />
+            <Editor name='contacts' value={contacts}
+            onChange={(dataChange: SetStateAction<string>) => {
+              setContacts(dataChange.toString())
+            }}
+            />
           </Grid>
           <Grid item xs={12} sm={12}>
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <AlphaACircleOutline sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Your skills</Typography>
             </Box>
-            <Editor name='skills' onChange={undefined} value={undefined} />
+            <Editor name='skills' value={skills}
+            onChange={(dataChange: SetStateAction<string>) => {
+              setSkills(dataChange.toString())
+            }}
+            />
           </Grid>
           <Grid item xs={12} sm={12}>
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <InformationVariant sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Description</Typography>
             </Box>
-            <Editor name='description' onChange={undefined} value={undefined} />
+            <Editor name='description'  value={description}
+            onChange={(dataChange: SetStateAction<string>) => {
+              setDescription(dataChange.toString())
+            }}
+            />
           </Grid>
 
           {openAlert ? (

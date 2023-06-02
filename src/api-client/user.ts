@@ -1,6 +1,32 @@
 import { Major, User, UserMajor } from 'src/models/class'
+import axiosClient from './api-client'
 
-export const UserAPI = {
+const URL = '/users';
+
+export const userAPI = {
+
+  getList() {
+    return axiosClient.get(`${URL}`)
+  },
+
+  getById(id:string) {
+    return axiosClient.get(`${URL}/${id}`)
+  },
+
+  post(data: User) {
+    return axiosClient.post(`${URL}`,data)
+  },
+
+  delete(id:string) {
+    return axiosClient.delete(`${URL}/${id}`)
+  },
+
+  put(data: User) {
+    return axiosClient.put(`${URL}`,data)
+  },
+
+
+
   Admin: {
     getListUser(): User[] {
       const result = []
@@ -34,5 +60,5 @@ export const UserAPI = {
     }
   }
 
-  
+
 }

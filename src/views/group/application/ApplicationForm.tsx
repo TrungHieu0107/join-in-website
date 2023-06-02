@@ -9,9 +9,11 @@ import {
   CardContent,
   Divider,
   Box,
-  Typography
+  Typography,
+  SelectChangeEvent
 } from '@mui/material'
 import {  InformationVariant } from 'mdi-material-ui'
+import { SetStateAction, useState } from 'react'
 import Editor from 'src/views/dialog/editor'
 
 // ** Icons Imports
@@ -28,6 +30,16 @@ const RecruitmentData = [
 
 const ApplicationForm = () => {
   // ** State
+  const [description, setDescription] = useState<string>('');
+  const [selectedValue, setSelectedValue] = useState('IT');
+
+  const handleChange = (event:SelectChangeEvent<string>) => {
+    setSelectedValue(event.target.value);
+  };
+
+  const handleClickSend = () => {
+    console.log(description);
+  }
 
 
   return (
@@ -37,7 +49,7 @@ const ApplicationForm = () => {
           <Grid item xs={12}>
             <FormControl fullWidth>
               <InputLabel>Major</InputLabel>
-              <Select label='Role' defaultValue='IT'>
+              <Select label='Role' value={selectedValue} onChange={handleChange}>
                 <MenuItem value='IT'>Information Technology</MenuItem>
                 <MenuItem value='BA'>Business Administration</MenuItem>
                 <MenuItem value='EN'>English</MenuItem>
@@ -50,11 +62,14 @@ const ApplicationForm = () => {
               <InformationVariant fontSize='small' sx={{ marginRight: 1 }} />
               <Typography variant='body2'>Description</Typography>
             </Box>
-            <Editor name='description' onChange={undefined} value={undefined} />
+            <Editor name='description'  value={description}
+            onChange={(dataChange: SetStateAction<string>) => {
+                  setDescription(dataChange.toString())
+                }} />
           </Grid>
 
           <Grid item xs={12}>
-            <Button variant='contained' sx={{ marginRight: 3.5 }}>
+            <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleClickSend}>
               Send
             </Button>
           </Grid>

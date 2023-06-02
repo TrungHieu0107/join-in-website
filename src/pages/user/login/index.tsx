@@ -37,7 +37,7 @@ import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 
 import * as yup from 'yup'
 import { Message, QueryKeys } from 'src/constants'
-import { authApi } from 'src/api-client'
+import { authAPI } from 'src/api-client'
 import { User } from 'src/models'
 import MyLogo from 'src/layouts/components/MyLogo'
 import { CommonResponse } from 'src/models/common/CommonResponse'
@@ -133,7 +133,7 @@ const LoginPage = () => {
     const user = { userName: values.email, password: values.password } as User
 
     try {
-      await authApi
+      await authAPI
         .login(user)
         .then(async res => {
           console.log('user', new CommonResponse(res))
@@ -141,7 +141,7 @@ const LoginPage = () => {
           console.log('123',await userDBDexie.saveToken(token))
           console.log('token ', userDBDexie.getToken())
         })
-        .catch(error => console.log('authApi', error))
+        .catch(error => console.log('authAPI', error))
     } catch (error) {
       console.log('login page', error)
     }
