@@ -1,16 +1,20 @@
 import Chip from '@mui/material/Chip'
-import { AssignedTask, Comment, Task, User } from 'src/models/class'
+import { Task } from 'src/models/class'
 import { Column } from 'src/models/common/Column'
 import TableTaskCollapse from 'src/views/task/table/TableTaskCollapse'
 import Grid from '@mui/material/Grid'
 import { Avatar, AvatarGroup, Button, TextField, Tooltip, Card, CardContent, Typography } from '@mui/material'
-import { SetStateAction, useState } from 'react'
+import { ReactNode, SetStateAction, useEffect, useState } from 'react'
 import { Magnify, Plus, Send } from 'mdi-material-ui'
 import InputAdornment from '@mui/material/InputAdornment'
 import { statusObj } from 'src/constants/task-status'
 import MainTaskView from 'src/views/task/info/MainTaskView'
 import TaskCommentView from 'src/views/task/info/TaskCommentView'
 import Editor from 'src/views/dialog/editor'
+import { taskAPI } from 'src/api-client/task'
+import { useRouter } from 'next/router'
+import { groupDBDexie } from 'src/models/db/GroupDB'
+import UserGroupLayout from 'src/layouts/UserGroupLayout'
 
 export interface ISubTaskPageProps {
   id: string
@@ -78,120 +82,49 @@ const column: Column[] = [
   }
 ]
 
-const getData = () => {
-  const data = new Task({
-    id: 1,
-    name: 'Main task',
-    startDateDeadline: '2023-05-26 00:00:00',
-    endDateDeadline: '2023-01-01 00:00:00',
-    impotantLevel: 'VERY_HIGH',
-    estimatedDays: 1,
-    status: 'NOT_STARTED_YET',
-    description: '<p>abc</p>',
-    subTasks: [],
-    assignedTasks: [
-      new AssignedTask({
-        assignedFor: {
-          user: new User({
-            avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            fullName: 'Hieu'
-          })
-        }
-      }),
-      new AssignedTask({
-        assignedFor: {
-          user: new User({
-            avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            fullName: 'Hieu 2'
-          })
-        }
-      }),
-      new AssignedTask({
-        assignedFor: {
-          user: new User({
-            avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-            fullName: 'Hieu 3'
-          })
-        }
-      })
-    ],
-    comments: [
-      new Comment({
-        id: 1,
-        content: 'content',
-        createdDate: '2023-01-01 00:00:00',
-        status: 'ACTIVE'
-      }),
-      new Comment({
-        id: 1,
-        content: '<h1>content 123</h1>',
-        createdDate: '2023-01-01',
-        status: 'ACTIVE'
-      }),
-      new Comment({
-        id: 1,
-        content: 'content 123',
-        createdDate: '2023-01-01',
-        status: 'ACTIVE'
-      }),
-      new Comment({
-        id: 2,
-        content: 'content 2',
-        createdDate: '2023-01-02',
-        status: 'ACTIVE'
-      }),
-      new Comment({
-        id: 2,
-        content: 'content 3',
-        createdDate: '2023-01-03',
-        status: 'ACTIVE'
-      })
-    ]
-  })
-
-  for (let i = 0; i < 80; i++) {
-    data.subTasks?.push({
-      id: `a9efbdca-dffb-ed11-9eff-c809a8bfd17e${i}`,
-      name: `Main ${i + 1}`,
-      startDateDeadline: 'May 26, 2023 | 04:07 PM',
-      endDateDeadline: 'June 10, 2023 | 04:07 PM',
-      impotantLevel: 'VERY_HIGH',
-      estimatedDays: 1,
-      status: 'NOT_STARTED_YET',
-      assignedTasks: [
-        new AssignedTask({
-          assignedFor: {
-            user: new User({
-              avatar:
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-              fullName: 'Hieu'
-            })
-          }
-        })
-      ]
-
-    } as Task)
-  }
-
-  return data
-}
-
 export default function SubTaskPage() {
+  const router = useRouter()
+  const { id } = router.query
   const [searchValue, setSearchValue] = useState<string>('')
   const [comment, setComment] = useState<string>('')
-  const data = getData()
+  const [data, setData] = useState<Task>(taskAPI.User.getTaskById(id))
+
+  useEffect(() => {
+    if (typeof id === 'string') {
+      const newData = taskAPI.User.getTaskById(id)
+      setData(newData)
+      updateGroup(newData)
+    }
+  }, [id])
+
+  const updateGroup = async (newData: Task) => {
+    await groupDBDexie.groups
+      .update(1, {
+        avatar: newData.group?.avatar,
+        name: newData.group?.name
+      })
+      .then(async function (updated) {
+        if (updated) console.log('Friend number 2 was renamed to Number 2')
+        else {
+          console.log('Nothing was updated - there were no friend with primary key: 2')
+          await groupDBDexie.groups.add({
+            avatar: newData.group?.avatar ?? '',
+            name: newData.group?.name ?? ''
+          })
+        }
+      })
+
+    console.log('group 123', await groupDBDexie.groups.get({ id: 1 }))
+  }
 
   return (
     <div>
-      <MainTaskView data={data}></MainTaskView>
-      {!data.mainTaskId ? (
+      <MainTaskView data={data !== undefined ? data : new Task()}></MainTaskView>
+      {!data?.mainTaskId ? (
         <Card sx={{ marginTop: '5px' }}>
           <CardContent>
             <Grid container spacing={4} style={{ margin: '5px' }}>
-              <Grid container xs={6} md={8} spacing={2}>
+              <Grid container xs={6} sm={8} spacing={2}>
                 <Grid item xs={6} md={5}>
                   <TextField
                     fullWidth
@@ -242,7 +175,7 @@ export default function SubTaskPage() {
                 </Button>
               </Grid>
             </Grid>
-            <TableTaskCollapse column={column} row={getData().subTasks}></TableTaskCollapse>
+            <TableTaskCollapse column={column} row={data?.subTasks}></TableTaskCollapse>
           </CardContent>
         </Card>
       ) : (
@@ -255,7 +188,7 @@ export default function SubTaskPage() {
               Comment
             </Typography>
             <Grid>
-              <TaskCommentView data={data.comments !== undefined ? data.comments : []} />
+              <TaskCommentView data={data?.comments !== undefined ? data?.comments : []} />
             </Grid>
             <div>
               <Editor
@@ -268,7 +201,7 @@ export default function SubTaskPage() {
             </div>
             <Grid item container justifyContent={'center'}>
               <Grid mt={3}>
-                <Button size='small' variant='outlined' endIcon={<Send/>}>
+                <Button size='small' variant='outlined' endIcon={<Send />}>
                   Send
                 </Button>
               </Grid>
@@ -279,3 +212,5 @@ export default function SubTaskPage() {
     </div>
   )
 }
+
+SubTaskPage.getLayout = (page: ReactNode) => <UserGroupLayout>{page}</UserGroupLayout>

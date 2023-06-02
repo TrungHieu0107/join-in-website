@@ -24,6 +24,7 @@ import { Task } from 'src/models/class'
 import Editor from 'src/views/dialog/editor'
 import TimeLineView from './TimelineView'
 import AssignView from './AssignView'
+import moment from 'moment'
 
 export interface IMainTaskViewProps {
   data: Task
@@ -39,9 +40,10 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
   const [isEdit, setIsEdit] = useState(false)
   const [inputWidth, setInputWidth] = useState(DEFAULT_INPUT_WIDTH)
   const [description, setDescription] = useState(value.description)
-  const [taskName, setTaskName] = useState<string>(data.name ?? '')
+  const [taskName, setTaskName] = useState<string>(data.name !== undefined ? data.name : '')
 
   useEffect(() => {
+
     if (taskName) {
       if (taskName.length * FONT_SIZE > DEFAULT_INPUT_WIDTH) {
         setInputWidth(
@@ -54,8 +56,9 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
   }, [taskName])
 
   useEffect(() => {
-    setTaskName(value.name ?? '')
-  }, [])
+    setValues(new Task(data))
+    setTaskName(data.name ?? '')
+  }, [data])
 
   const clickToEdit = () => {
     setEditable(true)
@@ -158,7 +161,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
                     </FormControl>
                   ) : (
                     <Chip
-                      label={importantLevel[value?.impotantLevel ?? ''].label}
+                      label={importantLevel[value?.impotantLevel ?? '']?.label}
                       color={importantLevel[value?.impotantLevel ?? '']?.color}
                       sx={{
                         height: 24,
@@ -197,10 +200,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
                   <Typography variant='subtitle2'>Estimate </Typography>
                 </Grid>
                 <Grid item>
-                  <Chip
-                    label= '5 Days'
-                    variant='outlined'
-                  />
+                  <Chip label={`${data.estimatedDays} Days`} variant='outlined' />
                 </Grid>
 
                 <Divider
@@ -310,12 +310,14 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
             style={{ height: '300px', width: '0.5px', borderColor: '#d4d2d5', marginLeft: '4px' }}
           />
           <Grid item xs={6} sm={7} direction={'row'}>
-            <Grid item>
-              <Alert severity='error'>
-                <AlertTitle>Fail</AlertTitle>
-                The task is late
-              </Alert>
-            </Grid>
+            {moment().isAfter(moment(value.endDateDeadline)) ? (
+              <Grid item>
+                <Alert severity='error'>
+                  <AlertTitle>Fail</AlertTitle>
+                  The task is late
+                </Alert>
+              </Grid>
+            ) : null}
             <Grid item>
               <Box
                 style={{

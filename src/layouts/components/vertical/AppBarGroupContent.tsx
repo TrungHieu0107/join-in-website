@@ -17,6 +17,7 @@ import NotificationDropdown from 'src/@core/layouts/components/shared-components
 
 import { useToasts } from 'react-toast-notifications'
 import { Button } from '@mui/material'
+import LogoGroup from '../LogoGroup'
 
 interface Props {
   hidden: boolean
@@ -38,6 +39,7 @@ const AppBarContent = (props: Props) => {
     addToast.addToast('Click', { appearance: 'success' })
   }
 
+
   return (
     <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <Box className='actions-left' sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
@@ -50,6 +52,7 @@ const AppBarContent = (props: Props) => {
             <Menu />
           </IconButton>
         ) : null}
+        <LogoGroup/>
       </Box>
       <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
         {/* {hiddenSm ? null : (

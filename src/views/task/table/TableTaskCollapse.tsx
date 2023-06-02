@@ -1,4 +1,4 @@
-import { ChangeEvent, Fragment, useState } from 'react'
+import { ChangeEvent, Fragment, useEffect, useState } from 'react'
 import { Column } from 'src/models/common/Column'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -41,8 +41,8 @@ function Row(props: {
   }
 
   const handleViewDetail = () => {
-    console.log(selectedRow);
-    
+    console.log(selectedRow)
+
     if (selectedRow?.id) {
       clicktoDetail(selectedRow?.id)
     }
@@ -54,7 +54,7 @@ function Row(props: {
 
   return (
     <Fragment>
-      <TableRow aria-label='expand row' >
+      <TableRow aria-label='expand row'>
         <TableCell align='center'>{page * rowsPerPage + index + 1}</TableCell>
         {column.map(column => {
           const value = data[column.id]
@@ -66,10 +66,7 @@ function Row(props: {
           )
         })}
         <TableCell align='right' sx={{ width: 20, paddingLeft: 0 }}>
-          <IconButton
-            onClick={event => handleOptionsClick(event , row)}
-            sx={{ padding: 0 } }
-          >
+          <IconButton onClick={event => handleOptionsClick(event, row)} sx={{ padding: 0 }}>
             <DotsVertical />
           </IconButton>
         </TableCell>
@@ -103,15 +100,21 @@ function Row(props: {
 }
 
 export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
-  const [values] = useState<ITableTaskCollapseProps>(props)
+  const [values, setValues] = useState<ITableTaskCollapseProps>(props)
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
+
+  useEffect(() => {
+    setValues(props)
+  }, [props])
 
   const router = useRouter()
 
   const handleClickToTaskDetail = (id: number) => {
     if (router.pathname != '/group/task') return
 
+    console.log('detail');
+    
     router.push(`/group/task/${id}`)
   }
 

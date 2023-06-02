@@ -8,7 +8,7 @@ export class Comment {
   private _taskId: number | undefined
   private _task: Task | undefined
 
-  constructor(value?: any) {
+  constructor(value?: Partial<Comment>) {
     this.id = value?.id
     this.content = value?.content
     this.createdDate = value?.createdDate

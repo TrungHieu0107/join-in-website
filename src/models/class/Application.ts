@@ -92,7 +92,7 @@ export class Application {
     this._applicationMajors = val
   }
 
-  constructor(value?: any) {
+  constructor(value?: Partial<Application>) {
     this.id = value?.id
     this.createdDate = value?.createdDate
     this.status = value?.status

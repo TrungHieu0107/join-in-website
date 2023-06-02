@@ -12,7 +12,7 @@ export class Task {
   private _status: 'NOT_STARTED_YET' | 'WORKING' | 'FINISHED' | undefined
   private _groupId: number | undefined
   private _createdById: number | undefined
-  private _mainTaskId: number | undefined
+  private _mainTaskId: number | string | undefined
   private _group: Group | undefined
   private _createdBy: User | undefined
   private _mainTask: Task | undefined
@@ -20,7 +20,7 @@ export class Task {
   private _assignedTasks: AssignedTask[] | undefined
   private _comments: Comment[] | undefined
 
-  constructor(value?: any) {
+  constructor(value?: Partial<Task>) {
     this.id = value?.id
     this.name = value?.name
     this.startDateDeadline = value?.startDateDeadline
@@ -133,7 +133,7 @@ export class Task {
     return this._mainTaskId
   }
 
-  set mainTaskId(val: number | undefined) {
+  set mainTaskId(val: number | string | undefined) {
     this._mainTaskId = val
   }
 

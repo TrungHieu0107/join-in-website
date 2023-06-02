@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AssignedTask, Task, User } from 'src/models/class'
+import { AssignedTask, Member, Task, User } from 'src/models/class'
 import { Autocomplete, Avatar, Chip, TextField } from '@mui/material'
 
 export interface IAssignViewProps {
@@ -15,7 +15,6 @@ export default function AssignView(props: IAssignViewProps) {
   const fixedOptions = [top100Films[6]]
 
   useEffect(() => {
-    console.log('IAssignViewProps', props)
     setEditable(props.editable)
     setValue(props.data)
   })
@@ -65,43 +64,43 @@ export default function AssignView(props: IAssignViewProps) {
 
 const top100Films = [
   new AssignedTask({
-    assignedFor: {
+    assignedFor: new Member({
       user: new User({
         avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
         fullName: 'Hieuasdas 2'
       })
-    }
+    })
   }),
   new AssignedTask({
-    assignedFor: {
+    assignedFor: new Member({
       user: new User({
         avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
         fullName: 'Hieu 23123'
       })
-    }
+    })
   }),
   new AssignedTask({
-    assignedFor: {
+    assignedFor: new Member({
       user: new User({
         avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
         fullName: 'Hieu 12'
       })
-    }
+    })
   }),
   new AssignedTask({
-    assignedFor: {
+    assignedFor: new Member({
       user: new User({
         avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
         fullName: 'Hieu 10'
       })
-    }
+    })
   }),
   new AssignedTask({
-    assignedFor: {
+    assignedFor: new Member({
       user: new User({
         avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
         fullName: 'Hieu 4'
       })
-    }
+    })
   })
 ]

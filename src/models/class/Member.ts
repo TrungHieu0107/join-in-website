@@ -13,7 +13,7 @@ export class Member {
   private _assignedTasksBy: AssignedTask[] | undefined
   private _asks: Task[] | undefined
 
-  constructor(value?: any) {
+  constructor(value?: Partial<Member>) {
     this.id = value?.id
     this.userId = value?.userId
     this.groupId = value?.groupId
