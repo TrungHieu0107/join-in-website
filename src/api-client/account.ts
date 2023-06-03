@@ -14,9 +14,9 @@ export const authAPI = {
     return axiosClient.get('profile')
   },
 
-  signUp(payload: User) {
+  signUp(payload: any) {
     console.log(payload)
 
-    return axiosClient.get('profile')
+    return axiosClient.post('/register', payload)
   }
 }

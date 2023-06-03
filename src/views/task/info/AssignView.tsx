@@ -13,6 +13,7 @@ export default function AssignView(props: IAssignViewProps) {
   const [editable, setEditable] = useState(props.editable)
   const onInputChange = props.onInputChange
   const fixedOptions = [top100Films[6]]
+  const [listMember, setListMember] = useState<Member[]>()
 
   useEffect(() => {
     setEditable(props.editable)
@@ -24,28 +25,27 @@ export default function AssignView(props: IAssignViewProps) {
       <Autocomplete
         disabled={!editable}
         multiple
-        value={value.assignedTasks}
+        value={value.assignedFor}
         onChange={(event, newValue) => {
           if (!editable) {
             return
           }
           const newTask = new Task(value !== undefined ? value : {})
-          newTask.assignedTasks = newValue
+          newTask.assignedFor = newValue
 
           setValue(newTask)
           onInputChange(newTask)
         }}
-        options={top100Films.filter(item => value.assignedTasks?.indexOf(item) === -1)}
+        options={top100Films.filter(item => value.assignedFor?.indexOf(item) === -1)}
         getOptionLabel={option =>
-          option.assignedFor?.user?.fullName ? option.assignedFor?.user?.fullName : 'Không tên'
+          option?.fullName ? option?.fullName : 'Không tên'
         }
-        renderTags={(tagValue) =>
+        renderTags={tagValue =>
           tagValue.map((option, index) => (
             <Chip
               key={index}
-              avatar={<Avatar alt='Natacha' src={option.assignedFor?.user?.avatar} sizes='medium'/>}
-              label={option.assignedFor?.user?.fullName}
-
+              avatar={<Avatar alt='Natacha' src={option?.avatar} sizes='medium' />}
+              label={option?.fullName}
               // {...getTagProps({ index })}
               disabled={fixedOptions.indexOf(option) !== -1}
               variant='outlined'
@@ -63,44 +63,36 @@ export default function AssignView(props: IAssignViewProps) {
 }
 
 const top100Films = [
-  new AssignedTask({
-    assignedFor: new Member({
-      user: new User({
-        avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-        fullName: 'Hieuasdas 2'
-      })
-    })
+  new User({
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
+    fullName: 'Hieuasdas 2'
   }),
-  new AssignedTask({
-    assignedFor: new Member({
-      user: new User({
-        avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-        fullName: 'Hieu 23123'
-      })
-    })
+  new User({
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
+    fullName: 'Hieuasdas 2'
   }),
-  new AssignedTask({
-    assignedFor: new Member({
-      user: new User({
-        avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-        fullName: 'Hieu 12'
-      })
-    })
+  new User({
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
+    fullName: 'Hieuasdas 2'
   }),
-  new AssignedTask({
-    assignedFor: new Member({
-      user: new User({
-        avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-        fullName: 'Hieu 10'
-      })
-    })
+  new User({
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
+    fullName: 'Hieuasdas 2'
   }),
-  new AssignedTask({
-    assignedFor: new Member({
-      user: new User({
-        avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-        fullName: 'Hieu 4'
-      })
-    })
+  new User({
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
+    fullName: 'Hieuasdas 2'
+  }),
+  new User({
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
+    fullName: 'Hieuasdas 2'
+  }),
+  new User({
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
+    fullName: 'Hieuasdas 2'
+  }),
+  new User({
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
+    fullName: 'Hieuasdas 2'
   })
 ]

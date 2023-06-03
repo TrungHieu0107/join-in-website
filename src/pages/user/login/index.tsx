@@ -83,6 +83,10 @@ const LoginPage = () => {
   const router = useRouter()
   const addToast = useToasts()
 
+   const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+     addToast.addToast(message, { appearance: type })
+   }
+
   useEffect(() => {
     userDBDexie.clearToken()
   }, [])
@@ -115,9 +119,7 @@ const LoginPage = () => {
     event.preventDefault()
   }
 
-  const notify = (message:string, type: 'success' | 'error' | 'warning' | 'info') => {
-    addToast.addToast(message, { appearance: type })
-  }
+ 
 
   const handleSubmit = async () => {
     let isError = false
@@ -151,6 +153,8 @@ const LoginPage = () => {
         .login(user)
         .then(async res => {
           const token: string = new CommonResponse(res).data
+          console.log(token);
+          
           if (await userDBDexie.saveToken(token)) {
             router.push('/my-groups')
           }

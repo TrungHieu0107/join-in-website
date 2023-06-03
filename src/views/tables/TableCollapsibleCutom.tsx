@@ -19,7 +19,7 @@ import {
   Avatar,
   AvatarGroup,
   TablePagination,
-  Link
+  CircularProgress
 } from '@mui/material'
 
 // ** Icons Imports
@@ -35,6 +35,8 @@ import { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { StorageKeys } from 'src/constants'
 import moment from 'moment'
+import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel'
+import Link from 'next/link'
 
 const column: Column[] = [
   {
@@ -43,8 +45,8 @@ const column: Column[] = [
     minWidth: 200,
     align: 'left',
     format: (value: Task) => (
-      <Link href={`/group/task/${value.id}`} underline='hover' rel='noopener'>
-        <a>{value.name}</a>
+      <Link href={`/group/task/${value.id}`} rel='noopener' color='info'>
+        <a className='link-style'>{value.name}</a>
       </Link>
     )
   },
@@ -152,7 +154,7 @@ const column: Column[] = [
     )
   }
 ]
-
+  
 const columnSubTask: Column[] = [
   {
     id: 'name',
@@ -160,8 +162,8 @@ const columnSubTask: Column[] = [
     minWidth: 200,
     align: 'left',
     format: (value: Task) => (
-      <Link href={`/group/task/${value.id}`} underline='hover'>
-        <a>{value.name}</a>
+      <Link href={`/group/task/${value.id}`}>
+        <a className='link-style'>{value.name}</a>
       </Link>
     )
   },
@@ -228,20 +230,25 @@ const Row = (props: { row: Task; column?: Column[] }) => {
   // ** State
   const [open, setOpen] = useState<boolean>(false)
   const [data, setData] = useState<any>(props.row)
+  const [loading, setLoading] = useState(false)
   const header = props.column ?? column
-
 
   const toggleShowSubTask = async () => {
     if (open) {
       setOpen(false)
+      const newData = new Task(data)
+      newData.subTasks = []
+      setData(newData)
     } else {
       setOpen(true)
-      await taskAPI.getById(data.id ?? '').then((res) => {
+      setLoading(true)
+      await taskAPI.getById(data.id ?? '').then(res => {
         const response = new CommonResponse(res)
-        console.log(response);
-        
+        console.log(response)
+
         const newData = new Task(response.data)
         setData(newData)
+        setLoading(false)
       })
     }
   }
@@ -251,9 +258,15 @@ const Row = (props: { row: Task; column?: Column[] }) => {
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         {!props.column ? (
           <TableCell>
-            <IconButton aria-label='expand row' size='small' onClick={toggleShowSubTask}>
-              {open ? <ChevronUp /> : <ChevronDown />}
-            </IconButton>
+            {loading ? (
+              <IconButton aria-label='expand row' size='small'>
+                <CircularProgress color='success'size={24}/>
+              </IconButton>
+            ) : (
+              <IconButton aria-label='expand row' size='small' onClick={toggleShowSubTask}>
+                {open ? <ChevronUp /> : <ChevronDown />}
+              </IconButton>
+            )}
           </TableCell>
         ) : (
           ''
@@ -268,7 +281,7 @@ const Row = (props: { row: Task; column?: Column[] }) => {
           )
         })}
       </TableRow>
-      {props.row.subTasks ? (
+      {!loading && data.subTasks ? (
         <TableRow>
           <TableCell colSpan={column.length} sx={{ py: '0 !important' }}>
             <Collapse in={open} timeout='auto' unmountOnExit>
@@ -287,7 +300,7 @@ const Row = (props: { row: Task; column?: Column[] }) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {props.row?.subTasks?.map(row => (
+                    {data?.subTasks?.map((row: Task) => (
                       <Row key={row.id} row={row} column={columnSubTask} />
                     ))}
                   </TableBody>
@@ -296,19 +309,18 @@ const Row = (props: { row: Task; column?: Column[] }) => {
             </Collapse>
           </TableCell>
         </TableRow>
-      ) : (
-        ''
-      )}
+      ) : null}
     </Fragment>
   )
 }
 export default function ToDoTableCollapsible() {
   const [rows, setRows] = useState<Task[]>([])
   const router = useRouter()
+  const [queryModel, setQueryModel] = useState<QueryTaskListsModel>()
 
   useEffect(() => {
     getListTask()
-  }, [])
+  }, [queryModel])
 
   const getListTask = async () => {
     try {

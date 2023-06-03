@@ -28,7 +28,9 @@ function Row(props: {
   const { row, page, rowsPerPage, index, column, clicktoDetail } = props
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedRow, setSelectedRow] = useState<Task>()
-  const data: any = row
+  const data: any = row  
+  console.log(row);
+  
 
   const handleOptionsClose = () => {
     setAnchorEl(null)
@@ -61,7 +63,7 @@ function Row(props: {
 
           return (
             <TableCell key={column.id} align={column.align}>
-              {column.format ? column.format(value) : value}
+              {column.format ? column.format(new Task(data)) : value}
             </TableCell>
           )
         })}
@@ -106,6 +108,8 @@ export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
 
   useEffect(() => {
     setValues(props)
+    console.log(props);
+    
   }, [props])
 
   const router = useRouter()

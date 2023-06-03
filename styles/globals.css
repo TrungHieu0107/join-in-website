@@ -67,3 +67,15 @@ code[class*='language-'] {
 .MuiTimelineContent-root{
   margin: 0 !important;
 }
+
+.link-style:visited{
+  color:blue;
+}
+
+.link-style {
+  text-decoration: none;
+}
+
+.link-style:hover {
+  text-decoration: underline;
+}

@@ -1,27 +1,29 @@
-import { CommonResponse } from 'src/models/common/CommonResponse';
+import { QueryMajorListModel } from 'src/models/query-models/QueryMajorListModel'
 import axiosClient from './api-client'
-import { Major } from 'src/models/class';
+import { Major } from 'src/models'
 
-const URL = '/majors';
+const URL = '/majors'
 
 export const majorAPI = {
-  getList()  {
-    return axiosClient.get(`${URL}`)
+  getList(payload?: QueryMajorListModel) {
+    return axiosClient.get(`${URL}`, {
+      params: payload
+    })
   },
 
-  getById(id:string) {
+  getById(id: string) {
     return axiosClient.get(`${URL}/${id}`)
   },
 
   post(data: Major) {
-    return axiosClient.post(`${URL}`,data)
+    return axiosClient.post(`${URL}`, data)
   },
 
-  delete(id:string) {
+  delete(id: string) {
     return axiosClient.delete(`${URL}/${id}`)
   },
 
   put(data: Major) {
-    return axiosClient.put(`${URL}`,data)
+    return axiosClient.put(`${URL}`, data)
   }
 }

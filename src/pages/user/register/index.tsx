@@ -75,8 +75,8 @@ const RegisterPage = () => {
   const [values, setValues] = useState<State>({
     showPassword: false,
     showPasswordConfirm: false,
-    email: '',
-    password: '',
+    email: 'hieuntse151323@fpt.edu.vn',
+    password: '1234567890a',
     passwordConfirm: ''
   })
   const [emailError, setEmailError] = useState('')
@@ -166,14 +166,16 @@ const RegisterPage = () => {
     if (isError) {
       return
     }
-    const user = new User({
+    const user = {
       email: values.email,
       password: values.password
-    })
+    }
 
     authAPI
       .signUp(user)
-      .then()
+      .then(() => {
+        
+      })
       .catch(() => {
         router.push('/')
       })

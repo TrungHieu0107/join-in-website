@@ -32,6 +32,13 @@ export class Major {
   set name(val: string | undefined) {
     this._name = val
   }
+  get shortName() {
+    return this._shortName
+  }
+
+  set shortName(val: string | undefined) {
+    this._shortName = val
+  }
 
   get shortName() {
     return this._name

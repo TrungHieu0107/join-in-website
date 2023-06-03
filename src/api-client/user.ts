@@ -1,31 +1,50 @@
 import { Major, User, UserMajor } from 'src/models/class'
 import axiosClient from './api-client'
 
-const URL = '/users';
+const URL = '/users'
 
 export const userAPI = {
-
   getList() {
     return axiosClient.get(`${URL}`)
   },
 
-  getById(id:string) {
+  getById(id: string) {
     return axiosClient.get(`${URL}/${id}`)
   },
 
   post(data: User) {
-    return axiosClient.post(`${URL}`,data)
+    return axiosClient.post(`${URL}`, data)
   },
 
-  delete(id:string) {
+  delete(id: string) {
     return axiosClient.delete(`${URL}/${id}`)
   },
 
   put(data: User) {
-    return axiosClient.put(`${URL}`,data)
+    return axiosClient.put(`${URL}`, data)
   },
 
-
+  uploadImage(data?: File | undefined) {
+    if(data === undefined){
+      return Promise.resolve(true)
+    }
+    
+    return axiosClient.post(
+      `${URL}/upload/image`,
+      {
+        file: data
+      },
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Access-Control-Allow-Origin': 'http://localhost:8000',
+          'Access-Control-Allow-Methods': '*',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Credentials': 'true'
+        }
+      }
+    )
+  },
 
   Admin: {
     getListUser(): User[] {
@@ -59,6 +78,4 @@ export const userAPI = {
       return result
     }
   }
-
-
 }

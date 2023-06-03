@@ -1,7 +1,7 @@
 import { Application, GroupMajor, Member, Milestone, Task } from '.'
 
 export class Group {
-  private _id: number | undefined
+  private _id: string | undefined
   private _name: string | undefined
   private _avatar: string | undefined
   private _createdDate: Date | string | undefined
@@ -47,7 +47,7 @@ export class Group {
     return this._id
   }
 
-  set id(val: number | undefined) {
+  set id(val: string | undefined) {
     this._id = val
   }
 

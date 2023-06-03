@@ -6,7 +6,6 @@ const axiosClient = axios.create({
   baseURL: process.env.NODE_ENV === 'development' ? QueryKeys.BASE_LOCAL : QueryKeys.BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    Accept: 'application/json',
     'Access-Control-Allow-Origin': 'http://localhost:8000',
     'Access-Control-Allow-Methods': '*',
     'Access-Control-Allow-Headers': 'Content-Type',

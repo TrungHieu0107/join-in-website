@@ -5,8 +5,12 @@ import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import ShortDivider from '../../layouts/components/ShortDivider'
+import { useRouter } from 'next/router'
+
 
 const PremiumPackage = () => {
+  const router = useRouter()
+
   return (
     <Card>
       <CardMedia sx={{ height: '9.375rem' }} image='/images/cards/analog-clock.jpg' />
@@ -36,7 +40,9 @@ const PremiumPackage = () => {
           No ads whatsoever
         </Typography>
       </CardContent>
-      <Button variant='contained' sx={{ py: 2.5, width: '100%', borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
+      <Button variant='contained' sx={{ py: 2.5, width: '100%', borderTopLeftRadius: 0, borderTopRightRadius: 0 }} onClick={() => {
+        router.push('/payment')
+      }}>
         Purchase
       </Button>
     </Card>

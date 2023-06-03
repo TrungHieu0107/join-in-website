@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent, SyntheticEvent, forwardRef, SetStateAction } from 'react'
+import { useState, ElementType, ChangeEvent, SyntheticEvent, forwardRef, SetStateAction, useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -14,6 +14,7 @@ import IconButton from '@mui/material/IconButton'
 import CardContent from '@mui/material/CardContent'
 import FormControl from '@mui/material/FormControl'
 import Button, { ButtonProps } from '@mui/material/Button'
+import FormHelperText from '@mui/material/FormHelperText'
 
 // ** Icons Imports
 import Close from 'mdi-material-ui/Close'
@@ -30,30 +31,18 @@ import {
   Phone
 } from 'mdi-material-ui'
 import Editor from '../dialog/editor'
-
-interface Option {
-  id: number
-  name: string
-}
-
-const options: Option[] = [
-  {
-    id: 1,
-    name: 'Information Technology'
-  },
-  {
-    id: 2,
-    name: 'Business Administration'
-  },
-  {
-    id: 3,
-    name: 'English'
-  },
-  {
-    id: 4,
-    name: 'Japan'
-  }
-]
+import { Major } from 'src/models/class'
+import { majorAPI, userAPI } from 'src/api-client'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { useRouter } from 'next/router'
+import 'react-datepicker/dist/react-datepicker.css'
+import moment from 'moment'
+import { Message, QueryKeys, StorageKeys } from 'src/constants'
+import { UserCompleteProfileModel } from 'src/models/query-models/UserCompleteProfileModel'
+import { AxiosError, AxiosResponse } from 'axios'
+import { useToasts } from 'react-toast-notifications'
+import * as yup from 'yup'
+import { error } from 'console'
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 150,
@@ -105,19 +94,66 @@ const CustomInput = forwardRef((props, ref) => {
   )
 })
 
+interface ObjectValidate {
+  value?: any | any[]
+  error?: string
+}
+
 const TabAccount = () => {
   // ** State
   const [openAlert, setOpenAlert] = useState<boolean>(true)
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
   const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
   const [date, setDate] = useState<Date | null | undefined>(null)
-  const [selectedMajor, setSelectedMajor] = useState<Option[]>([])
-  const [description, setDescription] = useState('');
-  const [contacts, setContacts] = useState('');
-  const [skills, setSkills] = useState('');
+  const [selectedMajor, setSelectedMajor] = useState<ObjectValidate>()
+  const [description, setDescription] = useState('')
+  const [contacts, setContacts] = useState('')
+  const [skills, setSkills] = useState('')
+  const [majorOptions, setMajorOptions] = useState<Major[]>([])
+  const [fullName, setFullName] = useState<string>()
+  const [phone, setPhone] = useState<string>()
+  const [email, setEmail] = useState<ObjectValidate>({
+    value: '123@gmail.com'
+  })
+  const [gender, setGender] = useState<boolean>()
+  const [fileAvatar, setFileAvatar] = useState<FileList>()
+  const [fileBackGround, setFileBackGround] = useState<FileList>()
 
-  const handleButtonClick = () => {
-    console.log('Selected Values:', selectedMajor)
+  const router = useRouter()
+  const addToast = useToasts()
+
+  useEffect(() => {
+    getAllMajor()
+  }, [])
+
+  const emailValidate = yup.object().shape({
+    email: yup
+      .string()
+      .email(Message.INVALID_EMAIL)
+      .required(Message.EMAIL_REQUIRED)
+      .matches(QueryKeys.EMAIL_REGEX, Message.INVALID_EMAIL)
+  })
+
+  const getAllMajor = async () => {
+    await majorAPI
+      .getList()
+      .then(res => {
+        console.log(res)
+        const data = new CommonResponse(res).data as Major[]
+        setMajorOptions(data)
+      })
+      .catch(error => {
+        if ((error as AxiosError)?.response?.status === 401) {
+          notify('Login expired.', 'error')
+          router.push('/user/login')
+        } else {
+          console.log(error)
+        }
+      })
+  }
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
   }
 
   const onChangeAvatar = (file: ChangeEvent) => {
@@ -127,6 +163,7 @@ const TabAccount = () => {
       reader.onload = () => setImgSrc(reader.result as string)
 
       reader.readAsDataURL(files[0])
+      setFileAvatar(files)
     }
   }
 
@@ -137,7 +174,87 @@ const TabAccount = () => {
       reader.onload = () => setImgBackground(reader.result as string)
 
       reader.readAsDataURL(files[0])
+
+      setFileBackGround(files)
     }
+  }
+
+  const onSaveProfile = async () => {
+    let isError = false
+    await emailValidate
+      .validate({ email: email?.value ?? '' })
+      .then(() => {
+        isError = true
+        const object = {
+          value: email?.value ?? ('' as string),
+          error: ''
+        } as ObjectValidate
+        setEmail(object)
+      })
+      .catch(err => {
+        isError = true
+        const object = {
+          value: email?.value ?? ('' as string),
+          error: err.errors
+        } as ObjectValidate
+        setEmail(object)
+      })
+
+    if ((selectedMajor?.value as any[])?.length === 0) {
+      isError = true
+      const object = {
+        value: selectedMajor?.value,
+        error: ''
+      } as ObjectValidate
+      setSelectedMajor(object)
+    } else {
+      isError = false
+      const object = {
+        value: selectedMajor?.value,
+        error: ''
+      } as ObjectValidate
+      setSelectedMajor(object)
+    }
+
+    if (isError) {
+      return
+    }
+
+    await userAPI.uploadImage(fileAvatar ? fileAvatar[0] : undefined).then(async (res) => {
+      let urlAvatar = ''
+      if (typeof res !== 'boolean') {
+        urlAvatar = new CommonResponse(res as AxiosResponse).data
+      } else {
+        urlAvatar = imgSrc
+      }
+      await userAPI
+        .uploadImage(fileBackGround ? fileBackGround[0] : undefined)
+        .then(async resfileBackGround => {
+          let urlBackground = ''
+          if (typeof resfileBackGround !== 'boolean') {
+            urlBackground = new CommonResponse(res as AxiosResponse).data
+          } else {
+            urlBackground = imgBackgroud
+          }
+          const payload = new UserCompleteProfileModel({
+            avatar: urlAvatar,
+            birthDay: moment(date?.toString()).format(StorageKeys.KEY_FORMAT_DATE),
+            description: description,
+            fullName: fullName,
+            gender: gender,
+            majorIdList: (selectedMajor?.value as Major[]).map(item => item.id ?? ''),
+            skill: skills,
+            otherContact: contacts,
+            phoneNumber: phone,
+            theme: urlBackground
+          })
+
+          console.log(payload)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    })
   }
 
   return (
@@ -198,9 +315,11 @@ const TabAccount = () => {
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label='FullName'
+              label='FullName *'
+              value={fullName}
               placeholder='FullName'
               defaultValue='John Doe'
+              onChange={e => setFullName(e.target.value)}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
@@ -213,10 +332,17 @@ const TabAccount = () => {
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
+              error={(email?.error ?? '').length !== 0}
               type='email'
-              label='Email'
+              value={email?.value ?? ''}
+              label='Email *'
               placeholder='johnDoe@example.com'
-              defaultValue='johnDoe@example.com'
+              onChange={e =>
+                setEmail({
+                  value: e.target.value,
+                  error: ''
+                })
+              }
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
@@ -224,6 +350,8 @@ const TabAccount = () => {
                   </InputAdornment>
                 )
               }}
+              helperText={email?.error}
+              disabled={router.pathname.includes('initialization')}
             />
           </Grid>
 
@@ -243,11 +371,24 @@ const TabAccount = () => {
           <Grid item xs={12} sm={6}>
             <Autocomplete
               multiple
-              options={options}
-              getOptionLabel={option => option.name}
-              onChange={(event, value) => setSelectedMajor(value)}
-              renderInput={params => <TextField {...params} label='Major' variant='outlined' />}
+              value={selectedMajor?.value}
+              options={majorOptions.filter(
+                option => !selectedMajor?.value || (selectedMajor?.value as Major[])?.indexOf(option) === -1
+              )}
+              getOptionLabel={option => `${option.shortName} - ${option.name ?? 'No name'}`}
+              onChange={(event, value) =>
+                setSelectedMajor({
+                  value: value,
+                  error: ''
+                })
+              }
+              renderInput={params => <TextField {...params} label='Major *' variant='outlined' />}
             />
+            {(selectedMajor?.error ?? '')?.length > 0 && (
+              <FormHelperText error id='error'>
+                {selectedMajor?.error}
+              </FormHelperText>
+            )}
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
@@ -255,6 +396,7 @@ const TabAccount = () => {
               type='number'
               label='Phone'
               placeholder='(123) 456-7890'
+              onChange={e => setPhone(e.target.value)}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
@@ -267,7 +409,15 @@ const TabAccount = () => {
           <Grid item xs={12} sm={6}>
             <FormControl>
               <FormLabel sx={{ fontSize: '0.875rem' }}>Gender</FormLabel>
-              <RadioGroup row defaultValue='male' aria-label='gender' name='account-settings-info-radio'>
+              <RadioGroup
+                row
+                defaultValue='male'
+                aria-label='gender'
+                name='account-settings-info-radio'
+                onChange={e => {
+                  setGender(e.target.value === 'male')
+                }}
+              >
                 <FormControlLabel value='male' label='Male' control={<Radio />} />
                 <FormControlLabel value='female' label='Female' control={<Radio />} />
               </RadioGroup>
@@ -278,10 +428,12 @@ const TabAccount = () => {
               <Contacts sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Other Contacts</Typography>
             </Box>
-            <Editor name='contacts' value={contacts}
-            onChange={(dataChange: SetStateAction<string>) => {
-              setContacts(dataChange.toString())
-            }}
+            <Editor
+              name='contacts'
+              value={contacts}
+              onChange={(dataChange: SetStateAction<string>) => {
+                setContacts(dataChange.toString())
+              }}
             />
           </Grid>
           <Grid item xs={12} sm={12}>
@@ -289,10 +441,12 @@ const TabAccount = () => {
               <AlphaACircleOutline sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Your skills</Typography>
             </Box>
-            <Editor name='skills' value={skills}
-            onChange={(dataChange: SetStateAction<string>) => {
-              setSkills(dataChange.toString())
-            }}
+            <Editor
+              name='skills'
+              value={skills}
+              onChange={(dataChange: SetStateAction<string>) => {
+                setSkills(dataChange.toString())
+              }}
             />
           </Grid>
           <Grid item xs={12} sm={12}>
@@ -300,10 +454,12 @@ const TabAccount = () => {
               <InformationVariant sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Description</Typography>
             </Box>
-            <Editor name='description'  value={description}
-            onChange={(dataChange: SetStateAction<string>) => {
-              setDescription(dataChange.toString())
-            }}
+            <Editor
+              name='description'
+              value={description}
+              onChange={(dataChange: SetStateAction<string>) => {
+                setDescription(dataChange.toString())
+              }}
             />
           </Grid>
 
@@ -327,12 +483,14 @@ const TabAccount = () => {
           ) : null}
 
           <Grid item xs={12}>
-            <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleButtonClick}>
+            <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={onSaveProfile}>
               Save Changes
             </Button>
-            <Button type='reset' variant='outlined' color='secondary'>
-              Reset
-            </Button>
+            {!router.pathname.includes('initialization') ? (
+              <Button type='reset' variant='outlined' color='secondary'>
+                Reset
+              </Button>
+            ) : null}
           </Grid>
         </Grid>
       </form>

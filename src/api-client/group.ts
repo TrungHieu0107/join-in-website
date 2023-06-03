@@ -3,14 +3,14 @@ import { Group, Milestone } from 'src/models/class'
 import axiosClient from './api-client'
 import { GroupRequest } from 'src/models/query-models/GroupRequest';
 
-const URL = '/groups';
+const URL = '/groups'
 
 export const groupAPI = {
   getList() {
     return axiosClient.get(`${URL}`)
   },
 
-  getById(id:string) {
+  getById(id: string) {
     return axiosClient.get(`${URL}/${id}`)
   },
 
@@ -18,7 +18,7 @@ export const groupAPI = {
     return axiosClient.post(`${URL}`,data)
   },
 
-  delete(id:string) {
+  delete(id: string) {
     return axiosClient.delete(`${URL}/${id}`)
   },
 
@@ -26,14 +26,13 @@ export const groupAPI = {
     return axiosClient.put(`${URL}`,data)
   },
 
-
   Admin: {
     getListGroup(): Group[] {
       const result = []
       for (let index = 0; index < 80; index++) {
         result.push(
           new Group({
-            id: index,
+            id: 'index',
             name: `Group ${index}`,
             createdDate: moment().format('YYYY-MM-DD'),
             groupSize: (index % 21) - 1 < 1 ? 2 : index % 21,

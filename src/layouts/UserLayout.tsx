@@ -18,6 +18,8 @@ import VerticalAppBarContent from './components/vertical/AppBarContent'
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
 import { Box } from '@mui/material'
+import Link from 'next/link'
+import UpgradeToProImg from './components/UpgradeToProImg'
 
 interface Props {
   children: ReactNode
@@ -36,16 +38,6 @@ const UserLayout = ({ children }: Props) => {
    *  ! Do not change this value unless you know what you are doing. It can break the template.
    */
   const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
-
-  const UpgradeToProImg = () => {
-    return (
-      <Box sx={{ mx: 'auto' }}>
-        <a target='_blank' rel='noreferrer' href='https://join-in.vercel.app/package-screen'>
-          <img width={230} alt='upgrade to premium' src={`/images/misc/upgrade-banner-${settings.mode}.png`} />
-        </a>
-      </Box>
-    )
-  }
 
   return (
     <VerticalLayout

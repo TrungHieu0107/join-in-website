@@ -100,7 +100,8 @@ const columns: Column[] = [
 
   const handleCheckAllRow = (event: any) => {
     if (event.target.checked) {
-      setRowsSelected(currentData?.map(value => value.id ?? -1) ?? [])
+
+      // setRowsSelected(currentData?.map(value => value.id ?? -1) ?? [])
     } else {
       setRowsSelected([])
     }
@@ -177,8 +178,8 @@ const columns: Column[] = [
                   <TableRow hover role='checkbox' tabIndex={-1} key={rowData?.Id}>
                     <TableCell align='center' padding='none'>
                       <Checkbox
-                        onChange={e => handleCheckRowIndex(e, row.id ?? -1)}
-                        checked={rowsSelected.indexOf(row.id ?? -1) !== -1}
+                        // onChange={e => handleCheckRowIndex(e, row.id ?? -1)}
+                        // checked={rowsSelected.indexOf(row.id ?? -1) !== -1}
                       />
                     </TableCell>
                     <TableCell align='center'>{page * rowsPerPage + index + 1}</TableCell>

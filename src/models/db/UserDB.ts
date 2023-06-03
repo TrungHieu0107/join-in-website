@@ -37,7 +37,7 @@ export const userDBDexie = {
     try {
       const data = await db.user.toArray()
       if (data.length === 0) {
-        await db.user.add({
+        return await db.user.add({
           token: token
         })
       }
