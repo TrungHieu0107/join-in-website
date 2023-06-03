@@ -1,7 +1,7 @@
 import { AssignedTask, Group, User, Comment } from './index'
 
 export class Task {
-  private _id: number | undefined | string
+  private _id: undefined | string
   private _name: string | undefined
   private _startDateDeadline: string | undefined
   private _endDateDeadline: string | undefined
@@ -19,6 +19,7 @@ export class Task {
   private _subTasks: Task[] | undefined
   private _assignedTasks: AssignedTask[] | undefined
   private _comments: Comment[] | undefined
+  private _assignedFor: User[] | undefined
 
   constructor(value?: Partial<Task>) {
     this.id = value?.id
@@ -39,13 +40,14 @@ export class Task {
     this.subTasks = value?.subTasks
     this.assignedTasks = value?.assignedTasks
     this.comments = value?.comments
+    this.assignedFor = value?.assignedFor
   }
 
   get id() {
     return this._id
   }
 
-  set id(val: number | undefined | string) {
+  set id(val: undefined | string) {
     this._id = val
   }
 
@@ -183,5 +185,13 @@ export class Task {
 
   set comments(val: Comment[] | undefined) {
     this._comments = val
+  }
+
+  get assignedFor() {
+    return this._assignedFor
+  }
+
+  set assignedFor(val: User[] | undefined) {
+    this._assignedFor = val
   }
 }

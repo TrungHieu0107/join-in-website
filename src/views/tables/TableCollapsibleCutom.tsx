@@ -30,6 +30,11 @@ import { importantLevel } from 'src/constants/important-level'
 import { statusObj } from 'src/constants/task-status'
 import { Task } from 'src/models/class'
 import { taskAPI } from 'src/api-client/task'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { AxiosError } from 'axios'
+import { useRouter } from 'next/router'
+import { StorageKeys } from 'src/constants'
+import moment from 'moment'
 
 const column: Column[] = [
   {
@@ -67,13 +72,15 @@ const column: Column[] = [
     id: 'startDateDeadline',
     label: 'Start Date',
     minWidth: 150,
-    align: 'center'
+    align: 'center',
+    format: (value: Task) => moment(value.startDateDeadline).format(StorageKeys.KEY_FORMAT_DATE)
   },
   {
     id: 'endDateDeadline',
     label: 'End Date',
     minWidth: 150,
-    align: 'center'
+    align: 'center',
+    format: (value: Task) => moment(value.endDateDeadline).format(StorageKeys.KEY_FORMAT_DATE)
   },
   {
     id: 'impotantLevel',
@@ -115,16 +122,16 @@ const column: Column[] = [
     )
   },
   {
-    id: 'assignedTasks',
+    id: 'assignedFor',
     label: 'Assignee',
     minWidth: 100,
     align: 'center',
     format: (value: Task) => (
-      <AvatarGroup total={value?.assignedTasks?.length}>
-        {value?.assignedTasks?.map((val, index) =>
+      <AvatarGroup total={value?.assignedFor?.length}>
+        {value?.assignedFor?.map((val, index) =>
           index < 2 ? (
-            <Tooltip key={index} title={val?.assignedFor?.user?.fullName ?? ''} placement='bottom'>
-              <Avatar alt='Test' src={val?.assignedFor?.user?.avatar} sizes='small' />
+            <Tooltip key={index} title={val?.fullName ?? ''} placement='bottom'>
+              <Avatar alt='Test' src={val?.avatar} sizes='small' />
             </Tooltip>
           ) : (
             ''
@@ -220,15 +227,31 @@ const columnSubTask: Column[] = [
 const Row = (props: { row: Task; column?: Column[] }) => {
   // ** State
   const [open, setOpen] = useState<boolean>(false)
-  const data: any = new Task(props.row)
+  const [data, setData] = useState<any>(props.row)
   const header = props.column ?? column
+
+
+  const toggleShowSubTask = async () => {
+    if (open) {
+      setOpen(false)
+    } else {
+      setOpen(true)
+      await taskAPI.getById(data.id ?? '').then((res) => {
+        const response = new CommonResponse(res)
+        console.log(response);
+        
+        const newData = new Task(response.data)
+        setData(newData)
+      })
+    }
+  }
 
   return (
     <Fragment>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         {!props.column ? (
           <TableCell>
-            <IconButton aria-label='expand row' size='small' onClick={() => setOpen(!open)}>
+            <IconButton aria-label='expand row' size='small' onClick={toggleShowSubTask}>
               {open ? <ChevronUp /> : <ChevronDown />}
             </IconButton>
           </TableCell>
@@ -281,10 +304,33 @@ const Row = (props: { row: Task; column?: Column[] }) => {
 }
 export default function ToDoTableCollapsible() {
   const [rows, setRows] = useState<Task[]>([])
+  const router = useRouter()
 
   useEffect(() => {
-    setRows(taskAPI.User.getListTodo())
+    getListTask()
   }, [])
+
+  const getListTask = async () => {
+    try {
+      await taskAPI
+        .getList()
+        .then(res => {
+          const data = new CommonResponse(res)
+          console.log(data)
+          const newTaskList: Task[] = data.data
+          setRows(newTaskList)
+        })
+        .catch(error => {
+          if ((error as AxiosError)?.response?.status === 401) {
+            router.push('/user/login')
+          } else {
+            console.log(error)
+          }
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)

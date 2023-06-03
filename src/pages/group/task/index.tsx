@@ -21,7 +21,7 @@ import UserGroupLayout from 'src/layouts/UserGroupLayout'
 
 const getData = () => {
   const task = new Task({
-    id: 1,
+    id: "1",
     name: 'Task',
     estimatedDays: 2,
     impotantLevel: 'VERY_HIGH',
@@ -46,7 +46,7 @@ const getData = () => {
   })
   const list = []
   for (let i = 0; i < 50; i++) {
-    task.id = i
+    task.id = "i"
     list.push(task)
   }
 
