@@ -1,7 +1,7 @@
 import { Pagination } from './Pagination'
 
 export class CommonResponse {
-  private _data: any | undefined
+  private _data: any | any[] | undefined
   private _message: string | undefined
   private _status: number | undefined
   private _pagination: Pagination | undefined
@@ -17,7 +17,7 @@ export class CommonResponse {
     return this._data
   }
 
-  set data(val: any | undefined) {
+  set data(val: any | any[] | undefined) {
     this._data = val
   }
 

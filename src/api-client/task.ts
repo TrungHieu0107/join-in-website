@@ -2,31 +2,35 @@ import moment from 'moment'
 import { StorageKeys } from 'src/constants'
 import { AssignedTask, Group, Member, Task, User, Comment } from 'src/models/class'
 import axiosClient from './api-client'
+import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel'
 
-const URL = '/tasks';
+const URL = '/tasks'
 
 export const taskAPI = {
-  getList() {
-    return axiosClient.get(`${URL}`)
+  getList(payload?: QueryTaskListsModel) {
+    const params = {
+      params: { ...payload }
+    }
+    console.log('params', params)
+
+    return axiosClient.get(`${URL}`, params)
   },
 
-  getById(id:string) {
+  getById(id: string) {
     return axiosClient.get(`${URL}/${id}`)
   },
 
   post(data: Task) {
-    return axiosClient.post(`${URL}`,data)
+    return axiosClient.post(`${URL}`, data)
   },
 
-  delete(id:string) {
+  delete(id: string) {
     return axiosClient.delete(`${URL}/${id}`)
   },
 
   put(data: Task) {
-    return axiosClient.put(`${URL}`,data)
+    return axiosClient.put(`${URL}`, data)
   },
-
-
 
   User: {
     getListTodo(): Task[] {
@@ -35,7 +39,7 @@ export const taskAPI = {
       for (let index = 0; index < 80; index++) {
         result.push(
           new Task({
-            id: index,
+            id: 'index',
             name: 'Task',
             estimatedDays: 2,
             impotantLevel: 'VERY_HIGH',
@@ -66,7 +70,7 @@ export const taskAPI = {
             }),
             subTasks: [
               new Task({
-                id: 1,
+                id: '1',
                 name: 'Task',
                 estimatedDays: 2,
                 impotantLevel: 'VERY_HIGH',
@@ -132,7 +136,7 @@ export const taskAPI = {
         }),
         subTasks: [
           new Task({
-            id: 1,
+            id: '1',
             name: 'Task',
             estimatedDays: 2,
             impotantLevel: 'VERY_HIGH',

@@ -309,7 +309,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
             flexItem
             style={{ height: '300px', width: '0.5px', borderColor: '#d4d2d5', marginLeft: '4px' }}
           />
-          <Grid item xs={6} sm={7} direction={'row'}>
+          <Grid item xs={6} sm={7}>
             {moment().isAfter(moment(value.endDateDeadline)) ? (
               <Grid item>
                 <Alert severity='error'>

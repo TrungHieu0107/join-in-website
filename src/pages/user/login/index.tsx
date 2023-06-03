@@ -1,5 +1,5 @@
 // ** React Imports
-import { ChangeEvent, MouseEvent, ReactNode, useState } from 'react'
+import { ChangeEvent, MouseEvent, ReactNode, useEffect, useState } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -20,6 +20,7 @@ import MuiCard, { CardProps } from '@mui/material/Card'
 import InputAdornment from '@mui/material/InputAdornment'
 import FormHelperText from '@mui/material/FormHelperText'
 import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
+import {Grid} from '@mui/material'
 
 // ** Icons Imports
 import Google from 'mdi-material-ui/Google'
@@ -41,11 +42,14 @@ import { authAPI } from 'src/api-client'
 import MyLogo from 'src/layouts/components/MyLogo'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { userDBDexie } from 'src/models/db/UserDB'
+import { useRouter } from 'next/router'
+import { useToasts } from 'react-toast-notifications'
 
 interface State {
   email: string
   password: string
   showPassword: boolean
+  messageError: string
 }
 
 // ** Styled Components
@@ -69,12 +73,19 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
 const LoginPage = () => {
   // ** State
   const [values, setValues] = useState<State>({
-    email: '',
-    password: '',
-    showPassword: false
+    email: 'bao2792001@gmail.com',
+    password: '1234567890a',
+    showPassword: false,
+    messageError: ''
   })
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const router = useRouter()
+  const addToast = useToasts()
+
+  useEffect(() => {
+    userDBDexie.clearToken()
+  }, [])
 
   const emailValidate = yup.object().shape({
     email: yup
@@ -102,6 +113,10 @@ const LoginPage = () => {
 
   const handleMouseDownPassword = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
+  }
+
+  const notify = (message:string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
   }
 
   const handleSubmit = async () => {
@@ -135,13 +150,17 @@ const LoginPage = () => {
       await authAPI
         .login(user)
         .then(async res => {
-          console.log('user', new CommonResponse(res))
           const token: string = new CommonResponse(res).data
-          console.log('123',await userDBDexie.saveToken(token))
-          console.log('token ', userDBDexie.getToken())
+          if (await userDBDexie.saveToken(token)) {
+            router.push('/my-groups')
+          }
         })
-        .catch(error => console.log('authAPI', error))
-    } catch (error) {
+        .catch(error =>{ console.log('authAPI', error)
+      if (error?.response?.data?.message) {
+        setValues({...values, messageError: error?.response?.data?.message})
+        notify(error?.response?.data?.message, 'error')
+      }})
+    } catch (error : any) {
       console.log('login page', error)
     }
   }
@@ -217,14 +236,17 @@ const LoginPage = () => {
                 </FormHelperText>
               )}
             </FormControl>
-            <Box
-              sx={{ mb: 4, display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}
-            >
+            <Grid container sx={{ mb: 4, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+              <Grid item sm={12} md={12}>
+                <FormHelperText error id='login-error'>
+                  <Typography color={'error'}>{values.messageError}</Typography>
+                </FormHelperText>
+              </Grid>
               <FormControlLabel control={<Checkbox />} label='Remember Me' />
               <Link passHref href='/'>
                 <LinkStyled onClick={e => e.preventDefault()}>Forgot Password?</LinkStyled>
               </Link>
-            </Box>
+            </Grid>
             <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} onClick={handleSubmit}>
               Login
             </Button>
