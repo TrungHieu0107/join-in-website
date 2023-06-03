@@ -14,6 +14,11 @@ import {
 } from '@mui/material'
 import {  InformationVariant } from 'mdi-material-ui'
 import { SetStateAction, useState } from 'react'
+import { useToasts } from 'react-toast-notifications'
+import { applicationAPI } from 'src/api-client'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { groupDBDexie } from 'src/models/db/GroupDB'
+import { ApplicationRequest } from 'src/models/request/ApplicationRequest'
 import Editor from 'src/views/dialog/editor'
 
 // ** Icons Imports
@@ -32,13 +37,44 @@ const ApplicationForm = () => {
   // ** State
   const [description, setDescription] = useState<string>('');
   const [selectedValue, setSelectedValue] = useState('IT');
+  const addToast = useToasts()
 
   const handleChange = (event:SelectChangeEvent<string>) => {
     setSelectedValue(event.target.value);
   };
 
-  const handleClickSend = () => {
-    console.log(description);
+  const handleClickSend = async () => {
+    try {
+      // use for test, can delete
+      // const data : any = {
+      //   id: '0dfb1947-defb-ed11-9eff-c809a8bfd17e',
+      // }
+      // await groupDBDexie.saveGroup(data);
+
+      const groupData = await groupDBDexie.getGroup();
+      console.log(groupData?.id);
+
+      const application : ApplicationRequest =  {
+        Description: description,
+        GroupId: groupData?.id,
+        MajorIds: ["5ddb54c7-58fa-ed11-9eff-c809a8bfd17e"]
+      }
+       await applicationAPI.postApplication(application)
+        .then(async res =>{
+          console.log(res);
+          const data= new CommonResponse(res.data);
+          console.log(data);
+          addToast.addToast(data.message, { appearance: 'success' })
+          console.log(res);
+        })
+        .catch(error => {
+          console.log('login page', error)
+        });
+
+    } catch (e){
+
+    }
+
   }
 
 

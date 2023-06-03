@@ -7,11 +7,15 @@ import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import AvatarGroup from '@mui/material/AvatarGroup'
 import { Button, ButtonGroup } from '@mui/material'
+import { useRouter } from 'next/router'
 
 const CardGroup = () => {
 
+  const router = useRouter()
+
   const handleClickOpen = () => {
     //handle Click Open View Group
+    router.push('/view-group')
   }
 
   return (
