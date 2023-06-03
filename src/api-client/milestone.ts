@@ -1,11 +1,14 @@
+import { groupDBDexie } from 'src/models/db/GroupDB';
 import axiosClient from './api-client'
 import { Milestone } from 'src/models';
 
 const URL = '/milestones';
 
 export const milestoneAPI = {
-  getList() {
-    return axiosClient.get(`${URL}`)
+  async getList() {
+    const data = await groupDBDexie.getGroup();
+
+    return axiosClient.get(`${URL}/${data?.id}`)
   },
 
   getById(id:string) {

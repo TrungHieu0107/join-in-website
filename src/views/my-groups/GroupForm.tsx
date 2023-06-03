@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent } from 'react'
+import { useState, ElementType, ChangeEvent, SetStateAction } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -14,6 +14,17 @@ import Button, { ButtonProps } from '@mui/material/Button'
 import {  Divider, InputAdornment } from '@mui/material'
 import { AccountGroup, AlphaACircleOutline, Book,  InformationVariant, School, TownHall } from 'mdi-material-ui'
 import Editor from '../dialog/editor'
+import { useToasts } from 'react-toast-notifications'
+import { GroupRequest } from 'src/models/query-models/GroupRequest'
+import { groupAPI } from 'src/api-client'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+
+interface State {
+  groupName: string
+  schoolName: string
+  className: string
+  subject: string
+}
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -52,8 +63,22 @@ const GroupForm  = () => {
   // ** State
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
   const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
+  const [values, setValues] = useState<State>({
+    groupName: '',
+    schoolName: '',
+    className: '',
+    subject: ''
+  })
+  const [skills, setSkills] = useState<string>('')
+  const [description, setDescription] = useState<string>('')
 
-  const onChange = (file: ChangeEvent) => {
+  const addToast = useToasts()
+
+  const handleChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
+    setValues({ ...values, [prop]: event.target.value })
+  }
+
+  const onChangeAvatar = (file: ChangeEvent) => {
     const reader = new FileReader()
     const { files } = file.target as HTMLInputElement
     if (files && files.length !== 0) {
@@ -73,14 +98,47 @@ const GroupForm  = () => {
     }
   }
 
+  const handleCreateGroup = async () => {
+    try {
+      const group : GroupRequest = {
+        Name: values.groupName,
+        SchoolName: values.schoolName,
+        ClassName: values.className,
+        SubjectName: values.subject,
+        Description: description,
+        Skill: skills,
+        Avatar: '',
+        Theme: ''
+      }
+
+      await groupAPI
+        .post(group)
+        .then(async res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
+        })
+        .catch(error => {
+          console.log('Application Form: ', error)
+        })
+
+    } catch(err){
+      console.log(err)
+    }
+  }
+
+  const handleReset = () => {
+    // Reset All
+  }
+
   return (
     <CardContent>
       <form>
         <Grid container spacing={7}>
-
-
           <Grid item xs={12} >
-            <TextField fullWidth label='Group Name' placeholder='Group Name'
+            <TextField fullWidth
+            label='Group Name'
+            placeholder='Group Name'
+            onChange={handleChange('groupName')}
             InputProps={{
               startAdornment: (
                 <InputAdornment position='start'>
@@ -95,6 +153,7 @@ const GroupForm  = () => {
               fullWidth
               label='School Name'
               placeholder='School Name'
+              onChange={handleChange('schoolName')}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
@@ -109,6 +168,7 @@ const GroupForm  = () => {
               fullWidth
               label='Class Name'
               placeholder='Class Name'
+              onChange={handleChange('className')}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
@@ -123,6 +183,7 @@ const GroupForm  = () => {
               fullWidth
               label='Subject'
               placeholder='Subject'
+              onChange={handleChange('subject')}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
@@ -133,31 +194,29 @@ const GroupForm  = () => {
             />
           </Grid>
 
-          {/* <Grid item xs={12} sm={6}>
-            <TextField fullWidth type='number' label='Size' placeholder='1' defaultValue='1'
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <AccountMultiple />
-                </InputAdornment>
-              )
-            }}
-            />
-          </Grid> */}
-
           <Grid item xs={12} sm={12}>
           <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <AlphaACircleOutline sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Skills</Typography>
             </Box>
-            <Editor name='skill' onChange={undefined} value={undefined} />
+            <Editor name='skill'
+             value={skills}
+             onChange={(dataChange: SetStateAction<string>) => {
+              setSkills(dataChange.toString())
+            }}
+             />
           </Grid>
           <Grid item xs={12} sm={12}>
           <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <InformationVariant sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Description</Typography>
             </Box>
-            <Editor name='description' onChange={undefined} value={undefined} />
+            <Editor name='description'
+             value={description}
+             onChange={(dataChange: SetStateAction<string>) => {
+              setDescription(dataChange.toString())
+            }}
+             />
           </Grid>
 
           <Grid item xs={12}  sx={{ marginTop: 4.8, marginBottom: 3 }}>
@@ -169,7 +228,7 @@ const GroupForm  = () => {
                   <input
                     hidden
                     type='file'
-                    onChange={onChange}
+                    onChange={onChangeAvatar}
                     accept='image/png, image/jpeg'
                     id='account-settings-upload-image'
                   />
@@ -213,10 +272,10 @@ const GroupForm  = () => {
 
           <Grid item xs={12}>
           <Divider sx={{mb: 7}}/>
-            <Button variant='contained' sx={{ marginRight: 3.5 }}>
+            <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleCreateGroup}>
               Create
             </Button>
-            <Button type='reset' variant='outlined' color='secondary'>
+            <Button type='reset' variant='outlined' color='secondary' onClick={handleReset}>
               Reset
             </Button>
           </Grid>

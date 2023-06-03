@@ -5,7 +5,7 @@ import { Milestone } from './Milestone'
 import { Task } from './Task'
 
 export interface Group {
-  Id: number
+  Id: string
   Name: string
   CreatedDate: Date
   GroupSize: number

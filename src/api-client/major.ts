@@ -1,10 +1,11 @@
+import { CommonResponse } from 'src/models/common/CommonResponse';
 import axiosClient from './api-client'
-import { Major } from 'src/models';
+import { Major } from 'src/models/class';
 
 const URL = '/majors';
 
 export const majorAPI = {
-  getList() {
+  getList()  {
     return axiosClient.get(`${URL}`)
   },
 

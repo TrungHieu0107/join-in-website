@@ -12,11 +12,11 @@ const useIndexedDBData = () => {
   }, [])
 
   const createLogoGroup = async () => {
-    const newGroup = await groupDBDexie.groups.get({ id: 1 })
+    const newGroup = await groupDBDexie.getGroup()
     console.log(newGroup)
     setGroup(newGroup)
   }
-  
+
   return group
 }
 

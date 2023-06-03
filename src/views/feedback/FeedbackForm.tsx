@@ -7,9 +7,15 @@ import Button from '@mui/material/Button'
 
 // ** Icons Imports
 import {  Avatar, Rating } from '@mui/material'
-import { InformationVariant, Star } from 'mdi-material-ui'
+import {  InformationVariant, Star } from 'mdi-material-ui'
 import Editor from '../dialog/editor'
-import React from 'react'
+import React, { SetStateAction, useEffect, useState } from 'react'
+import { feedbackAPI, userAPI } from 'src/api-client'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { User } from 'src/models'
+import { FeedbackRequest } from 'src/models/query-models/FeedbackRequest'
+import {  groupDBDexie } from 'src/models/db/GroupDB'
+import { useToasts } from 'react-toast-notifications'
 
 
 const labels: { [index: string]: string } = {
@@ -31,9 +37,58 @@ function getLabelText(value: number) {
 
 const FeedbackForm = () => {
   // ** State
+  const id = '';
   const imgSrc = '/images/avatars/1.png'
-  const [value, setValue] = React.useState<number | null>(2)
-  const [hover, setHover] = React.useState(-1)
+  const [valueRating, setValueRating] = useState<number |null>(2)
+  const [hover, setHover] = useState(-1)
+  const [content, setContent] = useState<string>('')
+  const [user, setUser] = useState<User>();
+
+  const addToast = useToasts();
+
+  useEffect(()=>{
+    //getProfile();
+  })
+
+
+
+  const getProfile = async () =>{
+    await userAPI.getById(id)
+    .then(res => {
+      const data = new CommonResponse(res);
+      const user : User = data.data
+      setUser(user);
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  }
+
+  const handleSubmit = async () =>{
+    try {
+      const groupData = await groupDBDexie.getGroup()
+      const feedbackRequest : FeedbackRequest =
+      {
+        FeedbackedForId: user?.Id,
+        GroupId: groupData?.id,
+        Content: content,
+        Rating: valueRating
+      }
+      await feedbackAPI.post(feedbackRequest)
+      .then(res => {
+        const data = new CommonResponse(res);
+        addToast.addToast(data.message, {appearance:'success'})
+      })
+
+    } catch (err){
+      console.log(err)
+    }
+  }
+
+  const handleReset = () =>{
+    setValueRating(0.5);
+    setContent('');
+  }
 
   return (
     <CardContent>
@@ -41,8 +96,8 @@ const FeedbackForm = () => {
         <Grid container spacing={7}>
           <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-              <Avatar src={imgSrc} alt='Profile Pic'  sx={{ width: 120, height: 120 }}/>
-              <Typography variant='h5'>Pham Xuan Kien</Typography>
+              <Avatar src={user?.Avatar} alt='Profile Pic'  sx={{ width: 120, height: 120 }}/>
+              <Typography variant='h5'>{user?.FullName}</Typography>
             </Box>
           </Grid>
 
@@ -60,18 +115,18 @@ const FeedbackForm = () => {
             >
               <Rating
                 name='hover-feedback'
-                value={value}
+                value={valueRating}
                 precision={0.5}
                 getLabelText={getLabelText}
                 onChange={(event, newValue) => {
-                  setValue(newValue)
+                  setValueRating(newValue)
                 }}
                 onChangeActive={(event, newHover) => {
                   setHover(newHover)
                 }}
                 emptyIcon={<Star style={{ opacity: 0.55 }} fontSize='inherit' />}
               />
-              {value !== null && <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : value]}</Box>}
+              {valueRating !== null && <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : valueRating]}</Box>}
             </Box>
           </Grid>
 
@@ -80,14 +135,18 @@ const FeedbackForm = () => {
               <InformationVariant sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Content</Typography>
             </Box>
-            <Editor name='description' onChange={undefined} value={undefined} />
+            <Editor name='description' value={content}
+            onChange={(dataChange: SetStateAction<string>) => {
+              setContent(dataChange.toString())
+            }}
+            />
           </Grid>
 
           <Grid item xs={12}>
-            <Button variant='contained' sx={{ marginRight: 3.5 }}>
+            <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleSubmit}>
               Submit
             </Button>
-            <Button type='reset' variant='outlined' color='secondary'>
+            <Button type='reset' variant='outlined' color='secondary' onClick={handleReset}>
               Reset
             </Button>
           </Grid>

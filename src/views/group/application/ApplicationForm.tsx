@@ -12,13 +12,14 @@ import {
   Typography,
   SelectChangeEvent
 } from '@mui/material'
-import {  InformationVariant } from 'mdi-material-ui'
-import { SetStateAction, useState } from 'react'
+import { InformationVariant } from 'mdi-material-ui'
+import { SetStateAction, useEffect, useState } from 'react'
 import { useToasts } from 'react-toast-notifications'
-import { applicationAPI } from 'src/api-client'
+import { applicationAPI, majorAPI } from 'src/api-client'
+import { Major } from 'src/models/class'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { groupDBDexie } from 'src/models/db/GroupDB'
-import { ApplicationRequest } from 'src/models/request/ApplicationRequest'
+import { ApplicationRequest } from 'src/models/query-models/ApplicationRequest'
 import Editor from 'src/views/dialog/editor'
 
 // ** Icons Imports
@@ -35,15 +36,27 @@ const RecruitmentData = [
 
 const ApplicationForm = () => {
   // ** State
-  const [description, setDescription] = useState<string>('');
-  const [selectedValue, setSelectedValue] = useState('IT');
+  const [description, setDescription] = useState<string>('')
+  const [selectedValue, setSelectedValue] = useState('')
+  const [listMajors, setListMajors] = useState<Major[]>([])
+
   const addToast = useToasts()
 
-  const handleChange = (event:SelectChangeEvent<string>) => {
-    setSelectedValue(event.target.value);
-  };
+  useEffect(() => {
+    getListMajors()
+  }, [])
+
+  const handleChange = (event: SelectChangeEvent<string>) => {
+    setSelectedValue(event.target.value)
+  }
 
   const handleClickSend = async () => {
+    await sendApplication()
+
+    // close form (optional)
+  }
+
+  const sendApplication = async () => {
     try {
       // use for test, can delete
       // const data : any = {
@@ -51,32 +64,46 @@ const ApplicationForm = () => {
       // }
       // await groupDBDexie.saveGroup(data);
 
-      const groupData = await groupDBDexie.getGroup();
-      console.log(groupData?.id);
+      const groupData = await groupDBDexie.getGroup()
+      console.log(groupData?.id)
 
-      const application : ApplicationRequest =  {
+      const application: ApplicationRequest = {
         Description: description,
         GroupId: groupData?.id,
-        MajorIds: ["5ddb54c7-58fa-ed11-9eff-c809a8bfd17e"]
+        MajorIds: [selectedValue]
       }
-       await applicationAPI.postApplication(application)
-        .then(async res =>{
-          console.log(res);
-          const data= new CommonResponse(res.data);
-          console.log(data);
+      console.log(application)
+
+      await applicationAPI
+        .postApplication(application)
+        .then(async res => {
+          const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
-          console.log(res);
         })
         .catch(error => {
-          console.log('login page', error)
-        });
-
-    } catch (e){
-
+          console.log('Application Form: ', error)
+        })
+    } catch (e) {
+      console.log('Application Form: ', e)
     }
-
   }
 
+  const getListMajors = async () => {
+    try {
+      await majorAPI
+        .getList()
+        .then(res => {
+          const data = new CommonResponse(res)
+          const majors: Major[] = data.data
+          setListMajors(majors)
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    } catch (err) {
+      addToast.addToast(err, { appearance: 'error' })
+    }
+  }
 
   return (
     <CardContent>
@@ -86,22 +113,26 @@ const ApplicationForm = () => {
             <FormControl fullWidth>
               <InputLabel>Major</InputLabel>
               <Select label='Role' value={selectedValue} onChange={handleChange}>
-                <MenuItem value='IT'>Information Technology</MenuItem>
-                <MenuItem value='BA'>Business Administration</MenuItem>
-                <MenuItem value='EN'>English</MenuItem>
-                <MenuItem value='JP'>Japan</MenuItem>
+                {listMajors.map(item => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} >
-          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+          <Grid item xs={12}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <InformationVariant fontSize='small' sx={{ marginRight: 1 }} />
               <Typography variant='body2'>Description</Typography>
             </Box>
-            <Editor name='description'  value={description}
-            onChange={(dataChange: SetStateAction<string>) => {
-                  setDescription(dataChange.toString())
-                }} />
+            <Editor
+              name='description'
+              value={description}
+              onChange={(dataChange: SetStateAction<string>) => {
+                setDescription(dataChange.toString())
+              }}
+            />
           </Grid>
 
           <Grid item xs={12}>
@@ -131,7 +162,7 @@ const ApplicationForm = () => {
               <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>{item.major}</Typography>
               </Box>
-              <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'row' , alignItems: 'center'}}>
+              <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <Typography variant='subtitle1' sx={{ fontWeight: 600, color: 'success.main', mr: 5 }}>
                   {item.quantity}
                 </Typography>

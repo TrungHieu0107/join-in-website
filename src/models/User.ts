@@ -5,7 +5,7 @@ import { Transaction } from './Transaction'
 import { UserMajor } from './UserMajor'
 
 export interface User {
-  Id?: number
+  Id?: string
   FullName?: string
   Password?: string
   Email?: string

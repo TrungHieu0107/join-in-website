@@ -9,30 +9,64 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { Grid, CardContent, Card, CardHeader } from '@mui/material'
 import MilestoneForm from './MilestoneForm'
+import { useState,useEffect } from 'react'
+import { Milestone } from 'src/models'
+import { milestoneAPI } from 'src/api-client'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { useToasts } from 'react-toast-notifications'
 
-const steps = [
+const steps : Milestone[] = [
   {
-    label: 'Select campaign settings',
-    description: `For each ad campaign that you create, you can control how much
+    Id: '1',
+    Name: 'Select campaign settings',
+    Description: `For each ad campaign that you create, you can control how much
               you're willing to spend on clicks and conversions, which networks
               and geographical locations you want your ads to show on, and more.`
   },
   {
-    label: 'Create an ad group',
-    description: 'An ad group contains one or more ads which target a shared set of keywords.'
+    Id: '2',
+    Name: 'Create an ad group',
+    Description: 'An ad group contains one or more ads which target a shared set of keywords.'
   },
   {
-    label: 'Create an ad',
-    description: `Try out different ad text to see what brings in the most customers,
+    Id: '3',
+    Name: 'Create an ad',
+    Description: `Try out different ad text to see what brings in the most customers,
               and learn how to enhance your ads using features like ad extensions.
               If you run into any problems with your ads, find out how to tell if
               they're running and how to resolve approval issues.`
   }
 ]
 
-export default function Milestone() {
-  const [activeStep, setActiveStep] = React.useState(0)
-  const [currentStep, setcurrentStep] = React.useState(0)
+export default function MilestoneScreen() {
+  const [activeStep, setActiveStep] = useState(0)
+  const [currentStep, setcurrentStep] = useState(0)
+  const [statusForm, setStatusForm] = useState<string>('Create');
+  const [listMilestones,setListMilestones] = useState<Milestone[]>([]);
+
+  const addToast = useToasts();
+
+  useEffect(()=>{
+    // getListMilestone();
+  },[]);
+
+
+  const getListMilestone = async () => {
+    try {
+      await milestoneAPI
+        .getList()
+        .then(res => {
+          const data = new CommonResponse(res)
+          const milestones: Milestone[] = data.data
+          setListMilestones(milestones)
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    } catch (err) {
+      addToast.addToast(err, { appearance: 'error' })
+    }
+  }
 
   const handleNext = () => {
     setcurrentStep(activeStep +1)
@@ -45,6 +79,7 @@ export default function Milestone() {
     } else {
       setcurrentStep(index);
     }
+    setStatusForm('Update');
 
   }
 
@@ -57,6 +92,10 @@ export default function Milestone() {
     setActiveStep(0)
   }
 
+  const handleClickAddNew = () => {
+    setStatusForm('Create');
+  }
+
   return (
     <Grid container spacing={10}>
       <Grid item xs={6} md={6}>
@@ -65,19 +104,19 @@ export default function Milestone() {
           <CardHeader
             title='Change Milestone'
           />
-          <Button variant='contained' size='small' sx={{mr:5}}>
+          <Button variant='contained' size='small' sx={{mr:5}} onClick={handleClickAddNew}>
             Add New
           </Button>
         </Box>
           <CardContent>
             <Stepper activeStep={activeStep} orientation='vertical'>
               {steps.map((step, index) => (
-                <Step key={step.label} expanded= {currentStep == index}  >
+                <Step key={step.Name} expanded= {currentStep == index}  >
                   <StepLabel onClick={()=>handleChangeStep(index)} optional={index === 2 ? <Typography variant='caption'>Last step</Typography> : null}>
-                    {step.label}
+                    {step.Name}
                   </StepLabel>
                   <StepContent >
-                    <Typography>{step.description}</Typography>
+                    <Typography>{step.Description}</Typography>
                     <Box sx={{ mb: 2 }}>
                       <div>
                         <Button variant='contained' onClick={handleNext} sx={{ mt: 1, mr: 1 }}>
@@ -107,10 +146,10 @@ export default function Milestone() {
       <Grid item xs={6} md={6}>
         <Card>
           <CardHeader
-          title='Create | Update Step 2'
+          title= {statusForm ==='Create' ?'Create' : `Update Step ${currentStep + 1} ` }
           />
           <CardContent>
-            <MilestoneForm/>
+            <MilestoneForm status={statusForm} milestone={statusForm ==='Create' ? undefined : steps[currentStep]}/>
           </CardContent>
         </Card>
       </Grid>

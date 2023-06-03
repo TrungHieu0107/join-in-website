@@ -1,4 +1,4 @@
-import { ApplicationRequest } from 'src/models/request/ApplicationRequest';
+import { ApplicationRequest } from 'src/models/query-models/ApplicationRequest';
 import axiosClient from './api-client'
 
 const URL = '/applications';

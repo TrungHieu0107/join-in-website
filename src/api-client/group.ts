@@ -1,6 +1,7 @@
 import moment from 'moment'
 import { Group, Milestone } from 'src/models/class'
 import axiosClient from './api-client'
+import { GroupRequest } from 'src/models/query-models/GroupRequest';
 
 const URL = '/groups';
 
@@ -13,7 +14,7 @@ export const groupAPI = {
     return axiosClient.get(`${URL}/${id}`)
   },
 
-  post(data: Group) {
+  post(data: GroupRequest) {
     return axiosClient.post(`${URL}`,data)
   },
 
@@ -21,7 +22,7 @@ export const groupAPI = {
     return axiosClient.delete(`${URL}/${id}`)
   },
 
-  put(data: Group) {
+  put(data: GroupRequest) {
     return axiosClient.put(`${URL}`,data)
   },
 

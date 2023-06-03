@@ -1,5 +1,5 @@
+import { FeedbackRequest } from 'src/models/query-models/FeedbackRequest';
 import axiosClient from './api-client'
-import { Feedback } from 'src/models';
 
 const URL = '/feedbacks';
 
@@ -12,7 +12,7 @@ export const feedbackAPI = {
     return axiosClient.get(`${URL}/${id}`)
   },
 
-  post(data: Feedback) {
+  post(data: FeedbackRequest) {
     return axiosClient.post(`${URL}`,data)
   },
 
@@ -20,7 +20,7 @@ export const feedbackAPI = {
     return axiosClient.delete(`${URL}/${id}`)
   },
 
-  put(data: Feedback) {
+  put(data: FeedbackRequest) {
     return axiosClient.put(`${URL}`,data)
   }
 }
