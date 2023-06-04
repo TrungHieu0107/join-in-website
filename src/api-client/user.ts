@@ -57,7 +57,7 @@ export const userAPI = {
       for (let index = 0; index < 100; index++) {
         result.push(
           new User({
-            id: index,
+            id: 'index',
             fullName: `Nguyễn ${index}`,
             email: `Nguyen${index}@gmail.com`,
             avatar: '',
@@ -73,10 +73,10 @@ export const userAPI = {
               new UserMajor({
                 major: new Major({
                   name: 'Bay vòng quanh trái đất'
-                } as Major)
-              } as UserMajor)
-            ] as UserMajor[]
-          } as User)
+                })
+              })
+            ]
+          })
         )
       }
 
