@@ -24,11 +24,9 @@ export class GroupDBDexie extends Dexie {
       group: '++id, name, avatar,createdBy,groupSize,memberCount, schoolName,className, subject, theme' // Primary key and indexed props
     })
   }
-
-
 }
 
-export const groupDBDexie ={
+export const groupDBDexie = {
   async clearGroup() {
     const db = new GroupDBDexie()
     try {
@@ -47,8 +45,7 @@ export const groupDBDexie ={
       if (data.length !== 0) {
         await db.group.clear()
       }
-
-      return  await db.group.add(group)
+      return await db.group.add(group)
     } catch (error) {
       console.log(error)
     } finally {

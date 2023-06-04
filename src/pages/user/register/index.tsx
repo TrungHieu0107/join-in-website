@@ -41,6 +41,9 @@ import { authAPI } from 'src/api-client'
 import { useRouter } from 'next/router'
 import MyLogo from 'src/layouts/components/MyLogo'
 import { User } from 'src/models/class'
+import { AxiosError } from 'axios'
+import { useToasts } from 'react-toast-notifications'
+import { CommonResponse } from 'src/models/common/CommonResponse'
 
 interface State {
   password: string
@@ -82,6 +85,11 @@ const RegisterPage = () => {
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [passwordConfirmError, setPasswordConfirmError] = useState('')
+    const addToast = useToasts()
+
+    const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+      addToast.addToast(message, { appearance: type })
+    }
 
   // ** Hook
   const router = useRouter()
@@ -173,11 +181,16 @@ const RegisterPage = () => {
 
     authAPI
       .signUp(user)
-      .then(() => {
+      .then(() => {})
+      .catch(error => {
+        console.log(error);
         
-      })
-      .catch(() => {
-        router.push('/')
+        if ((error as AxiosError)?.response?.status === 400) {
+          const commonResposne = new CommonResponse((error as AxiosError)?.response?.data as CommonResponse)
+          notify(commonResposne.message ?? 'Error', 'error')
+        } else {
+          console.log(error)
+        }
       })
   }
 

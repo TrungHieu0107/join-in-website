@@ -42,6 +42,7 @@ import { UserCompleteProfileModel } from 'src/models/query-models/UserCompletePr
 import { AxiosError, AxiosResponse } from 'axios'
 import { useToasts } from 'react-toast-notifications'
 import * as yup from 'yup'
+import user from 'src/pages/admin/user'
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 150,
@@ -98,7 +99,7 @@ interface ObjectValidate {
   error?: string
 }
 
-const TabAccount = () => {
+const TabAccount = (props: { code?: string }) => {
   // ** State
   const [openAlert, setOpenAlert] = useState<boolean>(true)
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
@@ -180,34 +181,34 @@ const TabAccount = () => {
 
   const onSaveProfile = async () => {
     let isError = false
-    await emailValidate
-      .validate({ email: email?.value ?? '' })
-      .then(() => {
-        isError = true
-        const object = {
-          value: email?.value ?? ('' as string),
-          error: ''
-        } as ObjectValidate
-        setEmail(object)
-      })
-      .catch(err => {
-        isError = true
-        const object = {
-          value: email?.value ?? ('' as string),
-          error: err.errors
-        } as ObjectValidate
-        setEmail(object)
-      })
+    if (!router.pathname.includes('initialization')) {
+      await emailValidate
+        .validate({ email: email?.value ?? '' })
+        .then(() => {
+          const object = {
+            value: email?.value ?? ('' as string),
+            error: ''
+          } as ObjectValidate
+          setEmail(object)
+        })
+        .catch(err => {
+          isError = true
+          const object = {
+            value: email?.value ?? ('' as string),
+            error: err.errors
+          } as ObjectValidate
+          setEmail(object)
+        })
+    }
 
     if ((selectedMajor?.value as any[])?.length === 0) {
       isError = true
       const object = {
         value: selectedMajor?.value,
-        error: ''
+        error: 'Choose at least 1 major'
       } as ObjectValidate
       setSelectedMajor(object)
     } else {
-      isError = false
       const object = {
         value: selectedMajor?.value,
         error: ''
@@ -219,41 +220,74 @@ const TabAccount = () => {
       return
     }
 
-    await userAPI.uploadImage(fileAvatar ? fileAvatar[0] : undefined).then(async (res) => {
-      let urlAvatar = ''
-      if (typeof res !== 'boolean') {
-        urlAvatar = new CommonResponse(res as AxiosResponse).data
-      } else {
-        urlAvatar = imgSrc
-      }
-      await userAPI
-        .uploadImage(fileBackGround ? fileBackGround[0] : undefined)
-        .then(async resfileBackGround => {
-          let urlBackground = ''
-          if (typeof resfileBackGround !== 'boolean') {
-            urlBackground = new CommonResponse(res as AxiosResponse).data
-          } else {
-            urlBackground = imgBackgroud
-          }
-          const payload = new UserCompleteProfileModel({
-            avatar: urlAvatar,
-            birthDay: moment(date?.toString()).format(StorageKeys.KEY_FORMAT_DATE),
-            description: description,
-            fullName: fullName,
-            gender: gender,
-            majorIdList: (selectedMajor?.value as Major[]).map(item => item.id ?? ''),
-            skill: skills,
-            otherContact: contacts,
-            phoneNumber: phone,
-            theme: urlBackground
-          })
+    await userAPI
+      .uploadImage(fileAvatar ? fileAvatar[0] : undefined)
+      .then(async res => {
+        let urlAvatar = ''
+        if (typeof res !== 'boolean') {
+          urlAvatar = new CommonResponse(res as AxiosResponse).data
+        } else {
+          urlAvatar = imgSrc
+        }
+        console.log('url avatar ', urlAvatar)
 
-          console.log(payload)
-        })
-        .catch(error => {
+        await userAPI
+          .uploadImage(fileBackGround ? fileBackGround[0] : undefined)
+          .then(async resfileBackGround => {
+            let urlBackground = ''
+            if (typeof resfileBackGround !== 'boolean') {
+              urlBackground = new CommonResponse(res as AxiosResponse).data
+            } else {
+              urlBackground = imgBackgroud
+            }
+            console.log('url urlBackground ', urlBackground)
+            if (props.code) {
+              const payload = new UserCompleteProfileModel({
+                avatar: urlAvatar,
+                birthDay: moment(date?.toString()).format(StorageKeys.KEY_FORMAT_DATE),
+                description: description,
+                fullName: fullName,
+                gender: gender,
+                majorIdList: (selectedMajor?.value as Major[]).map(item => item.id ?? ''),
+                skill: skills,
+                otherContact: contacts,
+                phoneNumber: phone,
+                theme: urlBackground
+              })
+
+              console.log(payload)
+              await userAPI
+                .completeProfile(payload, props.code ?? '')
+                .then(rescompleteProfile => {
+                  router.push('/my-groups')
+                })
+                .catch(error => {
+                  if ((error as AxiosError)?.response?.status === 401) {
+                    notify('Login expired.', 'error')
+                    router.push('/user/login')
+                  } else {
+                    console.log(error)
+                  }
+                })
+            }
+          })
+          .catch(error => {
+            if ((error as AxiosError)?.response?.status === 401) {
+              notify('Login expired.', 'error')
+              router.push('/user/login')
+            } else {
+              console.log(error)
+            }
+          })
+      })
+      .catch(error => {
+        if ((error as AxiosError)?.response?.status === 401) {
+          notify('Login expired.', 'error')
+          router.push('/user/login')
+        } else {
           console.log(error)
-        })
-    })
+        }
+      })
   }
 
   return (
@@ -328,31 +362,32 @@ const TabAccount = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              error={(email?.error ?? '').length !== 0}
-              type='email'
-              value={email?.value ?? ''}
-              label='Email *'
-              placeholder='johnDoe@example.com'
-              onChange={e =>
-                setEmail({
-                  value: e.target.value,
-                  error: ''
-                })
-              }
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position='start'>
-                    <EmailOutline />
-                  </InputAdornment>
-                )
-              }}
-              helperText={email?.error}
-              disabled={router.pathname.includes('initialization')}
-            />
-          </Grid>
+          {router.pathname.includes('initialization') && (
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                error={(email?.error ?? '').length !== 0}
+                type='email'
+                value={email?.value ?? ''}
+                label='Email *'
+                placeholder='johnDoe@example.com'
+                onChange={e =>
+                  setEmail({
+                    value: e.target.value,
+                    error: ''
+                  })
+                }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position='start'>
+                      <EmailOutline />
+                    </InputAdornment>
+                  )
+                }}
+                helperText={email?.error}
+              />
+            </Grid>
+          )}
 
           <Grid item xs={12} sm={6}>
             <DatePickerWrapper>

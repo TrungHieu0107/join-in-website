@@ -20,7 +20,7 @@ import MuiCard, { CardProps } from '@mui/material/Card'
 import InputAdornment from '@mui/material/InputAdornment'
 import FormHelperText from '@mui/material/FormHelperText'
 import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
-import {Grid} from '@mui/material'
+import { Grid } from '@mui/material'
 
 // ** Icons Imports
 import Google from 'mdi-material-ui/Google'
@@ -83,9 +83,9 @@ const LoginPage = () => {
   const router = useRouter()
   const addToast = useToasts()
 
-   const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
-     addToast.addToast(message, { appearance: type })
-   }
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
 
   useEffect(() => {
     userDBDexie.clearToken()
@@ -119,7 +119,7 @@ const LoginPage = () => {
     event.preventDefault()
   }
 
-
+ 
 
   const handleSubmit = async () => {
     let isError = false
@@ -146,7 +146,7 @@ const LoginPage = () => {
     if (isError) {
       return
     }
-    const user : any = { userName: values.email, password: values.password }
+    const user: any = { userName: values.email, password: values.password }
 
     try {
       await authAPI
@@ -154,17 +154,19 @@ const LoginPage = () => {
         .then(async res => {
           const token: string = new CommonResponse(res).data
           console.log(token);
-
+          
           if (await userDBDexie.saveToken(token)) {
             router.push('/my-groups')
           }
         })
-        .catch(error =>{ console.log('authAPI', error)
-      if (error?.response?.data?.message) {
-        setValues({...values, messageError: error?.response?.data?.message})
-        notify(error?.response?.data?.message, 'error')
-      }})
-    } catch (error : any) {
+        .catch(error => {
+          console.log('authAPI', error)
+          if (error?.response?.data?.message) {
+            setValues({ ...values, messageError: error?.response?.data?.message })
+            notify(error?.response?.data?.message, 'error')
+          }
+        })
+    } catch (error: any) {
       console.log('login page', error)
     }
   }

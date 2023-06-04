@@ -28,9 +28,7 @@ function Row(props: {
   const { row, page, rowsPerPage, index, column, clicktoDetail } = props
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedRow, setSelectedRow] = useState<Task>()
-  const data: any = row  
-  console.log(row);
-  
+  const data: any = row    
 
   const handleOptionsClose = () => {
     setAnchorEl(null)

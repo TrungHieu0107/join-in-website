@@ -70,26 +70,24 @@ const column: Column[] = [
     id: 'startDateDeadline',
     label: 'Start Date',
     minWidth: 100,
-    align: 'center',
-    format: (value: any) => new Date(value).toLocaleDateString()
+    align: 'center'
   },
   {
     id: 'endDateDeadline',
     label: 'End Date',
     minWidth: 100,
-    align: 'center',
-    format: (value: any) => new Date(value).toLocaleDateString()
+    align: 'center'
   },
   {
     id: 'impotantLevel',
     label: 'Level',
     minWidth: 100,
     align: 'center',
-    format: (value?: any) =>
+    format: (value?: Task) =>
       value ? (
         <Chip
-          label={importantLevel[value]?.label}
-          color={importantLevel[value]?.color}
+          label={importantLevel[value.impotantLevel ?? '']?.label}
+          color={importantLevel[value.impotantLevel ?? '']?.color}
           sx={{
             height: 24,
             fontSize: '0.75rem',
@@ -106,10 +104,10 @@ const column: Column[] = [
     label: 'Status',
     minWidth: 100,
     align: 'center',
-    format: (value: any) => (
+    format: (value: Task) => (
       <Chip
-        label={statusObj[value].label}
-        color={statusObj[value].color}
+        label={statusObj[value.status ?? '']?.label}
+        color={statusObj[value.status ?? '']?.color}
         sx={{
           height: 24,
           fontSize: '0.75rem',
@@ -124,12 +122,12 @@ const column: Column[] = [
     label: 'Assignee',
     minWidth: 100,
     align: 'center',
-    format: (value: any[]) => (
-      <AvatarGroup total={value?.length}>
-        {value?.map((val, index) =>
+    format: (value: Task) => (
+      <AvatarGroup total={value?.assignedFor?.length}>
+        {value?.assignedFor?.map((val, index) =>
           index < 2 ? (
-            <Tooltip key={index} title={val?.assignedFor?.user?.fullName} placement='bottom'>
-              <Avatar alt='Test' src={val?.assignedFor?.user?.avatar} sizes='small' />
+            <Tooltip key={index} title={val?.fullName ?? ''} placement='bottom'>
+              <Avatar alt='Test' src={val?.avatar} sizes='small' />
             </Tooltip>
           ) : (
             ''

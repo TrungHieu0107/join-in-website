@@ -1,5 +1,6 @@
 import { Major, User, UserMajor } from 'src/models/class'
 import axiosClient from './api-client'
+import { UserCompleteProfileModel } from 'src/models/query-models/UserCompleteProfileModel'
 
 const URL = '/users'
 
@@ -25,10 +26,10 @@ export const userAPI = {
   },
 
   uploadImage(data?: File | undefined) {
-    if(data === undefined){
+    if (data === undefined) {
       return Promise.resolve(true)
     }
-    
+
     return axiosClient.post(
       `${URL}/upload/image`,
       {
@@ -44,6 +45,10 @@ export const userAPI = {
         }
       }
     )
+  },
+
+  completeProfile(data: UserCompleteProfileModel, verifyToken: string) {
+    return axiosClient.put(`${URL}/complete-profile?verifyToken=${verifyToken}`, data)
   },
 
   Admin: {

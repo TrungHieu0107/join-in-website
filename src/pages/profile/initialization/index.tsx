@@ -10,8 +10,6 @@ const InitializationProfilePage =  () => {
 
   useEffect(() => {
     setCode(router.query?.token as string)
-
-    
   }, [])
   return (
     <Box>
@@ -30,7 +28,7 @@ const InitializationProfilePage =  () => {
           <Typography variant='h6'>Create your profile</Typography>
         </Grid>
         <Grid item>
-          <TabAccount />
+          <TabAccount code={code}/>
         </Grid>
       </Grid>
     </Box>

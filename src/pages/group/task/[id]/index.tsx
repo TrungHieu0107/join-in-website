@@ -114,23 +114,24 @@ export default function SubTaskPage() {
   }, [id])
 
   const updateGroup = async (newData: Task) => {
-    await groupDBDexie.groups
-      .update(1, {
+    await groupDBDexie
+      .saveGroup({
         avatar: newData.group?.avatar,
         name: newData.group?.name
       })
-      .then(async function (updated) {
-        if (updated) console.log('Friend number 2 was renamed to Number 2')
-        else {
-          console.log('Nothing was updated - there were no friend with primary key: 2')
-          await groupDBDexie.groups.add({
-            avatar: newData.group?.avatar ?? '',
-            name: newData.group?.name ?? ''
-          })
-        }
-      })
+      // .update(1)
+      // .then(async function (updated) {
+      //   if (updated) console.log('Friend number 2 was renamed to Number 2')
+      //   else {
+      //     console.log('Nothing was updated - there were no friend with primary key: 2')
+      //     await groupDBDexie.groups.add({
+      //       avatar: newData.group?.avatar ?? '',
+      //       name: newData.group?.name ?? ''
+      //     })
+      //   }
+      // })
 
-    console.log('group 123', await groupDBDexie.groups.get({ id: 1 }))
+    // console.log('group 123', await groupDBDexie.groups.get({ id: 1 }))
   }
 
   return (
