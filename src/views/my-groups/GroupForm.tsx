@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent, SetStateAction } from 'react'
+import { useState, ElementType, ChangeEvent, SetStateAction, useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -18,12 +18,14 @@ import { useToasts } from 'react-toast-notifications'
 import { GroupRequest } from 'src/models/query-models/GroupRequest'
 import { groupAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
+import {  groupDBDexie } from 'src/models/db/GroupDB'
+import { Group } from 'src/models/class'
 
 interface State {
-  groupName: string
-  schoolName: string
-  className: string
-  subject: string
+  groupName?: string
+  schoolName?: string
+  className?: string
+  subject?: string
 }
 
 const ImgStyled = styled('img')(({ theme }) => ({
@@ -73,6 +75,37 @@ const GroupForm  = () => {
   const [description, setDescription] = useState<string>('')
 
   const addToast = useToasts()
+
+  useEffect(() =>{
+    getInformation();
+  },[])
+
+  const getInformation = async () =>{
+    try {
+      const groupData = await groupDBDexie.getGroup()
+      await groupAPI.getById(groupData?.id)
+      .then(res =>{
+        const data = new CommonResponse(res);
+        const group : Group = data.data
+
+        setValues({
+          groupName: group.name,
+          schoolName: group.schoolName,
+          className: group.className,
+          subject: group.subjectName
+        });
+        setSkills(group.skill ?? '');
+        setDescription(group.description ?? '');
+        setImgBackground(group.theme ?? '/images/cards/background-user.png')
+        setImgSrc(group.avatar ?? '/images/avatars/1.png')
+      })
+      .catch(err =>{
+        console.log(err)
+      })
+    } catch(err){
+      console.log(err);
+    }
+  }
 
   const handleChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value })
@@ -138,6 +171,7 @@ const GroupForm  = () => {
             <TextField fullWidth
             label='Group Name'
             placeholder='Group Name'
+            value={values.groupName}
             onChange={handleChange('groupName')}
             InputProps={{
               startAdornment: (
@@ -152,6 +186,7 @@ const GroupForm  = () => {
             <TextField
               fullWidth
               label='School Name'
+              value={values.schoolName}
               placeholder='School Name'
               onChange={handleChange('schoolName')}
               InputProps={{
@@ -167,6 +202,7 @@ const GroupForm  = () => {
             <TextField
               fullWidth
               label='Class Name'
+              value={values.className}
               placeholder='Class Name'
               onChange={handleChange('className')}
               InputProps={{
@@ -183,6 +219,7 @@ const GroupForm  = () => {
               fullWidth
               label='Subject'
               placeholder='Subject'
+              value={values.subject}
               onChange={handleChange('subject')}
               InputProps={{
                 startAdornment: (

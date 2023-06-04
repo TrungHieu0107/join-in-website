@@ -1,10 +1,10 @@
 import { User } from './User'
 
 export interface Transaction {
-  Id: number
+  Id: string
   TransactionDate: Date
   Status: 'SUCCESS' | 'FAIL' | 'CANCELED'
   Type: ''
-  UserId: number
+  UserId: string
   User: User
 }

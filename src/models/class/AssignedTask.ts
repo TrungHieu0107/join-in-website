@@ -1,9 +1,9 @@
 import { Member, Task } from '.'
 
 export class AssignedTask {
-  private _taskId: number | undefined
-  private _assignedForId: number | undefined
-  private _assignedById: number | undefined
+  private _taskId: string | undefined
+  private _assignedForId: string | undefined
+  private _assignedById: string | undefined
   private _assignedDate: Date | undefined
   private _task: Task | undefined
   private _assignedFor: Member | undefined
@@ -23,7 +23,7 @@ export class AssignedTask {
     return this._taskId
   }
 
-  set taskId(val: number | undefined) {
+  set taskId(val: string | undefined) {
     this._taskId = val
   }
 
@@ -31,7 +31,7 @@ export class AssignedTask {
     return this._assignedForId
   }
 
-  set assignedForId(val: number | undefined) {
+  set assignedForId(val: string | undefined) {
     this._assignedForId = val
   }
 
@@ -39,7 +39,7 @@ export class AssignedTask {
     return this._assignedById
   }
 
-  set assignedById(val: number | undefined) {
+  set assignedById(val: string | undefined) {
     this._assignedById = val
   }
 

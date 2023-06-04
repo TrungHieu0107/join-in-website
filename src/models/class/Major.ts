@@ -40,14 +40,6 @@ export class Major {
     this._shortName = val
   }
 
-  get shortName() {
-    return this._name
-  }
-
-  set shortName(val: string | undefined) {
-    this._shortName = val
-  }
-
   get applicationMajors() {
     return this._applicationMajors
   }

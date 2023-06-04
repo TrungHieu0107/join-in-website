@@ -1,8 +1,8 @@
 import { Group, Major } from './index'
 
 export interface GroupMajor {
-  GroupId: number
-  MajorId: number
+  GroupId: string
+  MajorId: string
   MemberCount: number
   Status: 'OPEN' | 'CLOSE'
   Group: Group

@@ -2,15 +2,23 @@ import moment from 'moment'
 import { Group, Milestone } from 'src/models/class'
 import axiosClient from './api-client'
 import { GroupRequest } from 'src/models/query-models/GroupRequest';
+import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel';
 
 const URL = '/groups'
 
 export const groupAPI = {
-  getList() {
-    return axiosClient.get(`${URL}`)
+  getList(payload?: QueryGroupListModel) {
+    return axiosClient.get(`${URL}`, {
+      params: payload
+    })
+  },
+  getListFindingGroup(payload?: QueryGroupListModel) {
+    return axiosClient.get(`${URL}`, {
+      params: payload
+    })
   },
 
-  getById(id: string) {
+  getById(id?: string) {
     return axiosClient.get(`${URL}/${id}`)
   },
 

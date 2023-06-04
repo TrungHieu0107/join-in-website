@@ -4,9 +4,9 @@ import { Task } from './Task'
 import { User } from './User'
 
 export interface Member {
-  Id: number
-  UserId: number
-  GroupId: number
+  Id: string
+  UserId: string
+  GroupId: string
   JoinedDate: Date
   LeftDate: Date
   Role: 'MEMBER' | 'SUB_LEADER' | 'LEADER'

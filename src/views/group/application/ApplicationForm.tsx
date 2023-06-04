@@ -65,14 +65,12 @@ const ApplicationForm = () => {
       // await groupDBDexie.saveGroup(data);
 
       const groupData = await groupDBDexie.getGroup()
-      console.log(groupData?.id)
 
       const application: ApplicationRequest = {
         Description: description,
         GroupId: groupData?.id,
         MajorIds: [selectedValue]
       }
-      console.log(application)
 
       await applicationAPI
         .postApplication(application)

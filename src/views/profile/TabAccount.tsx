@@ -42,7 +42,6 @@ import { UserCompleteProfileModel } from 'src/models/query-models/UserCompletePr
 import { AxiosError, AxiosResponse } from 'axios'
 import { useToasts } from 'react-toast-notifications'
 import * as yup from 'yup'
-import { error } from 'console'
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 150,

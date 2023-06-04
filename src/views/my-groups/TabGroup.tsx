@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ChangeEvent, ReactNode } from 'react'
+import { useState, ChangeEvent, ReactNode, useEffect, KeyboardEvent } from 'react'
 
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
@@ -12,7 +12,6 @@ import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 import {
   Box,
-  Alert,
   Button,
   IconButton,
   InputAdornment,
@@ -26,11 +25,15 @@ import {
   DialogContentText
 } from '@mui/material'
 import { Close, DotsHorizontal, ExitToApp, InformationVariant, Magnify } from 'mdi-material-ui'
-import { GroupRenderType } from 'src/constants'
 import { GroupRenderProps } from 'src/type/types'
 import { useRouter } from 'next/router'
 import GroupForm from './GroupForm'
 import AvatarName from 'src/layouts/components/AvatarName'
+import { groupAPI } from 'src/api-client'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { useToasts } from 'react-toast-notifications'
+import { Group } from 'src/models/class'
+import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel'
 
 interface Column {
   id: 'name' | 'subject' | 'class' | 'member' | 'leader'
@@ -137,6 +140,8 @@ const rows = [
 ]
 
 export default function TabGroup({ renderType }: GroupRenderProps) {
+  const addToast = useToasts()
+
   // ** States
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -147,15 +152,77 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const [open, setOpen] = useState(false)
 
-  const [openAlert, setOpenAlert] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false)
+  const [listGroup, setlistGroup] = useState<any[]>([])
+  const [searchName, setSearchName] = useState<string>('');
+  const [storeSearchName,setStoreSearchName] = useState<string>('');
+
+  useEffect(() => {
+
+    getListGroup()
+  },[storeSearchName])
+
+
+
+  const getListGroup = async () => {
+    try {
+      const payload : QueryGroupListModel = {
+        name: storeSearchName,
+        orderBy: '',
+        page: 1,
+        pageSize: 10,
+        type: renderType ==='all' ? '' : renderType,
+        value: ''
+      }
+
+      await groupAPI
+        .getList(payload)
+        .then(res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
+
+          const groups: Group[] = data.data
+          const list = groups.map(group => ({
+            id: group.id,
+            name: group.name,
+            avatarGroup: group.avatar,
+            class: group.className,
+            subject: group.subjectName,
+            member: `${group.memberCount}/${group.groupSize}`,
+            leader: 'Thanh Huy',
+            avatarLeader: '/images/avatars/2.png'
+          }))
+          setlistGroup(list)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleClickSearch = () =>{
+    setStoreSearchName(searchName);
+  }
+
+  const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      setStoreSearchName(event.currentTarget.value);
+    }
+  };
+
+  const handleSearch = (event:ChangeEvent<HTMLInputElement>) =>{
+    setSearchName(event.target.value)
+  }
 
   const handleClickOpenAlert = () => {
-    setOpenAlert(true);
-  };
+    setOpenAlert(true)
+  }
 
   const handleCloseAlert = () => {
-    setOpenAlert(false);
-  };
+    setOpenAlert(false)
+  }
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -166,7 +233,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   }
 
   const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>, row: any) => {
-    event.stopPropagation();
+    event.stopPropagation()
     setAnchorEl(event.currentTarget)
     setSelectedRow(row)
     console.log(selectedRow)
@@ -179,7 +246,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const handleDelete = () => {
     // Handle delete action
-    handleClickOpenAlert();
+    handleClickOpenAlert()
     handleOptionsClose()
   }
 
@@ -197,32 +264,9 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
-  let result: React.ReactNode
-
-  // Load API
-  switch (renderType) {
-    case GroupRenderType.All:
-      result = 'All'
-      break
-    case GroupRenderType.Owner:
-      result = 'Owner'
-      break
-    case GroupRenderType.Member:
-      result = 'Member'
-      break
-    default:
-      // get all
-      return null
-  }
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <Alert severity='success' color='info'>
-        {result} — demo tab! (views/my-groups/TabGroup.tsx/line102)
-      </Alert>
-
-
-
       <Box
         sx={{
           ml: 4,
@@ -236,10 +280,13 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         <TextField
           size='small'
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
+          onChange={handleSearch}
+          onKeyDown={handleEnterSearch}
+          value={searchName}
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
-                <Magnify fontSize='small' />
+                <Magnify fontSize='small' onClick={handleClickSearch}/>
               </InputAdornment>
             )
           }}
@@ -278,7 +325,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+            {listGroup.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
                 <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={handleViewDetail}>
                   <TableCell align='center' sx={{ minWidth: '20px' }}>
@@ -325,27 +372,23 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           }}
         >
           <MenuItem onClick={handleViewDetail}>
-          <InformationVariant fontSize='small' sx={{mr:3}} /> Detail
+            <InformationVariant fontSize='small' sx={{ mr: 3 }} /> Detail
           </MenuItem>
           <MenuItem onClick={handleDelete}>
-          <ExitToApp fontSize='small' sx={{mr:3}} /> Out Group
-            </MenuItem>
+            <ExitToApp fontSize='small' sx={{ mr: 3 }} /> Out Group
+          </MenuItem>
         </Menu>
       </TableContainer>
 
       <Dialog
         open={openAlert}
         onClose={handleCloseAlert}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        aria-labelledby='alert-dialog-title'
+        aria-describedby='alert-dialog-description'
       >
-        <DialogTitle id="alert-dialog-title">
-          {"Group EXE"}
-        </DialogTitle>
+        <DialogTitle id='alert-dialog-title'>{'Group EXE'}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Do you want to move out this group?
-          </DialogContentText>
+          <DialogContentText id='alert-dialog-description'>Do you want to move out this group?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAlert}>Cancel</Button>

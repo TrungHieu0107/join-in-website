@@ -4,6 +4,7 @@ export class Group {
   private _id: string | undefined
   private _name: string | undefined
   private _avatar: string | undefined
+  private _theme: string | undefined
   private _createdDate: Date | string | undefined
   private _groupSize: number | undefined
   private _memberCount: number | undefined
@@ -41,6 +42,7 @@ export class Group {
     this.applications = value?.applications
     this.members = value?.members
     this.avatar = value?.avatar
+    this.theme = value?.theme
   }
 
   get id() {
@@ -65,6 +67,14 @@ export class Group {
 
   set avatar(val: string | undefined) {
     this._avatar = val
+  }
+
+  get theme() {
+    return this._theme
+  }
+
+  set theme(val: string | undefined) {
+    this._theme = val
   }
 
   get createdDate() {

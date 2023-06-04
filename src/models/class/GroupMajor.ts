@@ -1,8 +1,8 @@
 import { Group, Major } from './index'
 
 export class GroupMajor {
-  private _groupId: number | undefined
-  private _majorId: number | undefined
+  private _groupId: string | undefined
+  private _majorId: string | undefined
   private _memberCount: number | undefined
   private _status: 'OPEN' | 'CLOSE' | undefined
   private _group: Group | undefined
@@ -21,7 +21,7 @@ export class GroupMajor {
     return this._groupId
   }
 
-  set groupId(val: number | undefined) {
+  set groupId(val: string | undefined) {
     this._groupId = val
   }
 
@@ -29,7 +29,7 @@ export class GroupMajor {
     return this._majorId
   }
 
-  set majorId(val: number | undefined) {
+  set majorId(val: string | undefined) {
     this._majorId = val
   }
 

@@ -3,7 +3,7 @@ import { Group } from './Group'
 import { User } from './User'
 
 export interface Task {
-  Id?: number
+  Id?: string
   Name?: string
   StartDateDeadline?: Date
   EndDateDeadline?: Date
@@ -12,9 +12,9 @@ export interface Task {
   EstimatedDays?: number
   Description?: string
   Status?: 'NOT_STARTED_YET' | 'WORKING' | 'FINISHED'
-  GroupId?: number
-  CreatedById?: number
-  MainTaskId?: number
+  GroupId?: string
+  CreatedById?: string
+  MainTaskId?: string
   Group?: Group
   CreatedBy?: User
   MainTask?: Task

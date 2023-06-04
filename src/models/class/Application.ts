@@ -1,13 +1,13 @@
 import { User, Group, ApplicationMajor } from '.'
 
 export class Application {
-  private _id: number | undefined
+  private _id: string | undefined
   private _createdDate: Date | undefined
   private _status: 'WAITING' | 'APPROVED' | 'DISAPPROVED' | undefined
   private _confirmedDate: Date | undefined
   private _description: string | undefined
-  private _userId: number | undefined
-  private _groupId: number | undefined
+  private _userId: string | undefined
+  private _groupId: string | undefined
   private _user: User | undefined
   private _group: Group | undefined
   private _applicationMajors: ApplicationMajor[] | undefined
@@ -16,7 +16,7 @@ export class Application {
     return this._id
   }
 
-  set id(val: number | undefined) {
+  set id(val: string | undefined) {
     this._id = val
   }
 
@@ -56,7 +56,7 @@ export class Application {
     return this._userId
   }
 
-  set userId(val: number | undefined) {
+  set userId(val: string | undefined) {
     this._userId = val
   }
 
@@ -64,7 +64,7 @@ export class Application {
     return this._groupId
   }
 
-  set groupId(val: number | undefined) {
+  set groupId(val: string | undefined) {
     this._groupId = val
   }
 

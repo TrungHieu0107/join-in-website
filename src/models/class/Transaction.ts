@@ -1,11 +1,11 @@
 import { User } from './index'
 
 export class Transaction {
-  private _id: number | undefined
+  private _id: string | undefined
   private _transactionDate: Date | string | undefined
   private _status: 'SUCCESS' | 'FAIL' | 'CANCELED' | undefined
   private _type: string | undefined
-  private _userId: number | undefined
+  private _userId: string | undefined
   private _user: User | undefined
 
   constructor(value: Partial<Transaction>) {
@@ -21,7 +21,7 @@ export class Transaction {
     return this._id
   }
 
-  set id(val: number | undefined) {
+  set id(val: string | undefined) {
     this._id = val
   }
 
@@ -53,7 +53,7 @@ export class Transaction {
     return this._userId
   }
 
-  set userId(val: number | undefined) {
+  set userId(val: string | undefined) {
     this._userId = val
   }
 

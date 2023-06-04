@@ -1,13 +1,13 @@
 import { User } from '.'
 
 export class Feedback {
-  private _id: number | undefined
+  private _id: string | undefined
   private _content: string | undefined
   private _rating: number | undefined
   private _feedbackedDate: Date | undefined
   private _status: 'ACTIVE' | 'INACTIVE' | undefined
-  private _feedbackedById: number | undefined
-  private _feedbackedForId: number | undefined
+  private _feedbackedById: string | undefined
+  private _feedbackedForId: string | undefined
   private _feedbackedBy: User | undefined
   private _feedbackedFor: User | undefined
 
@@ -15,7 +15,7 @@ export class Feedback {
     return this._id
   }
 
-  set id(val: number | undefined) {
+  set id(val: string | undefined) {
     this._id = val
   }
 
@@ -55,7 +55,7 @@ export class Feedback {
     return this._feedbackedById
   }
 
-  set feedbackedById(val: number | undefined) {
+  set feedbackedById(val: string | undefined) {
     this._feedbackedById = val
   }
 
@@ -63,7 +63,7 @@ export class Feedback {
     return this._feedbackedForId
   }
 
-  set feedbackedForId(val: number | undefined) {
+  set feedbackedForId(val: string | undefined) {
     this._feedbackedForId = val
   }
 

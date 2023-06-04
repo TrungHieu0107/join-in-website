@@ -1,7 +1,7 @@
 import { Group } from '.'
 
 export class Milestone {
-  private _id: number | undefined
+  private _id: string | undefined
   private _name: string | undefined
   private _description: string | undefined
   private _order: number | undefined
@@ -23,7 +23,7 @@ export class Milestone {
     return this._id
   }
 
-  set id(val: number | undefined) {
+  set id(val: string | undefined) {
     this._id = val
   }
 

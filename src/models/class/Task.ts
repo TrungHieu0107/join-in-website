@@ -10,9 +10,9 @@ export class Task {
   private _estimatedDays: number | undefined
   private _description: string | undefined
   private _status: 'NOT_STARTED_YET' | 'WORKING' | 'FINISHED' | undefined
-  private _groupId: number | undefined
-  private _createdById: number | undefined
-  private _mainTaskId: number | string | undefined
+  private _groupId: string | undefined
+  private _createdById: string | undefined
+  private _mainTaskId: string | undefined
   private _group: Group | undefined
   private _createdBy: User | undefined
   private _mainTask: Task | undefined
@@ -119,7 +119,7 @@ export class Task {
     return this._groupId
   }
 
-  set groupId(val: number | undefined) {
+  set groupId(val: string | undefined) {
     this._groupId = val
   }
 
@@ -127,7 +127,7 @@ export class Task {
     return this._createdById
   }
 
-  set createdById(val: number | undefined) {
+  set createdById(val: string | undefined) {
     this._createdById = val
   }
 
@@ -135,7 +135,7 @@ export class Task {
     return this._mainTaskId
   }
 
-  set mainTaskId(val: number | string | undefined) {
+  set mainTaskId(val: string | undefined) {
     this._mainTaskId = val
   }
 

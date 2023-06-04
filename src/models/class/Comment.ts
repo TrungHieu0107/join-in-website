@@ -1,11 +1,11 @@
 import { Task } from './Task'
 
 export class Comment {
-  private _id: number | undefined
+  private _id: string | undefined
   private _content: string | undefined
   private _createdDate: Date | string | undefined
   private _status: 'ACTIVE' | 'INACTIVE' | undefined
-  private _taskId: number | undefined
+  private _taskId: string | undefined
   private _task: Task | undefined
 
   constructor(value?: Partial<Comment>) {
@@ -21,7 +21,7 @@ export class Comment {
     return this._id
   }
 
-  set id(val: number | undefined) {
+  set id(val: string | undefined) {
     this._id = val
   }
 
@@ -53,7 +53,7 @@ export class Comment {
     return this._taskId
   }
 
-  set taskId(val: number | undefined) {
+  set taskId(val: string | undefined) {
     this._taskId = val
   }
 

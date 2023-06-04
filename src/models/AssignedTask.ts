@@ -2,9 +2,9 @@ import { Member } from './Member'
 import { Task } from './Task'
 
 export interface AssignedTask {
-  TaskId: number
-  AssignedForId: number
-  AssignedById: number
+  TaskId: string
+  AssignedForId: string
+  AssignedById: string
   AssignedDate: Date
   Task: Task
   AssignedFor: Member

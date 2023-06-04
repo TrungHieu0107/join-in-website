@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ChangeEvent, ReactNode } from 'react'
+import { useState, ChangeEvent, ReactNode, useEffect } from 'react'
 
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
@@ -10,13 +10,18 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
-import { Box, Button, IconButton, InputAdornment, Menu, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Chip, DialogContentText, Typography, Grid, Avatar, FormControl, InputLabel, Select } from '@mui/material'
+import { Box, Button, IconButton, InputAdornment, Menu, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Chip, DialogContentText, Typography, Grid, Avatar, FormControl, InputLabel, Select, SelectChangeEvent } from '@mui/material'
 import { Account, Close, DotsHorizontal, ExitToApp, InformationVariant, Magnify } from 'mdi-material-ui'
 import InviteForm from 'src/views/group/member/InviteForm'
 import { StatusObj } from 'src/constants/task-status'
 import AvatarName from 'src/layouts/components/AvatarName'
 import { useRouter } from 'next/router'
 import withAuth from 'src/pages/withAuth'
+import { memberAPI } from 'src/api-client'
+import { useToasts } from 'react-toast-notifications'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { Member } from 'src/models/class'
+import { groupDBDexie } from 'src/models/db/GroupDB'
 
 interface Column {
   id: 'name' | 'role'| 'major' | 'joindate' | 'status'
@@ -72,7 +77,7 @@ const rows = [
 const Application = () =>{
 
   const router = useRouter()
-  const imgSrc = '/images/avatars/1.png'
+  const addToast = useToasts();
 
   // ** States
   const [page, setPage] = useState<number>(0)
@@ -87,12 +92,50 @@ const Application = () =>{
 
   const [openPopupChangeRole, setOpenPopupChangeRole] = useState(false);
 
+  const [listMembers, setListMember] = useState<any[]>([]);
+  const [selectedRole, setSelectedRole] = useState<string>();
+
+
+  useEffect(()=>{
+    getListMember();
+  },[])
+
+  const handleChangeRole = (event: SelectChangeEvent<string>) => {
+    setSelectedRole(event.target.value)
+  }
+
+  const handleSubmitChangeRole = async () =>{
+    try {
+
+      const groupData = await groupDBDexie.getGroup()
+
+      const member: any = {
+        role: 0,
+        groupId: groupData?.id,
+        memberId: selectedRow?.id
+      }
+
+      await memberAPI
+        .put(member)
+        .then(async res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
+        })
+        .catch(error => {
+          console.log('Member Form: ', error)
+        })
+    } catch (e) {
+      console.log('Member Form: ', e)
+    }
+  }
+
   const handleClickPopupChangeRole = () => {
     setOpenPopupChangeRole(true);
   };
 
   const handlePopupChangeRole = () => {
     setOpenPopupChangeRole(false);
+    handleOptionsClose()
   };
 
   const handleClickOpenAlertDelete = () => {
@@ -138,7 +181,8 @@ const Application = () =>{
   const handleChangeStatus = () => {
     // Handle change status action
     handleClickPopupChangeRole()
-    handleOptionsClose()
+
+    // handleOptionsClose()
   }
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -148,6 +192,32 @@ const Application = () =>{
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
+  }
+
+  const getListMember = async () =>{
+    try {
+      await memberAPI.getList()
+      .then(res =>{
+         const data = new CommonResponse(res);
+         addToast.addToast(data.message, { appearance: 'success' })
+         const members : Member[] = data.data;
+         const list = members.map(member => ({
+          id: member.id,
+          avatar: member.user?.avatar,
+          name: member.user?.fullName,
+          role: member.role,
+          major: 'Information Technology',
+          joindate: member.joinedDate,
+          status: 'ACTIVE'
+      }))
+          setListMember(list);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    }catch(err){
+      console.log(err);
+    }
   }
 
   return (
@@ -207,7 +277,7 @@ const Application = () =>{
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+            {listMembers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
                 <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={handleViewDetail}>
                   <TableCell align='center' sx={{ minWidth: '20px' }}>
@@ -313,32 +383,35 @@ const Application = () =>{
         <Grid container spacing={7}>
           <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-              <Avatar src={imgSrc} alt='Profile Pic'  sx={{ width: 120, height: 120 }}/>
-              <Typography variant='h5'>Pham Xuan Kien</Typography>
+              <Avatar src={selectedRow?.avatar} alt='Profile Pic'  sx={{ width: 120, height: 120 }}/>
+              <Typography variant='h5'>{selectedRow?.name}</Typography>
             </Box>
           </Grid>
 
           <Grid item xs={12} sm={12}>
           <FormControl fullWidth>
               <InputLabel>Role</InputLabel>
-              <Select label='Role' defaultValue='member'>
-                <MenuItem value='leader'>Leader</MenuItem>
-                <MenuItem value='sub-leader'>Sub Leader</MenuItem>
-                <MenuItem value='member'>Member</MenuItem>
+              <Select label='Role' value={selectedRole || selectedRow?.role} onChange={handleChangeRole}>
+                <MenuItem value='2'>Leader</MenuItem>
+                <MenuItem value='1'>Sub Leader</MenuItem>
+                <MenuItem value='0'>Member</MenuItem>
               </Select>
             </FormControl>
           </Grid>
         </Grid>
       </form>
+      {selectedRole &&
       <Typography mt={7}>
-          Do you want to change <b>member</b> to <b>sub-leader</b>?
-      </Typography>
+          Do you want to change <b>{selectedRow?.role}</b> to <b>{selectedRole}</b>?
+      </Typography> }
         </DialogContent>
+
         <DialogActions>
           <Button onClick={handlePopupChangeRole}>Cancel</Button>
-          <Button onClick={handlePopupChangeRole} autoFocus>
+          {selectedRole &&
+          <Button onClick={handleSubmitChangeRole} autoFocus>
             Yes
-          </Button>
+          </Button> }
         </DialogActions>
       </Dialog>
     </Paper>

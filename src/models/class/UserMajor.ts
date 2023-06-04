@@ -1,8 +1,8 @@
 import { Major, User } from '.'
 
 export class UserMajor {
-  private _userId: number | undefined
-  private _majorId: number | undefined
+  private _userId: string | undefined
+  private _majorId: string | undefined
   private _user: User | undefined
   private _major: Major | undefined
 
@@ -17,7 +17,7 @@ export class UserMajor {
     return this._userId
   }
 
-  set userId(val: number | undefined) {
+  set userId(val: string | undefined) {
     this._userId = val
   }
 
@@ -25,7 +25,7 @@ export class UserMajor {
     return this._majorId
   }
 
-  set majorId(val: number | undefined) {
+  set majorId(val: string | undefined) {
     this._majorId = val
   }
 

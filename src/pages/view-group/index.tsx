@@ -18,11 +18,14 @@ import {
   TownHall
 } from 'mdi-material-ui'
 import ApplicationForm from 'src/views/group/application/ApplicationForm'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import withAuth from '../withAuth'
+import { Group } from 'src/models/class'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { groupDBDexie } from 'src/models/db/GroupDB'
+import { groupAPI } from 'src/api-client'
+import { useToasts } from 'react-toast-notifications'
 
-const textDemo =
-  'One of the key skills that is highly valued is communication. Effective communication skills enable you to express your ideas clearly, listen actively, and engage in productive discussions. It encompasses both verbal and written communication, allowing you to convey your message effectively and build strong relationships.'
 
 
 const SpaceBetweenText = (props: { title: string; content: string }) => {
@@ -47,9 +50,60 @@ const SpaceBetweenText = (props: { title: string; content: string }) => {
     )
   }
 
+  interface State {
+    groupName?: string
+    schoolName?: string
+    className?: string
+    subject?: string
+  }
 
 const GroupView = () => {
+
   const [open, setOpen] = useState(false);
+  const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
+  const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
+  const [values, setValues] = useState<State>({
+    groupName: '',
+    schoolName: '',
+    className: '',
+    subject: ''
+  })
+  const [skills, setSkills] = useState<string>('')
+  const [description, setDescription] = useState<string>('')
+
+  const addToast = useToasts()
+
+  useEffect(() =>{
+    getInformation();
+  },[])
+
+  const getInformation = async () =>{
+    try {
+      const groupData = await groupDBDexie.getGroup()
+      await groupAPI.getById(groupData?.id)
+      .then(res =>{
+        const data = new CommonResponse(res);
+
+        const group : Group = data.data
+
+        setValues({
+          groupName: group.name,
+          schoolName: group.schoolName,
+          className: group.className,
+          subject: group.subjectName
+        });
+        setSkills(group.skill ?? '');
+        setDescription(group.description ?? '');
+        setImgBackground(group.theme ?? '/images/cards/background-user.png')
+        setImgSrc(group.avatar ?? '/images/avatars/1.png')
+      })
+      .catch(err =>{
+        console.log(err)
+      })
+    } catch(err){
+      console.log(err);
+    }
+  }
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -63,10 +117,10 @@ const GroupView = () => {
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card sx={{ position: 'relative', height: '21rem' }}>
-          <CardMedia sx={{ height: '15rem' }} image='/images/cards/background-user.png' />
+          <CardMedia sx={{ height: '15rem' }} image={imgBackgroud} />
           <Avatar
-            alt='Robert Meyer'
-            src='/images/avatars/1.png'
+            alt={values.schoolName}
+            src={imgSrc}
             sx={{
               width: 150,
               height: 150,
@@ -97,7 +151,7 @@ const GroupView = () => {
               }}
               >
               <Box sx={{ mr: 2, mb: 1, display: 'flex', flexDirection: 'column' }}>
-                <Typography variant='h5'>Group JoinIn</Typography>
+                <Typography variant='h5'>Group {values.groupName}</Typography>
               </Box>
               <Box sx={{ mr: 2, mb: 1, display: 'flex' }}>
                 <Button variant='contained'  sx={{ marginRight: 5 }} onClick={handleClickOpen}>Apply</Button>
@@ -115,7 +169,7 @@ const GroupView = () => {
               Invitation
             </Typography>
             <Divider sx={{ marginY: '20px' }} />
-            <Typography align='center' variant='h6'> Group JoinIn has sent you an invitation to join the group.<br/> Would you like to join with them? </Typography>
+            <Typography align='center' variant='h6'> Group {values.groupName} has sent you an invitation to join the group.<br/> Would you like to join with them? </Typography>
               <Box sx={{ mt: 2, mb: 1, display: 'flex', justifyContent:'center' }}>
               <Button variant='outlined' size='small' color='error' sx={{ marginRight: 5 }}>Reject</Button>
               <Button variant='contained'  size='small' color='success' >Accept</Button>
@@ -133,19 +187,19 @@ const GroupView = () => {
             <Divider sx={{ marginY: '20px' }} />
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <TownHall sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>School: FPT University</Typography>
+              <Typography variant='body1'>School: {values.schoolName}</Typography>
             </Box>
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <School sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Class: EXE201_1</Typography>
+              <Typography variant='body1'>Class: {values.className}</Typography>
             </Box>
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <Book sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Subject: EXE201</Typography>
+              <Typography variant='body1'>Subject: {values.subject}</Typography>
             </Box>
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <AccountGroup sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Group: JoinIn</Typography>
+              <Typography variant='body1'>Group: {values.groupName}</Typography>
             </Box>
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <AccountTieHat sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
@@ -182,7 +236,7 @@ const GroupView = () => {
                 <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>Skills</Typography>
               </Box>
 
-              <Typography variant='body1'>{textDemo}</Typography>
+              <Typography variant='body1'>{skills}</Typography>
             </Box>
             <Divider sx={{ marginY: '20px' }} />
             <Box sx={{ margin: 2, display: 'flex', flexDirection: 'column' }}>
@@ -190,7 +244,7 @@ const GroupView = () => {
                 <InformationVariant sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
                 <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>Description</Typography>
               </Box>
-              <Typography variant='body1'>{textDemo}</Typography>
+              <Typography variant='body1'>{description}</Typography>
             </Box>
           </CardContent>
         </Card>

@@ -3,7 +3,7 @@ import { QueryKeys } from 'src/constants'
 import { userDBDexie } from 'src/models/db/UserDB'
 
 const axiosClient = axios.create({
-  baseURL: process.env.NODE_ENV === 'development' ? QueryKeys.BASE_LOCAL : QueryKeys.BASE_URL,
+  baseURL: QueryKeys.BASE_LOCAL ,
   headers: {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': 'http://localhost:8000',

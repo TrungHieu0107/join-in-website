@@ -1,10 +1,10 @@
 import { Task } from './Task'
 
 export interface Comment {
-  Id: number
+  Id: string
   Content: string
   CreatedDate: Date
   Status: 'ACTIVE' | 'INACTIVE'
-  TaskId: number
+  TaskId: string
   Task: Task
 }

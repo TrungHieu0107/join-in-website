@@ -1,13 +1,13 @@
 import { User } from './User'
 
 export interface Feedback {
-  Id: number
+  Id: string
   Content: string
   Rating: number
   FeedbackedDate: Date
   Status: 'ACTIVE' | 'INACTIVE'
-  FeedbackedById: number
-  FeedbackedForId: number
+  FeedbackedById: string
+  FeedbackedForId: string
   FeedbackedBy: User
   FeedbackedFor: User
 }

@@ -8,9 +8,14 @@ import Button from '@mui/material/Button'
 
 // ** Icons Imports
 import { Autocomplete } from '@mui/material'
+import { groupDBDexie } from 'src/models/db/GroupDB'
+import { ApplicationRequest } from 'src/models/query-models/ApplicationRequest'
+import { applicationAPI } from 'src/api-client'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { useToasts } from 'react-toast-notifications'
 
 interface Option {
-  value: string
+  id: string
   label: string
   image: string
   name: string
@@ -19,21 +24,21 @@ interface Option {
 
 const options: Option[] = [
   {
-    value: 'option1',
+    id: '32149839-d6f9-ed11-ad61-105bad532efe',
     label: 'Xuan Kien',
     image: '/images/avatars/1.png',
     name: 'Xuan Kien',
     major: 'Information Technology'
   },
   {
-    value: 'option2',
+    id: '59d64d8b-c6cb-4397-9a1f-126352188244',
     label: 'Quoc Bao',
     image: '/images/avatars/1.png',
     name: 'Quoc Bao',
     major: 'Information Technology'
   },
   {
-    value: 'option3',
+    id: '62e8c998-0c19-40b8-8a89-5be21f88ffb7',
     label: 'Trung Hieu',
     image: '/images/avatars/1.png',
     name: 'Trung Hieu',
@@ -44,8 +49,33 @@ const options: Option[] = [
 const InviteForm = () => {
   // ** State
   const [selectedValues, setSelectedValues] = useState<Option[]>([])
-  const handleButtonClick = () => {
+  const addToast = useToasts()
+
+  const handleInvite= async () => {
     console.log('Selected Values:', selectedValues)
+    try {
+      const groupData = await groupDBDexie.getGroup()
+      const listUser = selectedValues.map(item => item.id);
+
+      const application: ApplicationRequest = {
+        Description: 'hello',
+        GroupId: groupData?.id,
+        UserIds: listUser
+      }
+
+      await applicationAPI
+        .postApplication(application)
+        .then(async res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
+        })
+        .catch(error => {
+          console.log('Invite Form: ', error)
+        })
+
+    } catch(err){
+      console.log(err);
+    }
   }
 
   return (
@@ -68,7 +98,7 @@ const InviteForm = () => {
           </li>
         )}
       />
-      <Button variant='contained' sx={{ mt: 5 }} onClick={handleButtonClick}>
+      <Button variant='contained' sx={{ mt: 5 }} onClick={handleInvite}>
         Send
       </Button>
     </CardContent>

@@ -1,9 +1,9 @@
 import { AssignedTask, Group, Task, User } from '.'
 
 export class Member {
-  private _id: number | undefined
-  private _userId: number | undefined
-  private _groupId: number | undefined
+  private _id: string | undefined
+  private _userId: string | undefined
+  private _groupId: string | undefined
   private _joinedDate: Date | undefined
   private _leftDate: Date | undefined
   private _role: 'MEMBER' | 'SUB_LEADER' | 'LEADER' | undefined
@@ -31,7 +31,7 @@ export class Member {
     return this._id
   }
 
-  set id(val: number | undefined) {
+  set id(val: string | undefined) {
     this._id = val
   }
 
@@ -39,7 +39,7 @@ export class Member {
     return this._userId
   }
 
-  set userId(val: number | undefined) {
+  set userId(val: string | undefined) {
     this._userId = val
   }
 
@@ -47,7 +47,7 @@ export class Member {
     return this._groupId
   }
 
-  set groupId(val: number | undefined) {
+  set groupId(val: string | undefined) {
     this._groupId = val
   }
 

@@ -8,8 +8,14 @@ import CardContent from '@mui/material/CardContent'
 import AvatarGroup from '@mui/material/AvatarGroup'
 import { Button, ButtonGroup } from '@mui/material'
 import { useRouter } from 'next/router'
+import { GroupCard } from 'src/models/views/GroupCard'
+import { FC } from 'react'
 
-const CardGroup = () => {
+interface GroupProps {
+  groupCard: GroupCard
+}
+
+const CardGroup : FC<GroupProps> = ({groupCard }) => {
 
   const router = useRouter()
 
@@ -20,10 +26,10 @@ const CardGroup = () => {
 
   return (
     <Card sx={{ position: 'relative' }}>
-      <CardMedia sx={{ height: '12.625rem' }} image='/images/cards/glass-house.png' />
+      <CardMedia sx={{ height: '12.625rem' }} image={groupCard.Theme} />
       <Avatar
         alt='Group Image'
-        src='/images/logoapp.png'
+        src={groupCard.Avatar}
         sx={{
           width: 75,
           height: 75,
@@ -45,15 +51,15 @@ const CardGroup = () => {
           }}
         >
           <Box sx={{ mr: 2, mb: 1, display: 'flex', flexDirection: 'column' }}>
-            <Typography variant='h6'>JoinIn Group</Typography>
+            <Typography variant='h6'>{groupCard.Name} Group</Typography>
             <Typography variant='caption'>
-              Subject: <b>EXE201</b>
+              Subject: <b>{groupCard.SubjectName}</b>
             </Typography>
             <Typography variant='caption'>
-              Class: <b>EXE201_1</b>{' '}
+              Class: <b>{groupCard.ClassName}</b>
             </Typography>
             <Typography variant='caption'>
-              School: <b>FPTU</b>{' '}
+              School: <b>{groupCard.SchoolName}</b>
             </Typography>
           </Box>
           <Button variant='contained' onClick={handleClickOpen}>Open</Button>
@@ -61,16 +67,14 @@ const CardGroup = () => {
 
         <ButtonGroup variant='text' aria-label='text button group' size='small'>
           <Typography variant='body1'>Recruit: </Typography>
-          <Button>IT</Button>
-          <Button>BA</Button>
-          <Button>EN</Button>
+          {groupCard.Major?.map(major =><Button key={major.Id}>{major.ShortName}</Button> )}
         </ButtonGroup>
 
         <Box sx={{mt: 3, gap: 2, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant='subtitle2' sx={{ whiteSpace: 'nowrap', color: 'text.primary' }}>
-            8 members
+            {groupCard.MemberCount} members
           </Typography>
-          <AvatarGroup max={4}>
+          <AvatarGroup max={3}>
             <Avatar src='/images/avatars/8.png' alt='Alice Cobb' />
             <Avatar src='/images/avatars/7.png' alt='Jeffery Warner' />
             <Avatar src='/images/avatars/3.png' alt='Howard Lloyd' />

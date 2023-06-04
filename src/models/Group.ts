@@ -16,7 +16,7 @@ export interface Group {
   Description: string
   Skill: string
   Status: 'ACTIVE' | 'INACTIVE'
-  CurrentMilestoneId: number
+  CurrentMilestoneId: string
   CurrentMilestone: Milestone
   Milestones: Milestone[]
   Tasks: Task[]

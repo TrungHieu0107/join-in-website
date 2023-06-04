@@ -1,5 +1,5 @@
 export class Notification {
-  private _id: number | undefined
+  private _id: string | undefined
   private _name: string | undefined
   private _content: string | undefined
   private _createdDate: Date | undefined
@@ -21,7 +21,7 @@ export class Notification {
     return this._id
   }
 
-  set id(val: number | undefined) {
+  set id(val: string | undefined) {
     this._id = val
   }
 

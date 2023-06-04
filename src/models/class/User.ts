@@ -1,7 +1,7 @@
 import { Application, Feedback, Member, Transaction, UserMajor } from '.'
 
 export class User {
-  private _id: number | undefined
+  private _id: string | undefined
   private _fullName: string | undefined
   private _password: string | undefined
   private _email: string | undefined
@@ -49,7 +49,7 @@ export class User {
     return this._id
   }
 
-  set id(val: number | undefined) {
+  set id(val: string | undefined) {
     this._id = val
   }
 
