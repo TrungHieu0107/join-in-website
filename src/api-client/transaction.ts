@@ -1,5 +1,4 @@
-import moment from 'moment'
-import { Transaction, User } from 'src/models/class'
+import { Transaction } from 'src/models/class'
 import axiosClient from './api-client'
 import { QueryTransactionListModel } from 'src/models/query-models/QueryTransactionListModel';
 
