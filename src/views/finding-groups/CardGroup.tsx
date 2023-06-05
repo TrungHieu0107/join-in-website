@@ -74,7 +74,7 @@ const CardGroup : FC<GroupProps> = ({groupCard }) => {
           <Typography variant='subtitle2' sx={{ whiteSpace: 'nowrap', color: 'text.primary' }}>
             {groupCard.MemberCount} members
           </Typography>
-          <AvatarGroup max={3}>
+          <AvatarGroup max={3} total={groupCard.MemberCount}>
             <Avatar src='/images/avatars/8.png' alt='Alice Cobb' />
             <Avatar src='/images/avatars/7.png' alt='Jeffery Warner' />
             <Avatar src='/images/avatars/3.png' alt='Howard Lloyd' />

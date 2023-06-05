@@ -14,3 +14,16 @@ export function getMemberRoleValue(status: MemberRole): string {
       return '';
   }
 }
+
+export function getMemberRoleValueNumber(status: string): number {
+  switch (status) {
+    case 'MEMBER':
+      return MemberRole.MEMBER;
+    case 'SUB_LEADER':
+      return MemberRole.SUB_LEADER;
+    case 'LEADER':
+      return MemberRole.LEADER;
+    default:
+      return MemberRole.MEMBER;
+  }
+}

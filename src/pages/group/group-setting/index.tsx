@@ -72,7 +72,7 @@ const GroupSetting = () => {
         </TabList>
 
         <TabPanel sx={{ p: 0 }} value='information'>
-          <GroupForm />
+          <GroupForm type='UPDATE'/>
         </TabPanel>
         <TabPanel sx={{ p: 0}} value='milestone'>
           <Milestone/>

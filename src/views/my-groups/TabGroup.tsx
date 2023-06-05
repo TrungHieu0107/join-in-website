@@ -208,7 +208,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      setStoreSearchName(event.currentTarget.value);
+      setStoreSearchName(searchName);
     }
   };
 
@@ -304,7 +304,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             </DialogActions>
           </Box>
           <DialogContent>
-            <GroupForm />
+            <GroupForm type='CREATE'/>
           </DialogContent>
         </Dialog>
       </Box>

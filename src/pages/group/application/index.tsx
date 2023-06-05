@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ChangeEvent, ReactNode, useEffect } from 'react'
+import { useState, ChangeEvent, ReactNode, useEffect,KeyboardEvent } from 'react'
 
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
@@ -36,6 +36,8 @@ import { applicationAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { Application } from 'src/models/class'
 import { ApplicationStatus } from 'src/constants/application-status'
+import { QueryApplicationListModel } from 'src/models/query-models/QueryApplicationListModel'
+import { groupDBDexie } from 'src/models/db/GroupDB'
 
 interface Column {
   id: 'name' | 'position' | 'createddate' | 'description' | 'status' | 'confirmeddate'
@@ -132,10 +134,12 @@ const ApplicationScreen =  () => {
 
   const [listApplications, setListApplications] = useState<any[]>([])
   const [selectedRow, setSelectedRow] = useState<any>()
+  const [searchName, setSearchName] = useState<string>('');
+  const [storeSearchName,setStoreSearchName] = useState<string>('');
 
   useEffect(() => {
     getListApplication()
-  }, [])
+  }, [storeSearchName])
 
   const handleRejectApplication = async () =>{
     try {
@@ -169,6 +173,21 @@ const ApplicationScreen =  () => {
     }
   }
 
+  const handleClickSearch = () =>{
+    setStoreSearchName(searchName);
+  }
+
+  const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
+
+    if (event.key === 'Enter') { console.log(event.currentTarget.value)
+      setStoreSearchName(searchName);
+    }
+  };
+
+  const handleSearch = (event:ChangeEvent<HTMLInputElement>) =>{
+    setSearchName(event.target.value)
+  }
+
   const handleClickPopupApplication = () => {
     setOpenPopupApplication(true)
   }
@@ -188,7 +207,6 @@ const ApplicationScreen =  () => {
   const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>, row: any) => {
     event.stopPropagation()
     setAnchorEl(event.currentTarget)
-    console.log(row);
     setSelectedRow(row)
 
   }
@@ -222,23 +240,37 @@ const ApplicationScreen =  () => {
 
   const getListApplication = async () => {
     try {
+
+      const groupData = await groupDBDexie.getGroup()
+      const payload : QueryApplicationListModel = {
+        groupId: groupData?.id,
+        name: storeSearchName,
+        majorIdsString:[],
+        orderBy: '',
+        page: 1,
+        pageSize: 10,
+        value: ''
+      }
+
       await applicationAPI
-        .getList()
+        .getList(payload)
         .then(res => {
           const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
 
-          const applications: Application[] = data.data
+          const applications: Application[] = data.data.map((application :Application) => new Application(application))
+
           const list = applications.map(application => ({
             id: application.id,
             avatar: application.user?.avatar,
             name: application.user?.fullName,
-            position: 'Information Technology',
+            position: application.applicationMajors && application.applicationMajors[0].major?.name,
             createddate: application.createdDate,
             description: application.description,
-            status: 'WAITING',
+            status: application.status,
             confirmeddate: application.confirmedDate
           }))
+          console.log(list)
           setListApplications(list)
         })
         .catch(err => {
@@ -264,10 +296,13 @@ const ApplicationScreen =  () => {
         <TextField
           size='small'
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
+          onChange={handleSearch}
+          onKeyDown={handleEnterSearch}
+          value={searchName}
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
-                <Magnify fontSize='small' />
+                <Magnify fontSize='small' onClick={handleClickSearch}/>
               </InputAdornment>
             )
           }}

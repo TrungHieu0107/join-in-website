@@ -50,13 +50,13 @@ const FindingGroupsPage = () => {
       }
 
       await groupAPI
-        .getList(payload)
+        .getListFindingGroup(payload)
         .then(res => {
           const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
 
           const groups: Group[] = data.data
-          const list : GroupCard[] = groups.map(group => {
+          const list : GroupCard[]  = groups.map(group => {
 
             const majors: MajorGroupCard [] | undefined = group.groupMajors?.map(major => {
 
@@ -95,8 +95,9 @@ const FindingGroupsPage = () => {
   }
 
   const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      setStoreSearchName(event.currentTarget.value);
+
+    if (event.key === 'Enter') { console.log(event.currentTarget.value)
+      setStoreSearchName(searchName);
     }
   };
 

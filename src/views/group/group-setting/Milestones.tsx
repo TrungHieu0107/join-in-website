@@ -10,44 +10,31 @@ import Typography from '@mui/material/Typography'
 import { Grid, CardContent, Card, CardHeader } from '@mui/material'
 import MilestoneForm from './MilestoneForm'
 import { useState,useEffect } from 'react'
-import { Milestone } from 'src/models'
+import { Milestone } from 'src/models/class'
 import { milestoneAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { useToasts } from 'react-toast-notifications'
+import { groupDBDexie } from 'src/models/db/GroupDB'
 
-const steps : Milestone[] = [
-  {
-    Id: '1',
-    Name: 'Select campaign settings',
-    Description: `For each ad campaign that you create, you can control how much
-              you're willing to spend on clicks and conversions, which networks
-              and geographical locations you want your ads to show on, and more.`
-  },
-  {
-    Id: '2',
-    Name: 'Create an ad group',
-    Description: 'An ad group contains one or more ads which target a shared set of keywords.'
-  },
-  {
-    Id: '3',
-    Name: 'Create an ad',
-    Description: `Try out different ad text to see what brings in the most customers,
-              and learn how to enhance your ads using features like ad extensions.
-              If you run into any problems with your ads, find out how to tell if
-              they're running and how to resolve approval issues.`
-  }
-]
 
 export default function MilestoneScreen() {
   const [activeStep, setActiveStep] = useState(0)
   const [currentStep, setcurrentStep] = useState(0)
   const [statusForm, setStatusForm] = useState<string>('Create');
-  const [listMilestones,setListMilestones] = useState<Milestone[]>([]);
+  const [listMilestones, setListMilestones] = useState<any[]>([]);
+
+  const [counter, setCounter] = useState(0);
+
+  const handleButtonUpdateUI = () => {
+    console.log('kk')
+    setCounter(counter + 1);
+  };
 
   const addToast = useToasts();
 
   useEffect(()=>{
-    // getListMilestone();
+
+    getListMilestone();
   },[]);
 
 
@@ -57,8 +44,19 @@ export default function MilestoneScreen() {
         .getList()
         .then(res => {
           const data = new CommonResponse(res)
-          const milestones: Milestone[] = data.data
-          setListMilestones(milestones)
+          const milestones: Milestone[] = data.data.milestones
+          console.log(milestones)
+          const list = milestones.map(milestone =>({
+            Id: milestone.id,
+            Order: milestone.order,
+            Name: milestone.name,
+            Description: milestone.description
+          }))
+          console.log(list)
+          setListMilestones(list)
+          const currentOrder = data.data.currentMilestoneOrder - 1
+          setActiveStep(currentOrder)
+          setcurrentStep(currentOrder)
         })
         .catch(error => {
           console.log(error);
@@ -71,6 +69,40 @@ export default function MilestoneScreen() {
   const handleNext = () => {
     setcurrentStep(activeStep +1)
     setActiveStep(prevActiveStep => prevActiveStep + 1)
+    changeCurrentMilestoneUp()
+  }
+
+  const changeCurrentMilestoneUp = async()=>{
+    try {
+      const groupData = await groupDBDexie.getGroup()
+      await milestoneAPI.putCurrent({groupId: groupData?.id, wishType: 0})
+      .then(res =>{
+        const data = new CommonResponse(res)
+        addToast.addToast(data.message,{appearance:'success'})
+      })
+      .catch(err =>{
+        console.log(err)
+      })
+    } catch(err){
+      console.log(err);
+    }
+  }
+
+  const changeCurrentMilestoneDown = async()=>{
+    try {
+      const groupData = await groupDBDexie.getGroup()
+      console.log(groupData?.id)
+      await milestoneAPI.putCurrent({groupId: groupData?.id, wishType: 1})
+      .then(res =>{
+        const data = new CommonResponse(res)
+        addToast.addToast(data.message,{appearance:'success'})
+      })
+      .catch(err =>{
+        console.log(err)
+      })
+    } catch(err){
+      console.log(err);
+    }
   }
 
   const handleChangeStep = (index:number) => {
@@ -86,6 +118,7 @@ export default function MilestoneScreen() {
   const handleBack = () => {
     setcurrentStep(activeStep -1)
     setActiveStep(prevActiveStep => prevActiveStep - 1)
+    changeCurrentMilestoneDown()
   }
 
   const handleReset = () => {
@@ -110,17 +143,17 @@ export default function MilestoneScreen() {
         </Box>
           <CardContent>
             <Stepper activeStep={activeStep} orientation='vertical'>
-              {steps.map((step, index) => (
-                <Step key={step.Name} expanded= {currentStep == index}  >
-                  <StepLabel onClick={()=>handleChangeStep(index)} optional={index === 2 ? <Typography variant='caption'>Last step</Typography> : null}>
+              {listMilestones.map((step, index) => (
+                <Step key={step.Id} expanded= {currentStep == index}  >
+                  <StepLabel onClick={()=>handleChangeStep(index)} optional={index === listMilestones.length ? <Typography variant='caption'>Last step</Typography> : null}>
                     {step.Name}
                   </StepLabel>
                   <StepContent >
-                    <Typography>{step.Description}</Typography>
+                    <Typography><div className='editor' dangerouslySetInnerHTML={{ __html: step.Description! }} /></Typography>
                     <Box sx={{ mb: 2 }}>
                       <div>
                         <Button variant='contained' onClick={handleNext} sx={{ mt: 1, mr: 1 }}>
-                          {index === steps.length - 1 ? 'Finish' : 'Continue'}
+                          {index === listMilestones.length - 1 ? 'Finish' : 'Continue'}
                         </Button>
                         <Button disabled={index === 0} onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
                           Back
@@ -131,7 +164,7 @@ export default function MilestoneScreen() {
                 </Step>
               ))}
             </Stepper>
-            {activeStep === steps.length && (
+            {activeStep === listMilestones.length && (
               <Paper square elevation={0} sx={{ p: 3 }}>
                 <Typography>All steps completed - you&apos;re finished</Typography>
                 <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
@@ -149,7 +182,7 @@ export default function MilestoneScreen() {
           title= {statusForm ==='Create' ?'Create' : `Update Step ${currentStep + 1} ` }
           />
           <CardContent>
-            <MilestoneForm status={statusForm} milestone={statusForm ==='Create' ? undefined : steps[currentStep]}/>
+            <MilestoneForm onButtonClick={handleButtonUpdateUI} status={statusForm} milestone={statusForm ==='Create' ? undefined : listMilestones[currentStep]}/>
           </CardContent>
         </Card>
       </Grid>

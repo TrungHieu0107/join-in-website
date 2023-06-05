@@ -13,7 +13,7 @@ export const groupAPI = {
     })
   },
   getListFindingGroup(payload?: QueryGroupListModel) {
-    return axiosClient.get(`${URL}`, {
+    return axiosClient.get(`${URL}/search-to-apply`, {
       params: payload
     })
   },

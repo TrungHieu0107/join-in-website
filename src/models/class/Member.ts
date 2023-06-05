@@ -6,7 +6,7 @@ export class Member {
   private _groupId: string | undefined
   private _joinedDate: Date | undefined
   private _leftDate: Date | undefined
-  private _role: 'MEMBER' | 'SUB_LEADER' | 'LEADER' | undefined
+  private _role: 'MEMBER' | 'SUB_LEADER' | 'LEADER'  | 0 | 1 | 2 | undefined
   private _user: User | undefined
   private _group: Group | undefined
   private _assignedTasksFor: AssignedTask[] | undefined
@@ -68,10 +68,19 @@ export class Member {
   }
 
   get role() {
-    return this._role
+    switch (this._role){
+      case 0:
+        return 'MEMBER'
+      case 1:
+        return 'SUB_LEADER'
+      case 2:
+        return 'LEADER'
+      default:
+        return this._role
+    }
   }
 
-  set role(val: 'MEMBER' | 'SUB_LEADER' | 'LEADER' | undefined) {
+  set role(val: 'MEMBER' | 'SUB_LEADER' | 'LEADER'  | 0 | 1 | 2 | undefined) {
     this._role = val
   }
 

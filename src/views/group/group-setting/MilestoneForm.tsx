@@ -8,30 +8,35 @@ import Button from '@mui/material/Button'
 import { Box, InputAdornment, Typography } from '@mui/material'
 import { Pen, InformationVariant } from 'mdi-material-ui'
 import { Milestone } from 'src/models'
-import { ChangeEvent, SetStateAction, useEffect, useState } from 'react'
+import { ChangeEvent, FC, SetStateAction, useEffect, useState } from 'react'
 import Editor from 'src/views/dialog/editor'
 import { milestoneAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { useToasts } from 'react-toast-notifications'
 import { groupDBDexie } from 'src/models/db/GroupDB'
 
-const MilestoneForm = (props: { milestone?: Milestone; status: string }) => {
+interface ChildComponentProps {
+  onButtonClick: () => void;
+  milestone?: Milestone;
+  status: string
+}
+const MilestoneForm : FC<ChildComponentProps> = ({ onButtonClick, milestone,status }) => {
   // ** State
-  const [name, setName] = useState<string>(props.milestone?.Name ?? '')
-  const [description, setDescription] = useState<string>(props.milestone?.Description ?? '')
+  const [name, setName] = useState<string>(milestone?.Name ?? '')
+  const [description, setDescription] = useState<string>(milestone?.Description ?? '')
 
   const addToast = useToasts();
   useEffect(()=>{
     fillText();
-  })
+  },[milestone])
 
   const onChangeName = (event: ChangeEvent<HTMLInputElement>) =>{
     setName(event.target.value);
   }
 
   const fillText = () => {
-    setName(props.milestone?.Name ?? '');
-    setDescription(props.milestone?.Description ?? '');
+    setName(milestone?.Name ?? '');
+    setDescription(milestone?.Description ?? '');
   }
 
   const handleReset = () => {
@@ -41,10 +46,11 @@ const MilestoneForm = (props: { milestone?: Milestone; status: string }) => {
 
   const handleDelete =async () => {
     // call api
-    await milestoneAPI.delete(props.milestone?.Id ?? '')
+    await milestoneAPI.delete(milestone?.Id ?? '')
     .then(res =>{
       const data = new CommonResponse(res);
       addToast.addToast(data.message, {appearance:'success'})
+      onButtonClick()
     })
     .catch(err => console.log(err))
   }
@@ -52,7 +58,7 @@ const MilestoneForm = (props: { milestone?: Milestone; status: string }) => {
   const handleCreate = async () => {
     // call api
     const groupdata = await groupDBDexie.getGroup();
-    if (props.status ==='Create'){
+    if (status ==='Create'){
 
       // Create New Milestone
       const milestone : Milestone ={
@@ -65,18 +71,19 @@ const MilestoneForm = (props: { milestone?: Milestone; status: string }) => {
       .then(res =>{
         const data = new CommonResponse(res);
         addToast.addToast(data.message, {appearance:'success'})
+        onButtonClick()
       })
       .catch(err => console.log(err))
     } else{
 
       // Update Milestone
-      const milestone : Milestone ={
+      const milestoneUpd : Milestone ={
         Name: name,
         Description: description,
-        Id: props.milestone?.Id
+        Id: milestone?.Id
       }
 
-      await milestoneAPI.put(milestone)
+      await milestoneAPI.put(milestoneUpd)
       .then(res =>{
         const data = new CommonResponse(res);
         addToast.addToast(data.message, {appearance:'success'})
@@ -122,12 +129,12 @@ const MilestoneForm = (props: { milestone?: Milestone; status: string }) => {
 
           <Grid item xs={12}>
             <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleCreate}>
-              {props.status === 'Create' ? 'Create' : 'Update'}
+              {status === 'Create' ? 'Create' : 'Update'}
             </Button>
             <Button type='reset' variant='outlined' color='secondary' sx={{ marginRight: 3.5 }} onClick={handleReset}>
               Reset
             </Button>
-            <Button variant='outlined' color='error' disabled = {props.status === 'Create'} onClick={handleDelete} >
+            <Button variant='outlined' color='error' disabled = {status === 'Create'} onClick={handleDelete} >
               Delete
             </Button>
           </Grid>

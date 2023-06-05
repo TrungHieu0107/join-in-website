@@ -1,14 +1,15 @@
 import { ApplicationRequest } from 'src/models/query-models/ApplicationRequest';
 import axiosClient from './api-client'
-import { groupDBDexie } from 'src/models/db/GroupDB';
+import { QueryApplicationListModel } from 'src/models/query-models/QueryApplicationListModel';
 
 const URL = '/applications';
 
 export const applicationAPI = {
-  async getList() {
-    const groupData = await groupDBDexie.getGroup();
+  async getList(payload?: QueryApplicationListModel) {
 
-    return axiosClient.get(`${URL}?groupId=${groupData?.id}`)
+    return axiosClient.get(`${URL}`,{
+      params: payload
+    })
   },
 
   postApplication(data: ApplicationRequest) {

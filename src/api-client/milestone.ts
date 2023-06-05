@@ -20,10 +20,13 @@ export const milestoneAPI = {
   },
 
   delete(id:string) {
-    return axiosClient.delete(`${URL}/${id}`)
+    return axiosClient.delete(`${URL}?id=${id}`)
   },
 
   put(data: Milestone) {
     return axiosClient.put(`${URL}`,data)
+  },
+  putCurrent(data: any) {
+    return axiosClient.put(`${URL}/updateCurrent`,data)
   }
 }

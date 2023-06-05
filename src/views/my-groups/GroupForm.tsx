@@ -16,10 +16,11 @@ import { AccountGroup, AlphaACircleOutline, Book,  InformationVariant, School, T
 import Editor from '../dialog/editor'
 import { useToasts } from 'react-toast-notifications'
 import { GroupRequest } from 'src/models/query-models/GroupRequest'
-import { groupAPI } from 'src/api-client'
+import { groupAPI, userAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import {  groupDBDexie } from 'src/models/db/GroupDB'
 import { Group } from 'src/models/class'
+import { AxiosResponse } from 'axios'
 
 interface State {
   groupName?: string
@@ -61,7 +62,7 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
 }))
 
 
-const GroupForm  = () => {
+const GroupForm  = (props : {type: string}) => {
   // ** State
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
   const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
@@ -73,11 +74,15 @@ const GroupForm  = () => {
   })
   const [skills, setSkills] = useState<string>('')
   const [description, setDescription] = useState<string>('')
+  const [fileAvatar, setFileAvatar] = useState<FileList>()
+  const [fileBackGround, setFileBackGround] = useState<FileList>()
 
   const addToast = useToasts()
 
   useEffect(() =>{
-    getInformation();
+    if (props.type !=='CREATE'){
+      getInformation();
+    }
   },[])
 
   const getInformation = async () =>{
@@ -118,6 +123,7 @@ const GroupForm  = () => {
       reader.onload = () => setImgSrc(reader.result as string)
 
       reader.readAsDataURL(files[0])
+      setFileAvatar(files);
     }
   }
 
@@ -128,11 +134,28 @@ const GroupForm  = () => {
       reader.onload = () => setImgBackground(reader.result as string)
 
       reader.readAsDataURL(files[0])
+      setFileBackGround(files);
     }
+  }
+
+  const uploadImage = async (): Promise<any> =>{
+    const response = await userAPI.uploadImage(fileAvatar ? fileAvatar[0] : undefined);
+
+    return new CommonResponse(response as AxiosResponse).data
+  }
+
+  const uploadBackground = async (): Promise<any> =>{
+    const response = await userAPI.uploadImage(fileBackGround ? fileBackGround[0] : undefined);
+
+    return new CommonResponse(response as AxiosResponse).data
   }
 
   const handleCreateGroup = async () => {
     try {
+
+      const urlAvatar = await uploadImage();
+      const urlBackground = await uploadBackground();
+
       const group : GroupRequest = {
         Name: values.groupName,
         SchoolName: values.schoolName,
@@ -140,8 +163,8 @@ const GroupForm  = () => {
         SubjectName: values.subject,
         Description: description,
         Skill: skills,
-        Avatar: '',
-        Theme: ''
+        Avatar: urlAvatar,
+        Theme: urlBackground
       }
 
       await groupAPI

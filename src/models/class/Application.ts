@@ -3,7 +3,7 @@ import { User, Group, ApplicationMajor } from '.'
 export class Application {
   private _id: string | undefined
   private _createdDate: Date | undefined
-  private _status: 'WAITING' | 'APPROVED' | 'DISAPPROVED' | undefined
+  private _status: 'WAITING' | 'APPROVED' | 'DISAPPROVED'  | 0 | 1 | 2 | undefined
   private _confirmedDate: Date | undefined
   private _description: string | undefined
   private _userId: string | undefined
@@ -29,10 +29,19 @@ export class Application {
   }
 
   get status() {
-    return this._status
+    switch (this._status){
+      case 0:
+        return 'WAITING'
+      case 1:
+        return 'APPROVED'
+      case 2:
+        return 'DISAPPROVED'
+      default:
+        return this._status
+    }
   }
 
-  set status(val: 'WAITING' | 'APPROVED' | 'DISAPPROVED' | undefined) {
+  set status(val: 'WAITING' | 'APPROVED' | 'DISAPPROVED'  | 0 | 1 | 2 | undefined) {
     this._status = val
   }
 

@@ -12,9 +12,15 @@ import {
   Divider,
   Box,
   Typography,
-  IconButton
+  IconButton,
+  SelectChangeEvent
 } from '@mui/material'
 import { AccountMultiple, DeleteOutline } from 'mdi-material-ui'
+import { ChangeEvent, useEffect, useState } from 'react'
+import { useToasts } from 'react-toast-notifications'
+import { majorAPI } from 'src/api-client'
+import { Major } from 'src/models/class'
+import { CommonResponse } from 'src/models/common/CommonResponse'
 
 // ** Icons Imports
 
@@ -30,6 +36,40 @@ const RecruitmentData = [
 
 const RecruitmentForm = () => {
   // ** State
+  const [selectedValue, setSelectedValue] = useState('')
+  const [listMajors, setListMajors] = useState<Major[]>([])
+  const [quantity, setQuantity] = useState<number>(1);
+
+  const addToast = useToasts()
+
+  useEffect(() => {
+    getListMajors()
+  }, [])
+
+  const handleChange = (event: SelectChangeEvent<string>) => {
+    setSelectedValue(event.target.value)
+  }
+
+  const handleChangeQuantity = (event: ChangeEvent<HTMLInputElement>) =>{
+    setQuantity(Number(event.target.value));
+  }
+
+  const getListMajors = async () => {
+    try {
+      await majorAPI
+        .getList()
+        .then(res => {
+          const data = new CommonResponse(res)
+          const majors: Major[] = data.data
+          setListMajors(majors)
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    } catch (err) {
+      addToast.addToast(err, { appearance: 'error' })
+    }
+  }
 
   const handleClickDelete = () => {
     // handle delete recruitment
@@ -42,11 +82,12 @@ const RecruitmentForm = () => {
           <Grid item xs={12}>
             <FormControl fullWidth>
               <InputLabel>Major</InputLabel>
-              <Select label='Role' defaultValue='IT'>
-                <MenuItem value='IT'>Information Technology</MenuItem>
-                <MenuItem value='BA'>Business Administration</MenuItem>
-                <MenuItem value='EN'>English</MenuItem>
-                <MenuItem value='JP'>Japan</MenuItem>
+              <Select label='Role' value={selectedValue} onChange={handleChange}>
+                {listMajors.map(item => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
@@ -55,8 +96,8 @@ const RecruitmentForm = () => {
               fullWidth
               type='number'
               label='Quantity'
-              placeholder='1'
-              defaultValue='1'
+              value={quantity}
+              onChange={handleChangeQuantity}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
