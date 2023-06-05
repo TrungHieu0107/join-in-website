@@ -25,5 +25,9 @@ export const majorAPI = {
 
   put(data: Major) {
     return axiosClient.put(`${URL}`, data)
+  },
+
+  getAllMajorOfUser() {
+    return axiosClient.get('/user-majors')
   }
 }

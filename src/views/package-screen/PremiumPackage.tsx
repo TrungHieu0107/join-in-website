@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import ShortDivider from '../../layouts/components/ShortDivider'
 import { useRouter } from 'next/router'
+import { transactionAPI } from 'src/api-client'
+import { CommonResponse } from 'src/models/common/CommonResponse'
 
 
 const PremiumPackage = () => {
@@ -41,7 +43,13 @@ const PremiumPackage = () => {
         </Typography>
       </CardContent>
       <Button variant='contained' sx={{ py: 2.5, width: '100%', borderTopLeftRadius: 0, borderTopRightRadius: 0 }} onClick={() => {
-        router.push('/payment')
+        transactionAPI.createTransaction(0).then((res) => {
+        // router.push('/payment', {
+        //   query: {
+        //     code : new CommonResponse(res).data
+        //   }
+        // })
+        })
       }}>
         Purchase
       </Button>

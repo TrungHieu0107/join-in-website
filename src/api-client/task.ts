@@ -27,7 +27,7 @@ export const taskAPI = {
   },
 
   delete(id: string) {
-    return axiosClient.delete(`${URL}/${id}`)
+    return axiosClient.delete(`${URL}?taskId=${id}`)
   },
 
   updateTask(data: UpdateTaskModel) {

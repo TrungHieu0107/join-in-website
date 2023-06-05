@@ -1,4 +1,4 @@
-import { Application, Feedback, Member, Transaction, UserMajor } from '.'
+import { Application, Feedback, Major, Member, Transaction, UserMajor } from '.'
 
 export class User {
   private _id: string | undefined
@@ -21,6 +21,7 @@ export class User {
   private _userMajors: UserMajor[] | undefined
   private _members: Member[] | undefined
   private _applications: Application[] | undefined
+  private _majors: Major[] | undefined
 
   constructor(value?: Partial<User>) {
     this.id = value?.id
@@ -43,6 +44,7 @@ export class User {
     this.userMajors = value?.userMajors
     this.members = value?.members
     this.applications = value?.applications
+    this.majors = value?.majors
   }
 
   get id() {
@@ -203,5 +205,13 @@ export class User {
 
   set applications(val: Application[] | undefined) {
     this._applications = val
+  }
+
+  get majors() {
+    return this._majors
+  }
+
+  set majors(val: Major[] | undefined) {
+    this._majors = val
   }
 }

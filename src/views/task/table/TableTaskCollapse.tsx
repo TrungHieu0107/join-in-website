@@ -12,10 +12,17 @@ import { Task } from 'src/models/class'
 import { useRouter } from 'next/router'
 import { Menu, MenuItem, Button, IconButton } from '@mui/material'
 import { Delete, InformationVariant, DotsVertical } from 'mdi-material-ui'
+import { taskAPI } from 'src/api-client'
+import { useToasts } from 'react-toast-notifications'
+import { AxiosError } from 'axios'
+import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel'
 
 export interface ITableTaskCollapseProps {
   column: Column[]
   row: Task[] | undefined
+  onSuccess?: () => Promise<void>
+  query?: QueryTaskListsModel
+  setQuery?: (value: QueryTaskListsModel) => void
 }
 function Row(props: {
   row: Task
@@ -28,7 +35,13 @@ function Row(props: {
   const { row, page, rowsPerPage, index, column, clicktoDetail } = props
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedRow, setSelectedRow] = useState<Task>()
-  const data: any = row    
+  const data: any = row
+  const addToast = useToasts()
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
+  const router = useRouter()
 
   const handleOptionsClose = () => {
     setAnchorEl(null)
@@ -48,14 +61,36 @@ function Row(props: {
     }
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     console.log('Delete ', selectedRow)
+    selectedRow?.id &&
+      (await taskAPI
+        .delete(selectedRow?.id)
+        .then(res => {
+          console.log(res)
+        })
+        .catch(error => {
+          handleError(error)
+        }))
+  }
+
+  const handleError = (error: any) => {
+    const dataErr = (error as AxiosError)?.response
+    if (dataErr?.status === 401) {
+      notify('Login expired.', 'error')
+      router.push('/user/login')
+    } else if (dataErr?.status === 500) {
+      if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
+      else notify('Something error', 'error')
+    } else {
+      console.log(error)
+    }
   }
 
   return (
     <Fragment>
       <TableRow aria-label='expand row'>
-        <TableCell align='center'>{page * rowsPerPage + index + 1}</TableCell>
+        <TableCell align='center'>{(page - 1) * rowsPerPage + index + 1}</TableCell>
         {column.map(column => {
           const value = data[column.id]
 
@@ -102,11 +137,12 @@ function Row(props: {
 export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
   const [values, setValues] = useState<ITableTaskCollapseProps>(props)
   const [page, setPage] = useState<number>(0)
+  const [queryTask, setQueryTask] = useState<QueryTaskListsModel>(new QueryTaskListsModel())
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
 
   useEffect(() => {
     setValues(props)
-    
+    props.query && setQueryTask(props.query)
   }, [props])
 
   const router = useRouter()
@@ -114,18 +150,22 @@ export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
   const handleClickToTaskDetail = (id: number) => {
     if (router.pathname != '/group/task') return
 
-    console.log('detail');
-    
+    console.log('detail')
+
     router.push(`/group/task/${id}`)
   }
 
   const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage)
+    const newQuery = new QueryTaskListsModel(queryTask)
+    newQuery.page = newPage + 1
+    props.setQuery && props.setQuery(newQuery)
   }
 
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
+    const newQuery = new QueryTaskListsModel(queryTask)
+    newQuery.pageSize = +event.target.value
+    newQuery.page = 1
+    props.setQuery && props.setQuery(newQuery)
   }
 
   return (
@@ -146,13 +186,13 @@ export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {values.row?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+            {values.row?.map((row, index) => {
               return (
                 <Row
                   key={index}
                   row={row}
-                  page={page}
-                  rowsPerPage={rowsPerPage}
+                  page={queryTask.page}
+                  rowsPerPage={queryTask.pageSize}
                   index={index}
                   column={values.column}
                   clicktoDetail={handleClickToTaskDetail}
@@ -165,9 +205,9 @@ export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'
-        count={values.row !== undefined ? values.row.length : 0}
-        rowsPerPage={rowsPerPage}
-        page={page}
+        count={queryTask.total ?? 0}
+        rowsPerPage={queryTask.pageSize}
+        page={queryTask.page - 1}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
