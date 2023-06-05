@@ -34,6 +34,9 @@ import { CommonResponse } from 'src/models/common/CommonResponse'
 import { useToasts } from 'react-toast-notifications'
 import { Group } from 'src/models/class'
 import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel'
+import { groupDBDexie } from 'src/models/db/GroupDB'
+import { resolve } from 'path'
+import { reject } from 'lodash'
 
 interface Column {
   id: 'name' | 'subject' | 'class' | 'member' | 'leader'
@@ -236,7 +239,6 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     event.stopPropagation()
     setAnchorEl(event.currentTarget)
     setSelectedRow(row)
-    console.log(selectedRow)
   }
 
   const handleOptionsClose = () => {
@@ -250,11 +252,48 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     handleOptionsClose()
   }
 
-  const handleViewDetail = () => {
+  const handleViewDetail = async (row?: any) => {
     // Handle view detail action
+    row && setSelectedRow(row)
+    await saveGroupInfor (row ?? selectedRow)
     router.push('/group/task')
-    handleOptionsClose()
+
+    // handleOptionsClose()
   }
+
+  const saveGroupInfor = async (groupInfo: any) => {
+    try {
+      const value : Group = await new Promise((resolve,reject)=>{
+        groupAPI.getById(groupInfo.id)
+        .then(res =>{
+          const data = new CommonResponse(res)
+          const group : Group = data.data
+
+          resolve(group)
+        })
+        .catch(err =>{
+          reject(err)
+        })
+      })
+
+      await groupDBDexie.saveGroup({
+          id: value.id,
+          name: value.name,
+          avatarGroup: value.avatar,
+          createdBy: '',
+          groupSize: value.groupSize,
+          memberCount: value.memberCount,
+          schoolName: value.schoolName,
+          className: value.className,
+          subject: value.subjectName,
+          theme: value.theme
+        })
+
+    } catch(err){
+      console.log(err)
+    }
+  }
+
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -327,7 +366,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           <TableBody>
             {listGroup.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={handleViewDetail}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={()=>handleViewDetail(row)}>
                   <TableCell align='center' sx={{ minWidth: '20px' }}>
                     {page * rowsPerPage + index + 1}
                   </TableCell>

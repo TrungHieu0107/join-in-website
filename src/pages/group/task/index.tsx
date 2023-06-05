@@ -18,6 +18,7 @@ import CustomizedSteppers from 'src/layouts/components/CustomizedSteppers'
 import moment from 'moment'
 import { StorageKeys } from 'src/constants'
 import UserGroupLayout from 'src/layouts/UserGroupLayout'
+import { groupDBDexie } from 'src/models/db/GroupDB'
 
 const getData = () => {
   const task = new Task({
@@ -165,9 +166,16 @@ export default function TaskListPage() {
   const [searchValue, setSearchValue] = useState('')
   const [addNewModal, setAddNewModal] = useState<boolean>(false)
 
-  useEffect(() => {
+  useEffect(  () =>  {
     console.log(addNewModal)
+    testGroup()
   }, [addNewModal])
+
+  const testGroup = async() =>{
+    const groupData = await groupDBDexie.getGroup();
+    console.log('new Group');
+    console.log(groupData)
+  }
 
   const handleClickOpen = () => {
     setAddNewModal(true)

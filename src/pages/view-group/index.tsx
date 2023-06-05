@@ -80,6 +80,7 @@ const GroupView = () => {
   const getInformation = async () =>{
     try {
       const groupData = await groupDBDexie.getGroup()
+      console.log(groupData)
       await groupAPI.getById(groupData?.id)
       .then(res =>{
         const data = new CommonResponse(res);

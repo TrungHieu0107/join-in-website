@@ -10,7 +10,7 @@ export const userAPI = {
   },
 
   getById(id: string) {
-    return axiosClient.get(`${URL}/${id}`)
+    return axiosClient.get(`${URL}/profile?userId=${id}`)
   },
 
   post(data: User) {

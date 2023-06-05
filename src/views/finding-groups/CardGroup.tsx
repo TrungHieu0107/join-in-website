@@ -10,6 +10,10 @@ import { Button, ButtonGroup } from '@mui/material'
 import { useRouter } from 'next/router'
 import { GroupCard } from 'src/models/views/GroupCard'
 import { FC } from 'react'
+import { Group } from 'src/models/class'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { groupDBDexie } from 'src/models/db/GroupDB'
+import { groupAPI } from 'src/api-client'
 
 interface GroupProps {
   groupCard: GroupCard
@@ -19,9 +23,43 @@ const CardGroup : FC<GroupProps> = ({groupCard }) => {
 
   const router = useRouter()
 
-  const handleClickOpen = () => {
+  const handleClickOpen = async() => {
     //handle Click Open View Group
+    await saveGroupInfor()
     router.push('/view-group')
+  }
+
+  const saveGroupInfor = async () => {
+    try {
+      const value : Group = await new Promise((resolve,reject)=>{
+        groupAPI.getById(groupCard.Id)
+        .then(res =>{
+          const data = new CommonResponse(res)
+          const group : Group = data.data
+
+          resolve(group)
+        })
+        .catch(err =>{
+          reject(err)
+        })
+      })
+
+      await groupDBDexie.saveGroup({
+          id: value.id,
+          name: value.name,
+          avatarGroup: value.avatar,
+          createdBy: '',
+          groupSize: value.groupSize,
+          memberCount: value.memberCount,
+          schoolName: value.schoolName,
+          className: value.className,
+          subject: value.subjectName,
+          theme: value.theme
+        })
+
+    } catch(err){
+      console.log(err)
+    }
   }
 
   return (
@@ -51,7 +89,7 @@ const CardGroup : FC<GroupProps> = ({groupCard }) => {
           }}
         >
           <Box sx={{ mr: 2, mb: 1, display: 'flex', flexDirection: 'column' }}>
-            <Typography variant='h6'>{groupCard.Name} Group</Typography>
+            <Typography variant='h6'>{groupCard.Name}</Typography>
             <Typography variant='caption'>
               Subject: <b>{groupCard.SubjectName}</b>
             </Typography>

@@ -3,7 +3,7 @@ import Dexie, { Table } from 'dexie'
 export interface GroupDBType {
   id?: string
   name?: string
-  avatar?: string
+  avatarGroup?: string
   createdBy?: string
   groupSize?: number
   memberCount?: number
@@ -21,7 +21,7 @@ export class GroupDBDexie extends Dexie {
   constructor() {
     super('group')
     this.version(1).stores({
-      group: '++id, name, avatar,createdBy,groupSize,memberCount, schoolName,className, subject, theme' // Primary key and indexed props
+      group: '++id, name, avatarGroup,createdBy,groupSize,memberCount, schoolName,className, subject, theme' // Primary key and indexed props
     })
   }
 }
@@ -45,6 +45,7 @@ export const groupDBDexie = {
       if (data.length !== 0) {
         await db.group.clear()
       }
+
       return await db.group.add(group)
     } catch (error) {
       console.log(error)
