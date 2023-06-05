@@ -3,7 +3,7 @@ import { AssignedTask, Member, Task, User } from 'src/models/class'
 import { Column } from 'src/models/common/Column'
 import TableTaskCollapse from 'src/views/task/table/TableTaskCollapse'
 import Grid from '@mui/material/Grid'
-import {Card,  Avatar, AvatarGroup, Button, TextField, Fade, Box, CardContent, CardHeader } from '@mui/material'
+import { Card, Avatar, AvatarGroup, Button, TextField, Fade, Box, CardContent, CardHeader } from '@mui/material'
 import { ReactNode, useEffect, useState } from 'react'
 import { Magnify, Plus } from 'mdi-material-ui'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -18,48 +18,26 @@ import CustomizedSteppers from 'src/layouts/components/CustomizedSteppers'
 import moment from 'moment'
 import { StorageKeys } from 'src/constants'
 import UserGroupLayout from 'src/layouts/UserGroupLayout'
-import { groupDBDexie } from 'src/models/db/GroupDB'
-
-const getData = () => {
-  const task = new Task({
-    id: "1",
-    name: 'Task',
-    estimatedDays: 2,
-    impotantLevel: 'VERY_HIGH',
-    startDateDeadline: moment('2022-02-02').format(StorageKeys.KEY_FORMAT_DATE),
-    endDateDeadline: moment('2023-02-02').format(StorageKeys.KEY_FORMAT_DATE),
-    status: 'FINISHED',
-    createdBy: {
-      avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-      fullName: 'Hieu'
-    } as User,
-    assignedTasks: [
-      new AssignedTask({
-        assignedFor: new Member({
-          user: new User({
-            fullName: 'Nguyen Van A',
-            avatar:
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU'
-          })
-        })
-      })
-    ]
-  })
-  const list = []
-  for (let i = 0; i < 50; i++) {
-    task.id = "i"
-    list.push(task)
-  }
-
-  return list
-}
+import { GroupDBType, groupDBDexie } from 'src/models/db/GroupDB'
+import { taskAPI } from 'src/api-client'
+import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { AxiosError } from 'axios'
+import { useToasts } from 'react-toast-notifications'
+import {useRouter} from 'next/router'
+import Link from 'next/link'
 
 const column: Column[] = [
   {
     id: 'name',
     label: 'Title',
     minWidth: 200,
-    align: 'left'
+    align: 'left',
+    format: (value: Task) => (
+      <Link href={`/group/task/${value.id}`} rel='noopener' color='info'>
+        <a className='link-style'>{value.name}</a>
+      </Link>
+    )
   },
   {
     id: 'estimatedDays',
@@ -165,11 +143,55 @@ const style = {
 export default function TaskListPage() {
   const [searchValue, setSearchValue] = useState('')
   const [addNewModal, setAddNewModal] = useState<boolean>(false)
+  const [groupId, setGroupId] = useState<string>('')
+  const [data, setData] = useState<Task[]>([])
+  const addToast = useToasts()
+  const router = useRouter()
 
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
+
+  useEffect(() => {
+    fetchdata()
+  }, [])
   useEffect(  () =>  {
     console.log(addNewModal)
     testGroup()
   }, [addNewModal])
+
+  const fetchdata = async () => {
+    await groupDBDexie.getGroup().then(res => {
+      const id = (res as GroupDBType).id ?? ''
+      setGroupId(id)
+      console.log(res);
+      
+      if(id?.length > 0){
+        taskAPI
+          .getList(
+            new QueryTaskListsModel({
+              groupId: id
+            })
+          )
+          .then(commonOfTasks => {
+            const newValue = new CommonResponse(commonOfTasks).data
+            console.log(newValue);
+            
+            setData(newValue)
+          })
+          .catch(error => {
+            if ((error as AxiosError)?.response?.status === 401) {
+              notify('Login expired.', 'error')
+              router.push('/user/login')
+            } else {
+              console.log(error)
+            }
+          })
+
+      }
+
+    })
+  }
 
   const testGroup = async() =>{
     const groupData = await groupDBDexie.getGroup();
@@ -187,8 +209,8 @@ export default function TaskListPage() {
 
   return (
     <div>
-      <Grid container spacing={4} style={{ margin: '5px' }}>
-        <Grid container xs={6} sm={8} spacing={2}>
+      <Grid container spacing={4}>
+        <Grid item xs={6} sm={8} container spacing={2}>
           <Grid item xs={6} md={5}>
             <TextField
               fullWidth
@@ -229,7 +251,7 @@ export default function TaskListPage() {
             </AvatarGroup>
           </Grid>
         </Grid>
-        <Grid container xs={6} md={4} justifyContent={'flex-end'}>
+        <Grid item xs={6} md={4} container justifyContent={'flex-end'}>
           <Button
             color='primary'
             variant='outlined'
@@ -242,7 +264,7 @@ export default function TaskListPage() {
           </Button>
         </Grid>
       </Grid>
-      <TableTaskCollapse column={column} row={getData()}></TableTaskCollapse>
+      <TableTaskCollapse column={column} row={data}></TableTaskCollapse>
       <Modal
         open={addNewModal}
         onClose={handleClose}
@@ -252,14 +274,14 @@ export default function TaskListPage() {
       >
         <Fade in={addNewModal}>
           <Box sx={style} className='modal-size'>
-            <DialogCreateNewTask close={handleClose} />
+            <DialogCreateNewTask close={handleClose} groupId={groupId} />
           </Box>
         </Fade>
       </Modal>
-      <Card sx={{mt: 5}}>
-      <CardHeader title='Milestone' />
+      <Card sx={{ mt: 5 }}>
+        <CardHeader title='Milestone' />
         <CardContent>
-          <CustomizedSteppers/>
+          <CustomizedSteppers />
         </CardContent>
       </Card>
     </div>

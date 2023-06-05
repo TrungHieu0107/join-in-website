@@ -43,6 +43,7 @@ import { AxiosError, AxiosResponse } from 'axios'
 import { useToasts } from 'react-toast-notifications'
 import * as yup from 'yup'
 import user from 'src/pages/admin/user'
+import { userDBDexie } from 'src/models/db/UserDB'
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 150,
@@ -258,8 +259,11 @@ const TabAccount = (props: { code?: string }) => {
               console.log(payload)
               await userAPI
                 .completeProfile(payload, props.code ?? '')
-                .then(rescompleteProfile => {
-                  router.push('/my-groups')
+                .then(async (rescompleteProfile) => {
+                  const token: string = new CommonResponse(rescompleteProfile).data
+                    if (await userDBDexie.saveToken(token)) {
+                      router.push('/my-groups')
+                    }
                 })
                 .catch(error => {
                   if ((error as AxiosError)?.response?.status === 401) {

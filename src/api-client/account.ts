@@ -25,5 +25,9 @@ export const authAPI = {
         email: email
       }
     })
+  },
+
+  getUrlGoogleLogin() {
+    return axiosClient.get('/oauth2/google-sign-in')
   }
 }

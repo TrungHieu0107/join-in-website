@@ -1,5 +1,5 @@
 // ** React Imports
-import { forwardRef, SetStateAction, useState } from 'react'
+import { forwardRef, SetStateAction, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -23,11 +23,18 @@ import Box from '@mui/material/Box'
 import DatePicker from 'react-datepicker'
 
 // ** Icons Imports
-import { Task } from 'src/models'
-
 import Editor from './editor'
 import { Calendar, Close, Exclamation, InformationVariant, ListStatus, Pen } from 'mdi-material-ui'
 import { Autocomplete, InputAdornment } from '@mui/material'
+import { Task } from 'src/models/class'
+import { StorageKeys } from 'src/constants'
+import { importantLevel, importantLevelList } from 'src/constants/important-level'
+import { taskAPI } from 'src/api-client'
+import { CreateTaskModel } from 'src/models/query-models/CreateTaskModel'
+import { useToasts } from 'react-toast-notifications'
+import { AxiosError } from 'axios'
+import { useRouter } from 'next/router'
+import { CommonResponse } from 'src/models/common/CommonResponse'
 
 const CustomInputFrom = forwardRef((props, ref) => {
   return (
@@ -70,6 +77,8 @@ const CustomInputTo = forwardRef((props, ref) => {
 export interface DialogCreateNewTask {
   close: () => void
   mainTask?: Task
+  groupId: string
+  onSuccess?: () => Promise<void>
 }
 
 interface Option {
@@ -106,15 +115,54 @@ const options: Option[] = [
 
 const DialogCreateNewTask = (props: DialogCreateNewTask) => {
   // ** States
-  const [importantLv, setimportantLv] = useState<string>()
-  const [date, setDate] = useState<Date | null | undefined>(null)
-  const [data, setData] = useState('')
+  const [importantLv, setimportantLv] = useState<string>('')
+  const [estimatedDays, setEstimatedDays] = useState<number>(0)
+  const [to, setTo] = useState<Date | null | undefined>(null)
+  const [from, setFrom] = useState<Date | null | undefined>(null)
+  const [description, setDescription] = useState<string>('')
+  const [name, setName] = useState<string>('')
+  
 
-  const { mainTask, close } = props
+  const { mainTask, close, groupId, onSuccess } = props
+  const addToast = useToasts()
+  const router = useRouter()
 
-  const [selectedValues, setSelectedValues] = useState<Option[]>([])
-  const handleButtonClick = () => {
-    console.log('Selected Values:', selectedValues)
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
+
+  // const [selectedValues, setSelectedValues] = useState<Option[]>([])
+  const handleButtonSubmitClick = async () => {
+    const newTask = new CreateTaskModel({
+      name: name,
+      startDateDeadline: from?.toISOString(),
+      endDateDeadline: to?.toISOString(),
+      impotantLevel: importantLevel[importantLv]?.valueNumber,
+      estimatedDays: estimatedDays,
+      description: description,
+      mainTaskId: mainTask?.id,
+      groupId: groupId ?? ''
+    })
+    console.log('Values:', newTask)
+    await taskAPI
+      .createTask(newTask)
+      .then(res => {
+        const commonResposne = new CommonResponse(res)
+        close()
+        commonResposne.message && notify(commonResposne.message, 'success')
+        onSuccess && onSuccess()
+      })
+      .catch(error => {
+        if ((error as AxiosError)?.response?.status === 401) {
+          notify('Login expired.', 'error')
+          router.push('/user/login')
+        } else if ((error as AxiosError)?.response?.status === 500) {
+          const commonResposne = new CommonResponse((error as AxiosError)?.response?.data as CommonResponse)
+          notify(commonResposne.message ?? 'Something error', 'error')
+        } else {
+          console.log(error)
+        }
+      })
   }
 
   const handleSelectChangeImportantLv = (event: SelectChangeEvent<string>) => {
@@ -151,7 +199,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                         <TextField
                           fullWidth
                           label='Title'
-                          value={mainTask?.Name}
+                          value={mainTask?.name}
                           disabled
                           InputProps={{
                             startAdornment: (
@@ -166,7 +214,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                         <TextField
                           fullWidth
                           label='From'
-                          value={mainTask?.StartDateDeadline}
+                          value={mainTask?.startDateDeadline}
                           disabled
                           InputProps={{
                             startAdornment: (
@@ -181,7 +229,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                         <TextField
                           fullWidth
                           label='End'
-                          value={mainTask?.EndDateDeadline}
+                          value={mainTask?.endDateDeadline}
                           disabled
                           InputProps={{
                             startAdornment: (
@@ -196,7 +244,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                         <TextField
                           fullWidth
                           label='Status'
-                          value={mainTask?.Status}
+                          value={mainTask?.status}
                           disabled
                           InputProps={{
                             startAdornment: (
@@ -211,7 +259,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                         <TextField
                           fullWidth
                           label='Important'
-                          value={mainTask?.ImpotantLevel}
+                          value={mainTask?.impotantLevel}
                           disabled
                           InputProps={{
                             startAdornment: (
@@ -242,6 +290,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                           fullWidth
                           label='Title *'
                           placeholder='Title'
+                          onChange={e => setName(e.target.value)}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position='start'>
@@ -253,27 +302,29 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                       </Grid>
                       <Grid item xs={12} sm={6}>
                         <DatePicker
-                          selected={date}
+                          selected={from}
                           showYearDropdown
                           showMonthDropdown
-                          placeholderText='MM-DD-YYYY'
+                          placeholderText={StorageKeys.KEY_FORMAT_DATE}
                           customInput={<CustomInputFrom />}
                           id='form-layouts-separator-date'
-                          onChange={(date: Date) => setDate(date)}
+                          onChange={(date: Date) => setFrom(date)}
+                          dateFormat={'yyyy-MM-dd'}
                         />
                       </Grid>
                       <Grid item xs={12} sm={6}>
                         <DatePicker
-                          selected={date}
+                          selected={to}
                           showYearDropdown
                           showMonthDropdown
-                          placeholderText='MM-DD-YYYY'
+                          placeholderText={StorageKeys.KEY_FORMAT_DATE}
                           customInput={<CustomInputTo />}
                           id='form-layouts-separator-date'
-                          onChange={(date: Date) => setDate(date)}
+                          onChange={(date: Date) => setTo(date)}
+                          dateFormat={'yyyy-MM-dd'}
                         />
                       </Grid>
-                      <Grid item xs={12} sm={6}>
+                      {/* <Grid item xs={12} sm={6}>
                         <FormControl fullWidth>
                           <InputLabel id='form-layouts-separator-select-label'>Status *</InputLabel>
                           <Select
@@ -282,12 +333,14 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                             id='form-layouts-separator-select'
                             labelId='form-layouts-separator-select-label'
                           >
-                            <MenuItem value='notyet'>Not Yet</MenuItem>
-                            <MenuItem value='todo'>To do</MenuItem>
-                            <MenuItem value='finish'>Finish</MenuItem>
+                            {listTaskStatusSelect.map(item => (
+                              <MenuItem key={item.value} value={item.value}>
+                                {item.lable}
+                              </MenuItem>
+                            ))}
                           </Select>
                         </FormControl>
-                      </Grid>
+                      </Grid> */}
                       <Grid item xs={12} sm={6}>
                         <FormControl fullWidth>
                           <InputLabel id='form-layouts-separator-multiple-select-label'>Important Level *</InputLabel>
@@ -298,11 +351,11 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                             labelId='form-layouts-separator-multiple-select-label'
                             input={<OutlinedInput label='Language' id='select-multiple-language' />}
                           >
-                            <MenuItem value='very-important'>Very important</MenuItem>
-                            <MenuItem value='important'>Important</MenuItem>
-                            <MenuItem value='Medium'>Medium</MenuItem>
-                            <MenuItem value='Low'>Low</MenuItem>
-                            <MenuItem value='not-important'>Not important</MenuItem>
+                            {importantLevelList.map(item => (
+                              <MenuItem key={item.value} value={item.value}>
+                                {item.lable}
+                              </MenuItem>
+                            ))}
                           </Select>
                         </FormControl>
                       </Grid>
@@ -310,6 +363,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                         <TextField
                           fullWidth
                           type='number'
+                          onChange={e => setEstimatedDays(Number(e.target.value))}
                           label='Estimated Days'
                           InputProps={{
                             startAdornment: (
@@ -320,7 +374,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={12} sm={12}>
+                      {/* <Grid item xs={12} sm={12}>
                         <Autocomplete
                           multiple
                           options={options}
@@ -343,18 +397,18 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                             </li>
                           )}
                         />
-                      </Grid>
+                      </Grid> */}
 
                       <Grid item xs={12} sm={12}>
-                        <Box sx={{mt:5, mb: 2, display: 'flex', alignItems: 'center' }}>
+                        <Box sx={{ mt: 5, mb: 2, display: 'flex', alignItems: 'center' }}>
                           <InformationVariant sx={{ marginRight: 1 }} />
                           <Typography variant='body1'>Description</Typography>
                         </Box>
                         <Editor
-                          value={data}
+                          value={description}
                           name='description'
                           onChange={(data: SetStateAction<string>) => {
-                            setData(data)
+                            setDescription(data)
                             console.log(data)
                           }}
                         />
@@ -367,7 +421,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
           </CardContent>
           <Divider sx={{ margin: 0 }} />
           <CardActions sx={{ display: 'flex', justifyContent: 'center' }}>
-            <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained' onClick={handleButtonClick}>
+            <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained' onClick={handleButtonSubmitClick}>
               Submit
             </Button>
             <Button size='large' color='secondary' variant='outlined' onClick={close}>

@@ -1,4 +1,4 @@
-import { AssignedTask, Group, User, Comment } from './index'
+import { AssignedTask, Group, User, Comment, Member } from './index'
 
 export class Task {
   private _id: undefined | string
@@ -6,10 +6,10 @@ export class Task {
   private _startDateDeadline: string | undefined
   private _endDateDeadline: string | undefined
   private _finishedDate: string | undefined
-  private _impotantLevel: 'OPTIONAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'VERY_HIGH' | undefined
+  private _impotantLevel: 'OPTIONAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'VERY_HIGH' | 0 | 1 | 2 | 3 | 4 | undefined
   private _estimatedDays: number | undefined
   private _description: string | undefined
-  private _status: 'NOT_STARTED_YET' | 'WORKING' | 'FINISHED' | undefined
+  private _status: 'NOT_STARTED_YET' | 'WORKING' | 'FINISHED' | 0 | 1 | 2 | undefined
   private _groupId: string | undefined
   private _createdById: string | undefined
   private _mainTaskId: string | undefined
@@ -87,7 +87,7 @@ export class Task {
     return this._impotantLevel
   }
 
-  set impotantLevel(val: 'OPTIONAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'VERY_HIGH' | undefined) {
+  set impotantLevel(val: 'OPTIONAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'VERY_HIGH' | 0 | 1 | 2 | 3 | 4 | undefined) {
     this._impotantLevel = val
   }
 
@@ -111,7 +111,7 @@ export class Task {
     return this._status
   }
 
-  set status(val: 'NOT_STARTED_YET' | 'WORKING' | 'FINISHED' | undefined) {
+  set status(val: 'NOT_STARTED_YET' | 'WORKING' | 'FINISHED' | 0 | 1 | 2 | undefined) {
     this._status = val
   }
 

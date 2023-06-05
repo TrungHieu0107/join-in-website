@@ -1,8 +1,8 @@
 import moment from 'moment'
 import { Group, Milestone } from 'src/models/class'
 import axiosClient from './api-client'
-import { GroupRequest } from 'src/models/query-models/GroupRequest';
-import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel';
+import { GroupRequest } from 'src/models/query-models/GroupRequest'
+import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel'
 
 const URL = '/groups'
 
@@ -23,7 +23,7 @@ export const groupAPI = {
   },
 
   post(data: GroupRequest) {
-    return axiosClient.post(`${URL}`,data)
+    return axiosClient.post(`${URL}`, data)
   },
 
   delete(id: string) {
@@ -31,64 +31,15 @@ export const groupAPI = {
   },
 
   put(data: GroupRequest) {
-    return axiosClient.put(`${URL}`,data)
+    return axiosClient.put(`${URL}`, data)
+  },
+  getRoleInGroup(groupId: string) {
+    return axiosClient.get(`${URL}/${groupId}/role`)
   },
 
   Admin: {
     getListGroup(): Group[] {
-      const result = []
-      for (let index = 0; index < 80; index++) {
-        result.push(
-          new Group({
-            id: 'index',
-            name: `Group ${index}`,
-            createdDate: moment().format('YYYY-MM-DD'),
-            groupSize: (index % 21) - 1 < 1 ? 2 : index % 21,
-            memberCount: (index % 21) - 1 < 1 ? 1 : (index % 21) - 1,
-            schoolName: `School ${index}`,
-            className: `Class ${index}`,
-            subjectName: `Subject ${index}`,
-            description: `Đào tạo siêu nhân ${index}`,
-            skill: `Bay trên trời`,
-            status: 'ACTIVE',
-            currentMilestoneId: index,
-            currentMilestone: new Milestone({
-              id: index,
-              groupId: index,
-              description: 'Học bay cao 2000m',
-              name: 'Học bay'
-            }),
-            milestones: [
-              new Milestone({
-                id: index,
-                groupId: index,
-                description: 'Học bay cao 2000m',
-                name: 'Học bay'
-              }),
-              new Milestone({
-                id: index + 1,
-                groupId: index,
-                description: 'Học bay cao 4000m',
-                name: 'Học bay cao'
-              }),
-              new Milestone({
-                id: index + 2,
-                groupId: index,
-                description: 'Bay ra ngoài vũ trụ xuyên qua hố đen vũ trụ',
-                name: 'Bay trong không gian'
-              }),
-              new Milestone({
-                id: index + 2,
-                groupId: index,
-                description: 'Bay xuyên thời gian trở về quá khứ và tương lai',
-                name: 'Bay trong thời gian'
-              })
-            ]
-          })
-        )
-      }
-
-      return result
+      return []
     }
   }
 }

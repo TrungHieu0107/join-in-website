@@ -1,98 +1,149 @@
 import { useEffect, useState } from 'react'
 import { AssignedTask, Member, Task, User } from 'src/models/class'
-import { Autocomplete, Avatar, Chip, TextField } from '@mui/material'
+import { Autocomplete, Avatar, Box, Chip, CircularProgress, TextField, Typography } from '@mui/material'
+import { memberAPI, taskAPI } from 'src/api-client'
+import { useRouter } from 'next/router'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { AxiosError } from 'axios'
+import { useToasts } from 'react-toast-notifications'
 
 export interface IAssignViewProps {
   data: Task
-  editable: boolean
-  onInputChange : (value: Task) => void
 }
 
 export default function AssignView(props: IAssignViewProps) {
   const [value, setValue] = useState<Task>(props.data)
-  const [editable, setEditable] = useState(props.editable)
-  const onInputChange = props.onInputChange
-  const fixedOptions = [top100Films[6]]
-  const [listMember, setListMember] = useState<Member[]>()
+  const [listMember, setListMember] = useState<Member[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  const router = useRouter()
+  const addToast = useToasts()
+  const [selectedMember, setSelectedMember] = useState<Member[]>([])
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
 
   useEffect(() => {
-    setEditable(props.editable)
-    setValue(props.data)
-  })
+    if (props.data.group?.id) {
+      fetchUsers()
+    }
+  }, [props])
+
+  const fetchUsers = async () => {
+    setLoading(true)
+    await memberAPI
+      .getAllMember(props.data.group?.id ?? '')
+      .then(res => {
+        const list: Member[] = new CommonResponse(res).data
+        console.log(list)
+
+        const listAssign: Member[] = []
+        for (let index = 0; index < list.length; index++) {
+          const element = list[index]
+          if (props.data.assignedFor?.filter(item => item.id === element.user?.id ?? '')) {
+            listAssign.push(element)
+          }
+        }
+
+        setSelectedMember(listAssign)
+        setListMember(list)
+        setLoading(false)
+      })
+      .catch(error => {
+        if ((error as AxiosError)?.response?.status === 401) {
+          notify('Login expired.', 'error')
+          router.push('/user/login')
+        } else {
+          console.log(error)
+        }
+      })
+  }
 
   return (
     <div>
       <Autocomplete
-        disabled={!editable}
         multiple
-        value={value.assignedFor}
-        onChange={(event, newValue) => {
-          if (!editable) {
-            return
-          }
-          const newTask = new Task(value !== undefined ? value : {})
-          newTask.assignedFor = newValue
+        disabled={loading}
+        value={selectedMember}
+        onChange={async (event, newValue) => {
+          setLoading(true)
+          const oldValue = selectedMember
+          setSelectedMember(newValue)
+          const data = newValue?.map(item => item.id)
 
-          setValue(newTask)
-          onInputChange(newTask)
+          await taskAPI
+            .assignTask({
+              taskId: props.data.id,
+              assignedForIds: data
+            })
+            .then(res => {
+              console.log(res)
+              setTimeout(() => {
+                setLoading(false)
+              }, 1000)
+            })
+            .catch(error => {
+              setTimeout(() => {
+                setLoading(false)
+                setSelectedMember(oldValue)
+              }, 1000)
+
+              if ((error as AxiosError)?.response?.status === 401) {
+                notify('Login expired.', 'error')
+                router.push('/user/login')
+              } else if ((error as AxiosError)?.response?.status === 500) {
+                const commonResposne = new CommonResponse((error as AxiosError)?.response?.data as CommonResponse)
+                notify(commonResposne.message ?? 'Something error', 'error')
+              } else {
+                console.log(error)
+
+                notify('Something error', 'error')
+              }
+            })
         }}
-        options={top100Films.filter(item => value.assignedFor?.indexOf(item) === -1)}
-        getOptionLabel={option =>
-          option?.fullName ? option?.fullName : 'Không tên'
-        }
-        renderTags={tagValue =>
+        options={listMember.filter(item => selectedMember.indexOf(item) === -1)}
+        getOptionLabel={option => (option?.user?.fullName ? option?.user.fullName : 'Không tên')}
+        renderTags={(tagValue, getTagProps) =>
           tagValue.map((option, index) => (
             <Chip
-              key={index}
-              avatar={<Avatar alt='Natacha' src={option?.avatar} sizes='medium' />}
-              label={option?.fullName}
-              // {...getTagProps({ index })}
-              disabled={fixedOptions.indexOf(option) !== -1}
+              avatar={<Avatar alt='Natacha' src={option?.user?.avatar} sizes='medium' />}
+              label={option?.user?.fullName}
+              {...getTagProps({ index })}
               variant='outlined'
               sx={{
                 m: 1
               }}
+              disabled={false}
             />
           ))
         }
+        renderOption={(props, option) => (
+          <Box component='li' {...props}>
+            <Avatar alt={option?.user?.fullName} src={option?.user?.avatar} sizes='small' />
+            <Typography ml={2}>{option?.user?.fullName}</Typography>
+          </Box>
+        )}
         style={{ width: 'auto' }}
-        renderInput={params => <TextField {...params} placeholder='Assignee' disabled={!editable} size='medium' />}
+        renderInput={params => (
+          <>
+            <TextField {...params} placeholder='Assignee' size='medium' disabled={loading} />
+            {loading && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  marginTop: '-12px',
+                  marginLeft: '-12px'
+                }}
+                color='info'
+              />
+            )}
+          </>
+        )}
+        sx={{ position: 'relative' }}
       />
     </div>
   )
 }
-
-const top100Films = [
-  new User({
-    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-    fullName: 'Hieuasdas 2'
-  }),
-  new User({
-    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-    fullName: 'Hieuasdas 2'
-  }),
-  new User({
-    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-    fullName: 'Hieuasdas 2'
-  }),
-  new User({
-    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-    fullName: 'Hieuasdas 2'
-  }),
-  new User({
-    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-    fullName: 'Hieuasdas 2'
-  }),
-  new User({
-    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-    fullName: 'Hieuasdas 2'
-  }),
-  new User({
-    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-    fullName: 'Hieuasdas 2'
-  }),
-  new User({
-    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
-    fullName: 'Hieuasdas 2'
-  })
-]

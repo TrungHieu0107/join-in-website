@@ -11,6 +11,7 @@ export interface GroupDBType {
   className?: string
   subject?: string
   theme?: string
+  avatar?: string
 }
 
 export class GroupDBDexie extends Dexie {
@@ -38,7 +39,7 @@ export const groupDBDexie = {
     }
   },
 
-  async saveGroup(group: any) {
+  async saveGroup(group: GroupDBType) {
     const db = new GroupDBDexie()
     try {
       const data = await db.group.toArray()

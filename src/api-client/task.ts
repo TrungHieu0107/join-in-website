@@ -3,6 +3,8 @@ import { StorageKeys } from 'src/constants'
 import { AssignedTask, Group, Member, Task, User, Comment } from 'src/models/class'
 import axiosClient from './api-client'
 import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel'
+import { CreateTaskModel } from 'src/models/query-models/CreateTaskModel'
+import { UpdateTaskModel } from 'src/models/query-models/UpdateTaskModel'
 
 const URL = '/tasks'
 
@@ -20,7 +22,7 @@ export const taskAPI = {
     return axiosClient.get(`${URL}/${id}`)
   },
 
-  post(data: Task) {
+  createTask(data: CreateTaskModel) {
     return axiosClient.post(`${URL}`, data)
   },
 
@@ -28,8 +30,14 @@ export const taskAPI = {
     return axiosClient.delete(`${URL}/${id}`)
   },
 
-  put(data: Task) {
-    return axiosClient.put(`${URL}`, data)
+  updateTask(data: UpdateTaskModel) {
+    return axiosClient.put(`${URL}/team-leaders`, data)
+  },
+
+  assignTask(data: any) {
+    console.log(data)
+
+    return axiosClient.put(`/assigned-tasks`, data)
   },
 
   User: {
@@ -46,7 +54,7 @@ export const taskAPI = {
             startDateDeadline: moment('2022-02-02').format(StorageKeys.KEY_FORMAT_DATE),
             endDateDeadline: moment('2023-02-02').format(StorageKeys.KEY_FORMAT_DATE),
             status: 'FINISHED',
-            mainTaskId: index,
+            mainTaskId: 'index',
             createdBy: {
               avatar:
                 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHJRMq60qKNIeGgwgDrJtMxH4v7j4vKykszQ&usqp=CAU',
@@ -168,31 +176,31 @@ export const taskAPI = {
         ],
         comments: [
           new Comment({
-            id: 1,
+            id: '1',
             content: 'content',
             createdDate: '2023-01-01 00:00:00',
             status: 'ACTIVE'
           }),
           new Comment({
-            id: 1,
+            id: '1',
             content: '<h1>content 123</h1>',
             createdDate: '2023-01-01',
             status: 'ACTIVE'
           }),
           new Comment({
-            id: 1,
+            id: '1',
             content: 'content 123',
             createdDate: '2023-01-01',
             status: 'ACTIVE'
           }),
           new Comment({
-            id: 2,
+            id: '2',
             content: 'content 2',
             createdDate: '2023-01-02',
             status: 'ACTIVE'
           }),
           new Comment({
-            id: 2,
+            id: '2',
             content: 'content 3',
             createdDate: '2023-01-03',
             status: 'ACTIVE'

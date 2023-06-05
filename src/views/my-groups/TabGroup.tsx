@@ -157,24 +157,21 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const [openAlert, setOpenAlert] = useState(false)
   const [listGroup, setlistGroup] = useState<any[]>([])
-  const [searchName, setSearchName] = useState<string>('');
-  const [storeSearchName,setStoreSearchName] = useState<string>('');
+  const [searchName, setSearchName] = useState<string>('')
+  const [storeSearchName, setStoreSearchName] = useState<string>('')
 
   useEffect(() => {
-
     getListGroup()
-  },[storeSearchName])
-
-
+  }, [storeSearchName])
 
   const getListGroup = async () => {
     try {
-      const payload : QueryGroupListModel = {
+      const payload: QueryGroupListModel = {
         name: storeSearchName,
         orderBy: '',
         page: 1,
         pageSize: 10,
-        type: renderType ==='all' ? '' : renderType,
+        type: renderType === 'all' ? '' : renderType,
         value: ''
       }
 
@@ -205,17 +202,17 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     }
   }
 
-  const handleClickSearch = () =>{
-    setStoreSearchName(searchName);
+  const handleClickSearch = () => {
+    setStoreSearchName(searchName)
   }
 
   const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       setStoreSearchName(searchName);
     }
-  };
+  }
 
-  const handleSearch = (event:ChangeEvent<HTMLInputElement>) =>{
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchName(event.target.value)
   }
 
@@ -325,7 +322,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
-                <Magnify fontSize='small' onClick={handleClickSearch}/>
+                <Magnify fontSize='small' onClick={handleClickSearch} />
               </InputAdornment>
             )
           }}

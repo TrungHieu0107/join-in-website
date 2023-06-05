@@ -106,7 +106,6 @@ export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
 
   useEffect(() => {
     setValues(props)
-    console.log(props);
     
   }, [props])
 

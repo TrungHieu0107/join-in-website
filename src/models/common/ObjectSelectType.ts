@@ -1,17 +1,19 @@
 export class ObjectSelectType {
-  private _value: string | undefined
+  private _value: string | number | undefined
   private _lable: string | undefined
+  private _valueNumber: number | undefined
 
-  constructor(value: string, label: string) {
-    this.lable = label
-    this.value = value
+  constructor(value: Partial<ObjectSelectType>) {
+    this.lable = value?.lable
+    this.value = value?.value
+    this.valueNumber = value?.valueNumber
   }
 
   get value() {
     return this._value
   }
 
-  set value(val: string | undefined) {
+  set value(val: string | number | undefined) {
     this._value = val
   }
 
@@ -21,5 +23,13 @@ export class ObjectSelectType {
 
   set lable(val: string | undefined) {
     this._lable = val
+  }
+
+  get valueNumber() {
+    return this._valueNumber
+  }
+
+  set valueNumber(val: number | undefined) {
+    this._valueNumber = val
   }
 }

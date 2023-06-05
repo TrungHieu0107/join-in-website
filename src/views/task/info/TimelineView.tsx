@@ -13,10 +13,13 @@ import moment from 'moment'
 import 'react-datepicker/dist/react-datepicker.css'
 import DatePicker from 'react-datepicker'
 import { TextField } from '@mui/material'
+import { StorageKeys } from 'src/constants'
 
 export interface ITimeLineViewProps {
   data: Task
   editable: boolean
+  isLeader: boolean
+  changeValue: (task: Task) => void
 }
 
 const CustomInputFrom = forwardRef((props, ref) => {
@@ -28,17 +31,19 @@ const CustomInputTo = forwardRef((props, ref) => {
 })
 
 export default function TimeLineView(props: ITimeLineViewProps) {
-  const [values, setValues] = useState<ITimeLineViewProps>(props)
-  const [editable, setEditable] = useState(false)
+  const [values, setValues] = useState<Task>(props.data)
   const present = moment().format('yyyy-MM-DD')
   const [inProgress, setInProgress] = useState(true)
 
   useEffect(() => {
-    if (moment(present).isAfter(moment(values.data.endDateDeadline).format('yyyy-MM-DD'))) {
+    console.log('change', props.data);
+    
+    if (moment(present).isAfter(moment(props.data.endDateDeadline).format('yyyy-MM-DD'))) {
       setInProgress(false)
+    } else {
+      setInProgress(true)
     }
-
-    setEditable(props.editable)
+    setValues(props.data)
   }, [props])
 
   return (
@@ -55,25 +60,23 @@ export default function TimeLineView(props: ITimeLineViewProps) {
           <TimelineConnector />
         </TimelineSeparator>
         <TimelineContent sx={{ py: '20px' }}>
-          {editable ? (
+          {props.editable && props.isLeader ? (
             <DatePicker
-              selected={new Date(values.data.startDateDeadline ?? moment().format('YYYY-MM-DD'))}
+              selected={new Date(values.startDateDeadline ?? moment().format('YYYY-MM-DD'))}
               showYearDropdown
               showMonthDropdown
-              placeholderText='MM-DD-YYYY'
+              placeholderText='YYYY-MM-DD'
               customInput={<CustomInputFrom />}
               onChange={(date: Date) => {
-                const newValue = new Task(values.data)
-                const data = {
-                  ...newValue,
-                  startDateDeadline: moment(date).format('YYYY-MM-DD HH:mm:ss')
-                } as Task
-                setValues({ ...values, data: data })
+                const newValue = new Task(values)
+                newValue.startDateDeadline = moment(date.toString()).format('YYYY-MM-DD HH:mm:ss')
+                props.changeValue(newValue)
               }}
+              dateFormat={'yyyy-MM-dd'}
             />
           ) : (
             <Typography variant='subtitle1' component='span'>
-              {moment(values.data.startDateDeadline).format('YYYY-MM-DD')}
+              {moment(values.startDateDeadline).format('YYYY-MM-DD')}
             </Typography>
           )}
         </TimelineContent>
@@ -111,25 +114,23 @@ export default function TimeLineView(props: ITimeLineViewProps) {
           <TimelineConnector />
         </TimelineSeparator>
         <TimelineContent sx={{ py: '20px' }}>
-          {editable ? (
+          {props.editable && props.isLeader ? (
             <DatePicker
-              selected={new Date(values.data.endDateDeadline ?? moment().format('YYYY-MM-DD'))}
+              selected={new Date(values.endDateDeadline ?? moment().format('YYYY-MM-DD'))}
               showYearDropdown
               showMonthDropdown
-              placeholderText='MM-DD-YYYY'
+              placeholderText={StorageKeys.KEY_FORMAT_DATE}
               customInput={<CustomInputTo />}
               onChange={(date: Date) => {
-                const newValue = new Task(values.data)
-                const data = {
-                  ...newValue,
-                  endDateDeadline: moment(date).format('YYYY-MM-DD HH:mm:ss')
-                } as Task
-                setValues({ ...values, data: data })
+                const newValue = new Task(values)
+                newValue.endDateDeadline = moment(date.toString()).format('YYYY-MM-DD HH:mm:ss')
+                props.changeValue(newValue)
               }}
+              dateFormat={'yyyy-MM-dd'}
             />
           ) : (
             <Typography variant='subtitle1' component='span'>
-              {moment(values.data.endDateDeadline).format('YYYY-MM-DD')}
+              {moment(values.endDateDeadline).format('YYYY-MM-DD')}
             </Typography>
           )}
         </TimelineContent>

@@ -119,8 +119,6 @@ const LoginPage = () => {
     event.preventDefault()
   }
 
- 
-
   const handleSubmit = async () => {
     let isError = false
     console.log('email: ', values.email, 'password: ', values.password)
@@ -153,10 +151,13 @@ const LoginPage = () => {
         .login(user)
         .then(async res => {
           const token: string = new CommonResponse(res).data
-          console.log(token);
-          
-          if (await userDBDexie.saveToken(token)) {
-            router.push('/my-groups')
+          if (token === 'Unverify') {
+            notify('Your account is not verify. Email verify is sent', 'warning')
+            authAPI.sendVerifyEmail(values.email)
+          } else {
+            if (await userDBDexie.saveToken(token)) {
+              router.push('/my-groups')
+            }
           }
         })
         .catch(error => {
@@ -169,6 +170,14 @@ const LoginPage = () => {
     } catch (error: any) {
       console.log('login page', error)
     }
+  }
+
+  const getUrlGoogleLogin = async () => {
+    await authAPI.getUrlGoogleLogin().then(res => {
+      console.log(res)
+
+      router.push(res as unknown as string)
+    })
   }
 
   return (
@@ -274,9 +283,30 @@ const LoginPage = () => {
                 </IconButton>
               </Link>
             </Box> */}
-            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }}>
-              <Google sx={{ color: '#FFFFFF', marginRight: '10px' }} />
-              <Typography fontWeight='bold' color='#FFFFFF'>
+            <Button fullWidth size='large' variant='outlined' sx={{ marginBottom: 7 }} onClick={getUrlGoogleLogin}>
+              {/* <Google sx={{ marginRight: '10px' }} /> */}
+              <svg
+                width={30}
+                height={30}
+                xmlns='http://www.w3.org/2000/svg'
+                xmlnsXlink='http://www.w3.org/1999/xlink'
+                viewBox='0 0 48 48'
+              >
+                <defs>
+                  <path
+                    id='a'
+                    d='M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z'
+                  />
+                </defs>
+                <clipPath id='b'>
+                  <use xlinkHref='#a' overflow='visible' />
+                </clipPath>
+                <path clip-path='url(#b)' fill='#FBBC05' d='M0 37V11l17 13z' />
+                <path clip-path='url(#b)' fill='#EA4335' d='M0 11l17 13 7-6.1L48 14V0H0z' />
+                <path clip-path='url(#b)' fill='#34A853' d='M0 37l30-23 7.9 1L48 0v48H0z' />
+                <path clip-path='url(#b)' fill='#4285F4' d='M48 48L17 24l-4-3 35-10z' />
+              </svg>
+              <Typography fontWeight='bold' marginLeft={5}>
                 Login with Google
               </Typography>
             </Button>

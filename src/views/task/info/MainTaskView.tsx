@@ -15,7 +15,9 @@ import {
   FormControl,
   InputLabel,
   Alert,
-  AlertTitle
+  AlertTitle,
+  Backdrop,
+  CircularProgress
 } from '@mui/material'
 import { SetStateAction, useEffect, useState } from 'react'
 import { importantLevel, importantLevelList } from 'src/constants/important-level'
@@ -25,25 +27,37 @@ import Editor from 'src/views/dialog/editor'
 import TimeLineView from './TimelineView'
 import AssignView from './AssignView'
 import moment from 'moment'
+import { groupAPI, taskAPI } from 'src/api-client'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { Fullscreen } from 'mdi-material-ui'
+import { UpdateTaskModel } from 'src/models/query-models/UpdateTaskModel'
+import { status } from 'nprogress'
+import { StorageKeys } from 'src/constants'
 
 export interface IMainTaskViewProps {
   data: Task
+  handleError: (error: any) => void
+  notify: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void
+  onSuccess: () => Promise<void>
 }
 
 const DEFAULT_INPUT_WIDTH = 200
 const MAX_INPUT_WIDTH = 700
 const FONT_SIZE = 9
 
-export default function MainTaskView({ data }: IMainTaskViewProps) {
+export default function MainTaskView({ data, handleError, notify , onSuccess }: IMainTaskViewProps) {
   const [value, setValues] = useState<Task>(new Task(data))
   const [editable, setEditable] = useState<boolean>(false)
   const [isEdit, setIsEdit] = useState(false)
   const [inputWidth, setInputWidth] = useState(DEFAULT_INPUT_WIDTH)
   const [description, setDescription] = useState(value.description)
   const [taskName, setTaskName] = useState<string>(data.name !== undefined ? data.name : '')
+  const [isLeader, setIsLeader] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
-
+    console.log(data);
+    
     if (taskName) {
       if (taskName.length * FONT_SIZE > DEFAULT_INPUT_WIDTH) {
         setInputWidth(
@@ -56,13 +70,42 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
   }, [taskName])
 
   useEffect(() => {
+    console.log(
+      moment().isAfter(moment(value.endDateDeadline).add('days', 1).format('yyyy-MM-DD')),
+      moment(value.endDateDeadline).add('days', 1).format('yyyy-MM-DD'),
+      moment().format('yyyy-MM-DD')
+    )
+    
     setValues(new Task(data))
     setTaskName(data.name ?? '')
   }, [data])
 
   const clickToEdit = () => {
-    setEditable(true)
-    setIsEdit(true)
+    checkRole()
+  }
+
+  const checkRole = async () => {
+    setIsLoading(true)
+    data.group?.id &&
+      (await groupAPI
+        .getRoleInGroup(data.group?.id)
+        .then(role => {
+          const r = new CommonResponse(role).data
+          console.log(r === 'LEADER' || r === 'SUB_LEADER')
+          
+          setIsLeader(r === 'LEADER' || r === 'SUB_LEADER')
+          setTimeout(() => {
+            setIsLoading(false)
+          }, 1000)
+          setEditable(true)
+          setIsEdit(true)
+        })
+        .catch(error => {
+          handleError(error)
+          setTimeout(() => {
+            setIsLoading(false)
+          }, 1000)
+        }))
   }
 
   const handleChange = (prop: string, event: any) => {
@@ -78,6 +121,9 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
         break
       case 'status':
         val.status = event.target.value
+        break
+      case 'estimatedDays':
+        val.estimatedDays = Number(event.target.value) > 0 ? Number(event.target.value) : 1
         break
       default:
         break
@@ -101,23 +147,53 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
     const val: Task = new Task(value)
     value.name = taskName
     val.description = description
-    setValues(val)
-    console.log(val)
+    // setValues(val)
+
+    const data = new UpdateTaskModel({
+      id: val.id ?? '',
+      name: val.name ?? '',
+      description: description ?? '',
+      endDateDeadline: new Date(val.endDateDeadline ?? '').toISOString(),
+      startDateDeadline: new Date(val.startDateDeadline ?? '').toISOString(),
+      estimatedDays: val.estimatedDays ?? 0,
+      impotantLevel: importantLevel[val.impotantLevel ?? ''].valueNumber ?? 1,
+      status: statusObj[val.status ?? ''].valueNumber ?? 0
+    })
+    console.log(data);
+    
+    setIsLoading(true)
+    taskAPI
+      .updateTask(data)
+      .then(res => {
+        setEditable(false)
+        const response = new CommonResponse(res)
+        setTimeout(() => {
+          setIsLoading(false)
+        }, 1000)
+        notify(response.message ?? '', 'success')
+        onSuccess()
+      })
+      .catch(error => {
+        handleError(error)
+        setTimeout(() => {
+          setIsLoading(false)
+        }, 1000)
+      })
   }
 
-  const onChangeAssign = (value: Task) => {
-    setValues(value)
+  const onChangeValue = async (task:Task) => {
+    setValues(task)
   }
 
   return (
-    <Card>
+    <Card sx={{ position: 'relative' }}>
       <Box>
         <CardHeader
           title={
             <Box mb={1}>
               <Grid container spacing={1} alignItems={'center'}>
                 <Grid item>
-                  {editable ? (
+                  {editable && isLeader ? (
                     <Box component='form' noValidate autoComplete='off'>
                       <TextField
                         id='input-main-task-name'
@@ -140,7 +216,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
                   )}
                 </Grid>
                 <Grid item ml={2}>
-                  {editable ? (
+                  {editable && isLeader ? (
                     <FormControl sx={{ m: 1, minWidth: 120 }} size='small'>
                       <InputLabel id='demo-select-small-label'>Important level</InputLabel>
                       <Select
@@ -169,7 +245,6 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
                         textTransform: 'capitalize',
                         '& .MuiChip-label': { fontWeight: 500 }
                       }}
-                      onClick={() => setEditable(true)}
                     />
                   )}
                 </Grid>
@@ -196,12 +271,31 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
                   flexItem
                   style={{ height: '20px', width: '0.5px', borderColor: '#d4d2d5', marginLeft: '4px' }}
                 />
-                <Grid item>
-                  <Typography variant='subtitle2'>Estimate </Typography>
-                </Grid>
-                <Grid item>
-                  <Chip label={`${data.estimatedDays} Days`} variant='outlined' />
-                </Grid>
+                {editable && isLeader ? (
+                  <Box component='form' noValidate autoComplete='off' m={1}>
+                    <TextField
+                      size='small'
+                      autoComplete='off'
+                      label='Estimate Days'
+                      value={value.estimatedDays}
+                      onChange={e => handleChange('estimatedDays', e)}
+                      InputProps={{
+                        style: { width: `${inputWidth}px`, overflow: 'break-word' },
+                        autoComplete: 'off'
+                      }}
+                      type='number'
+                    />
+                  </Box>
+                ) : (
+                  <Box display={'flex'} alignItems={'center'}>
+                    <Grid item m={1}>
+                      <Typography variant='subtitle2'>Estimate </Typography>
+                    </Grid>
+                    <Grid item m={1}>
+                      <Chip label={`${data.estimatedDays} Days`} variant='outlined' />
+                    </Grid>
+                  </Box>
+                )}
 
                 <Divider
                   orientation='vertical'
@@ -247,7 +341,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
             </Box>
           }
           action={
-            editable ? (
+            editable && isLeader ? (
               <Grid container spacing={2}>
                 <Grid item>
                   <Button
@@ -301,7 +395,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
               translate: '-50px'
             }}
           >
-            <TimeLineView data={value} editable={editable} />
+            <TimeLineView data={value} editable={editable} isLeader={isLeader} changeValue={onChangeValue}/>
           </Grid>
           <Divider
             orientation='vertical'
@@ -310,7 +404,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
             style={{ height: '300px', width: '0.5px', borderColor: '#d4d2d5', marginLeft: '4px' }}
           />
           <Grid item xs={6} sm={7}>
-            {moment().isAfter(moment(value.endDateDeadline)) ? (
+            {moment().isAfter(moment(data.endDateDeadline).add('days', 1).format('yyyy-MM-DD')) ? (
               <Grid item>
                 <Alert severity='error'>
                   <AlertTitle>Fail</AlertTitle>
@@ -334,7 +428,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
                 </Typography>
               </Box>
               <Box component={'form'} autoComplete='off'>
-                <AssignView data={value} editable={editable} onInputChange={onChangeAssign} />
+                <AssignView data={value} />
               </Box>
             </Grid>
           </Grid>
@@ -343,7 +437,7 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
             <Typography mt={3} mb={3} fontWeight={500}>
               Description
             </Typography>
-            {editable ? (
+            {editable && isLeader ? (
               <div>
                 <Editor
                   value={description}
@@ -369,6 +463,24 @@ export default function MainTaskView({ data }: IMainTaskViewProps) {
           </Grid>
         </Grid>
       </CardContent>
+      {isLoading && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            bottom: 0,
+            right: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            background: 'rgba(255, 255, 255, 0.8)',
+            zIndex: theme => theme.zIndex.drawer + 1
+          }}
+        >
+          <CircularProgress size={40} color='info' />
+        </Box>
+      )}
     </Card>
   )
 }
