@@ -35,7 +35,7 @@ export default function MilestoneScreen() {
   useEffect(()=>{
 
     getListMilestone();
-  },[]);
+  },[counter]);
 
 
   const getListMilestone = async () => {

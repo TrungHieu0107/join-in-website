@@ -5,8 +5,8 @@ import { UserCompleteProfileModel } from 'src/models/query-models/UserCompletePr
 const URL = '/users'
 
 export const userAPI = {
-  getList() {
-    return axiosClient.get(`${URL}`)
+  getList(email: string) {
+    return axiosClient.get(`${URL}?email=${email}`)
   },
 
   getById(id: string) {

@@ -189,8 +189,8 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             class: group.className,
             subject: group.subjectName,
             member: `${group.memberCount}/${group.groupSize}`,
-            leader: 'Thanh Huy',
-            avatarLeader: '/images/avatars/2.png'
+            leader: group.members?.at(0)?.user?.fullName,
+            avatarLeader: group.members?.at(0)?.user?.avatar
           }))
           setlistGroup(list)
         })

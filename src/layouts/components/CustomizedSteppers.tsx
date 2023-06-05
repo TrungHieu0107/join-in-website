@@ -1,4 +1,4 @@
-import * as React from 'react';
+
 import { styled } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import Stepper from '@mui/material/Stepper';
@@ -8,6 +8,11 @@ import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector
 import { StepIconProps } from '@mui/material/StepIcon';
 import { Check } from 'mdi-material-ui';
 import { Divider, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Milestone } from 'src/models/class';
+import { milestoneAPI } from 'src/api-client';
+import { CommonResponse } from 'src/models/common/CommonResponse';
+import { useToasts } from 'react-toast-notifications';
 
 const QontoConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -74,18 +79,48 @@ function QontoStepIcon(props: StepIconProps) {
 const steps = ['Create Group', 'Initial Project', 'Finished'];
 
 export default function CustomizedSteppers() {
+  const [listMilestones, setListMilestones] = useState<Milestone[]>([])
+  const [currentMilestone,setCurrentMilestone] = useState<Milestone>()
+  const addToast = useToasts()
+
+  useEffect(()=>{
+    getListMilestone();
+  },[])
+
+  const getListMilestone = async () => {
+    try {
+      await milestoneAPI
+        .getList()
+        .then(res => {
+          const data = new CommonResponse(res)
+          const milestones: Milestone[] = data.data.milestones
+
+          setListMilestones(milestones)
+          setCurrentMilestone(milestones[data.data.currentMilestoneOrder - 1])
+
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    } catch (err) {
+      addToast.addToast(err, { appearance: 'error' })
+    }
+  }
+
   return (
     <Stack sx={{ width: '100%' }} spacing={4}>
       <Stepper alternativeLabel activeStep={0} connector={<QontoConnector />}>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
+        {listMilestones.map((listMilestone) => (
+          <Step key={listMilestone.id}>
+            <StepLabel StepIconComponent={QontoStepIcon}>{listMilestone.name}</StepLabel>
           </Step>
         ))}
       </Stepper>
       <Divider/>
-      <Typography variant='h5' align='center'>Create Group</Typography>
-      <Typography variant='h6' align='center'>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Typography>
+      <Typography variant='h5' align='center'>{currentMilestone?.name}</Typography>
+      <Typography variant='h6' align='center'>
+      <div className='editor' dangerouslySetInnerHTML={{ __html: currentMilestone?.description ?? '' }} />
+        </Typography>
     </Stack>
   );
 }
