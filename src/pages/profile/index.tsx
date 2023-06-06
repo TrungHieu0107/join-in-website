@@ -19,8 +19,11 @@ import TabAccount from 'src/views/profile/TabAccount'
 import TabSecurity from 'src/views/profile/TabSecurity'
 
 // ** Third Party Styles Imports
-  import ProfileView from 'src/views/profile/ProfileView'
+import ProfileView from 'src/views/profile/ProfileView'
 import withAuth from '../withAuth'
+import { AxiosError } from 'axios'
+import { useRouter } from 'next/router'
+import { useToasts } from 'react-toast-notifications'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -43,9 +46,28 @@ const TabName = styled('span')(({ theme }) => ({
 const Profile = () => {
   // ** State
   const [value, setValue] = useState<string>('account')
+  const addToast = useToasts()
+  const router = useRouter()
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
+  }
+
+  const handleError = (error: any) => {
+    const dataErr = (error as AxiosError)?.response
+    if (dataErr?.status === 401) {
+      notify('Login expired.', 'error')
+      router.push('/user/login')
+    } else if (dataErr?.status === 500) {
+      if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
+      else notify('Something error', 'error')
+    } else {
+      console.log(error)
+    }
   }
 
   return (
@@ -74,7 +96,7 @@ const Profile = () => {
               </Box>
             }
           />
-           <Tab
+          <Tab
             value='view'
             label={
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -92,7 +114,7 @@ const Profile = () => {
           <TabSecurity />
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='view'>
-          <ProfileView />
+          <ProfileView handleError={handleError} />
         </TabPanel>
       </TabContext>
     </Card>

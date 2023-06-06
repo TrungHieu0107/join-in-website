@@ -33,6 +33,9 @@ import Link from 'next/link'
 import DialogCreateNewTask from 'src/views/dialog/DialogAddNewTask'
 import { AxiosError } from 'axios'
 import { useToasts } from 'react-toast-notifications'
+import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel'
+import TaskCommentView from 'src/views/task/info/TaskCommentView'
+import Editor from 'src/views/dialog/editor'
 
 export interface ISubTaskPageProps {
   id: string
@@ -123,6 +126,7 @@ export default function SubTaskPage() {
   const [searchValue, setSearchValue] = useState<string>('')
   const [comment, setComment] = useState<string>('')
   const [data, setData] = useState<Task>()
+  const [queryTask, setQueryTask] = useState<QueryTaskListsModel>(new QueryTaskListsModel())
   const [addNewModal, setAddNewModal] = useState<boolean>(false)
   const [groupId, setGroupId] = useState<string>('')
   const addToast = useToasts()
@@ -260,13 +264,13 @@ export default function SubTaskPage() {
                 </Button>
               </Grid>
             </Grid>
-            <TableTaskCollapse column={column} row={data?.subTasks}></TableTaskCollapse>
+            <TableTaskCollapse column={column} row={data?.subTasks} setQuery={setQueryTask}></TableTaskCollapse>
           </CardContent>
         </Card>
       ) : (
         ''
       )}
-      {/* <Card sx={{ marginTop: '5px' }}>
+      <Card sx={{ marginTop: '5px' }}>
         <CardContent>
           <Grid item xs={12} sm={12}>
             <Typography mt={3} mb={3} fontWeight={500}>
@@ -293,7 +297,7 @@ export default function SubTaskPage() {
             </Grid>
           </Grid>
         </CardContent>
-      </Card> */}
+      </Card>
       <Modal
         open={addNewModal}
         onClose={handleClose}

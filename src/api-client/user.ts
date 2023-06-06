@@ -21,8 +21,8 @@ export const userAPI = {
     return axiosClient.delete(`${URL}/${id}`)
   },
 
-  put(data: User) {
-    return axiosClient.put(`${URL}`, data)
+  put(data: UserCompleteProfileModel) {
+    return axiosClient.put(`${URL}/update-profile`, data)
   },
 
   uploadImage(data?: File | undefined) {
@@ -47,8 +47,20 @@ export const userAPI = {
     )
   },
 
+  getLoginProfile() {
+    return axiosClient.get(`${URL}/user/profile`)
+  },
+
   completeProfile(data: UserCompleteProfileModel, verifyToken: string) {
     return axiosClient.put(`${URL}/complete-profile?verifyToken=${verifyToken}`, data)
+  },
+
+  getVerifyCode() {
+    return axiosClient.get(`${URL}/send-verifyCode`)
+  },
+
+  changePassword(payload: { password: string; verifyToken: string }) {
+    return axiosClient.put(`${URL}/reset-password`, payload)
   },
 
   Admin: {

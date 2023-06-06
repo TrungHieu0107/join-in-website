@@ -18,19 +18,59 @@ import {
   InformationVariant,
   Phone
 } from 'mdi-material-ui'
+import { useEffect, useState } from 'react'
+import { User } from 'src/models/class'
+import { majorAPI, userAPI } from 'src/api-client'
+import { AxiosError } from 'axios'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import moment from 'moment'
+import { StorageKeys } from 'src/constants'
 
 const textDemo =
   'One of the key skills that is highly valued is communication. Effective communication skills enable you to express your ideas clearly, listen actively, and engage in productive discussions. It encompasses both verbal and written communication, allowing you to convey your message effectively and build strong relationships.'
 
-const ProfileView = () => {
+interface ProfileViewProps {
+  handleError: (error: any) => void
+}
+
+const ProfileView = ({ handleError }: ProfileViewProps) => {
+  const [data, setData] = useState<User>(new User())
+
+  useEffect(() => {fetchData()}, [])
+
+  const fetchData = async () => {
+    await userAPI
+      .getLoginProfile()
+      .then(async res => {
+        const commonResponse = new CommonResponse(res)
+        const user = new User(commonResponse.data)
+        if(commonResponse.status === 200){
+          await majorAPI.getAllMajorOfUser().then(majors => {
+            const commonMajorsResponse = new CommonResponse(majors)
+            user.majors = commonMajorsResponse.data
+            setData(user)
+          })
+        }
+        
+      })
+      .catch(error => {
+        handleError(error)
+      })
+
+    
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card sx={{ position: 'relative', height: '21rem' }}>
-          <CardMedia sx={{ height: '15rem' }} image='/images/cards/background-user.png' />
+          <CardMedia
+            sx={{ height: '15rem' }}
+            image={data.theme && data.theme.length !== 0 ? data.theme : '/images/cards/background-user.png'}
+          />
           <Avatar
-            alt='Robert Meyer'
-            src='/images/avatars/1.png'
+            alt={data.fullName}
+            src={data.avatar?.length !== 0 ? data.avatar : '/images/avatars/1.png'}
             sx={{
               width: 150,
               height: 150,
@@ -52,24 +92,27 @@ const ProfileView = () => {
               }}
             >
               <Box
-              sx={{
-                position: 'relative',
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
+                sx={{
+                  position: 'relative',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
               >
-              <Box sx={{ mr: 2, mb: 1, display: 'flex', flexDirection: 'column' }}>
-                <Typography variant='h5'>Pham Xuan Kien</Typography>
-                <Rating readOnly value={1} name='read-only' sx={{ marginRight: 2 }} />
+                <Box sx={{ mr: 2, mb: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant='h5'>{data.fullName}</Typography>
+                  <Rating readOnly value={1} name='read-only' sx={{ marginRight: 2 }} />
+                </Box>
+                <Box sx={{ mr: 2, mb: 1, display: 'flex' }}>
+                  <Button variant='contained' color='success' sx={{ marginRight: 5 }}>
+                    Accept
+                  </Button>
+                  <Button variant='outlined' color='error'>
+                    Reject
+                  </Button>
+                </Box>
               </Box>
-              <Box sx={{ mr: 2, mb: 1, display: 'flex' }}>
-                <Button variant='contained' color="success" sx={{ marginRight: 5 }}>Accept</Button>
-                <Button variant="outlined" color="error">Reject</Button>
-              </Box>
-              </Box>
-
             </Box>
           </CardContent>
         </Card>
@@ -83,27 +126,33 @@ const ProfileView = () => {
             <Divider sx={{ marginY: '20px' }} />
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Pham Xuan Kien</Typography>
+              <Typography variant='body1'>{data.fullName}</Typography>
             </Box>
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <GenderMaleFemale sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Male</Typography>
+              <Typography variant='body1'>{data.gender ? 'Male' : 'Female'}</Typography>
             </Box>
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <Phone sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>0123456789</Typography>
+              <Typography variant='body1'>{data.phone ?? '+84'}</Typography>
             </Box>
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <EmailOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>masterkien@gmail.com</Typography>
+              <Typography variant='body1'>{data.email}</Typography>
             </Box>
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <Book sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Information Technology</Typography>
+              <Typography variant='body1'>
+                <ul>
+                  {data.majors?.map(item => 
+                    <li>{item.name}</li>
+                  )}
+                </ul>
+              </Typography>
             </Box>
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <Calendar sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>01-01-2001</Typography>
+              <Typography variant='body1'>{moment(data.birthDay).format(StorageKeys.KEY_FORMAT_DATE)}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -121,7 +170,9 @@ const ProfileView = () => {
                 <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>Skills</Typography>
               </Box>
 
-              <Typography variant='body1'>{textDemo}</Typography>
+              <Typography variant='body1'>
+                <div dangerouslySetInnerHTML={{ __html: data.skill ?? '' }}></div>
+              </Typography>
             </Box>
             <Divider sx={{ marginY: '20px' }} />
             <Box sx={{ margin: 2, display: 'flex', flexDirection: 'column' }}>
@@ -129,7 +180,9 @@ const ProfileView = () => {
                 <Contacts sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
                 <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>Other Contacts</Typography>
               </Box>
-              <Typography variant='body1'>{textDemo}</Typography>
+              <Typography variant='body1'>
+                <div dangerouslySetInnerHTML={{ __html: data.otherContact ?? '' }}></div>
+              </Typography>
             </Box>
             <Divider sx={{ marginY: '20px' }} />
             <Box sx={{ margin: 2, display: 'flex', flexDirection: 'column' }}>
@@ -137,7 +190,9 @@ const ProfileView = () => {
                 <InformationVariant sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
                 <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>Description</Typography>
               </Box>
-              <Typography variant='body1'>{textDemo}</Typography>
+              <Typography variant='body1'>
+                <div dangerouslySetInnerHTML={{ __html: data.description ?? '' }}></div>
+              </Typography>
             </Box>
           </CardContent>
         </Card>

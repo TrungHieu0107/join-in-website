@@ -1,35 +1,31 @@
-import moment from 'moment'
-import { Transaction, User } from 'src/models/class'
+import { Transaction } from 'src/models/class'
 import axiosClient from './api-client'
-import { QueryTransactionListModel } from 'src/models/query-models/QueryTransactionListModel';
+import { QueryTransactionListModel } from 'src/models/query-models/QueryTransactionListModel'
 
-const URL = '/transactions';
+const URL = '/transactions'
 
 export const transactionAPI = {
-
   getList(payload?: QueryTransactionListModel) {
-    return axiosClient.get('/admin/get-transaction',{
+    return axiosClient.get('/admin/get-transaction', {
       params: payload
     })
   },
 
-  getById(id:string) {
-    return axiosClient.get(`${URL}/${id}`)
+  createTransaction(type: number) {
+    return axiosClient.post(`/create/${type}`)
   },
 
   post(data: Transaction) {
-    return axiosClient.post(`${URL}`,data)
+    return axiosClient.post(`${URL}`, data)
   },
 
-  delete(id:string) {
+  delete(id: string) {
     return axiosClient.delete(`${URL}/${id}`)
   },
 
   put(data: any) {
-    return axiosClient.put(`${URL}/admin/update`,data)
-  },
-
-
+    return axiosClient.put(`${URL}/admin/update`, data)
+  }
 
   // Admin: {
   //   getListTraction(): Transaction[] {

@@ -83,6 +83,40 @@ const FeedbackList = () => {
 
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
+  const [listFeedback, setListFeedback] = useState<Feedback[]>([])
+
+  const addToast = useToasts();
+  useEffect(()=>{
+    getListFeedback()
+  },[])
+
+  const getListFeedback = async () => {
+    try {
+
+      const payload : QueryFeedbackListModel = {
+        orderBy: '',
+        page: 1,
+        pageSize: 10,
+        value: ''
+      }
+
+      await feedbackAPI
+        .getList(payload)
+        .then(res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
+
+          const feedbacks: Feedback[] = data.data
+
+          setListFeedback(feedbacks)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   const [open, setOpen] = useState(false)
 
