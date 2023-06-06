@@ -18,37 +18,49 @@ import {
 import { AccountMultiple, DeleteOutline } from 'mdi-material-ui'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { useToasts } from 'react-toast-notifications'
-import { majorAPI } from 'src/api-client'
-import { Major } from 'src/models/class'
+import { groupAPI, majorAPI } from 'src/api-client'
+import { GroupMajor, Major } from 'src/models/class'
 import { CommonResponse } from 'src/models/common/CommonResponse'
+import { groupDBDexie } from 'src/models/db/GroupDB'
 
-// ** Icons Imports
-
-interface RecruitmentDataType {
-  major: string
-  quantity: number
-}
-
-const RecruitmentData = [
-  { major: 'Information Technology', quantity: 1 },
-  { major: 'English', quantity: 2 }
-]
 
 const RecruitmentForm = () => {
   // ** State
   const [selectedValue, setSelectedValue] = useState('')
   const [listMajors, setListMajors] = useState<Major[]>([])
-  const [quantity, setQuantity] = useState<number>(1);
-
+  const [quantity, setQuantity] = useState<number>(0);
+  const [listRecruiting, setListRecruiting] = useState<any[]>([])
   const addToast = useToasts()
 
   useEffect(() => {
     getListMajors()
+    getListRecruiting();
   }, [])
 
-  const handleChange = (event: SelectChangeEvent<string>) => {
-    setSelectedValue(event.target.value)
+  const getListRecruiting = async () =>{
+    try {
+      await groupAPI.getListRecruiting()
+      .then(res => {
+        const data = new CommonResponse(res);
+        const list : any[] = data.data.map((value : GroupMajor) =>({
+          majorId: value.major?.id,
+          memberCount : value.memberCount,
+          name: value.major?.name
+        }));
+        console.log(list)
+        setListRecruiting(list)
+      })
+    } catch (err){
+      console.log(err)
+    }
   }
+
+  const handleChange =  (event: SelectChangeEvent<string>) => {
+    setSelectedValue(event.target.value)
+    const recru =  listRecruiting.find((recr) => recr.majorId === event.target.value);
+    setQuantity(recru?.memberCount ?? 0)
+  }
+
 
   const handleChangeQuantity = (event: ChangeEvent<HTMLInputElement>) =>{
     setQuantity(Number(event.target.value));
@@ -71,8 +83,45 @@ const RecruitmentForm = () => {
     }
   }
 
-  const handleClickDelete = () => {
+  const handleAddMajor = ()=>{
+    const updateList = [...listRecruiting];
+    const majorIndex = updateList.findIndex((recr) => recr.majorId === selectedValue)
+    if (majorIndex !==-1){
+      updateList[majorIndex].memberCount = quantity
+    } else{
+      const dataMajor = listMajors.find(major => major.id===selectedValue)
+      updateList.push({majorId:selectedValue, memberCount:quantity, name: dataMajor?.name})
+    }
+    saveRecruitingList(updateList)
+    setListRecruiting(updateList)
+  }
+
+  const handleClickDelete = (indexInput:number) => {
     // handle delete recruitment
+    const updateRecruiting = listRecruiting.filter((data,index)=> index !== indexInput)
+    saveRecruitingList(updateRecruiting)
+    setListRecruiting(updateRecruiting)
+  }
+
+  const saveRecruitingList = async (listRecruiting: any[]) =>{
+    try {
+      // const listMajor :any[] = listRecruiting.map(data => ({
+      //   majorId: data.majorId,
+      //   memberCount: data.memberCount
+      // }))
+      const groupData = await groupDBDexie.getGroup()
+      const request : any = {
+        groupId: groupData?.id,
+        groupMajorsDTO: listRecruiting
+      }
+      await groupAPI.putRecruiting(request)
+      .then(res => {
+        const data = new CommonResponse(res);
+        addToast.addToast(data.message,)
+      })
+    } catch (err){
+      console.log(err)
+    }
   }
 
   return (
@@ -82,7 +131,7 @@ const RecruitmentForm = () => {
           <Grid item xs={12}>
             <FormControl fullWidth>
               <InputLabel>Major</InputLabel>
-              <Select label='Role' value={selectedValue} onChange={handleChange}>
+              <Select label='Major' value={selectedValue} onChange={handleChange}>
                 {listMajors.map(item => (
                   <MenuItem key={item.id} value={item.id}>
                     {item.name}
@@ -109,18 +158,18 @@ const RecruitmentForm = () => {
           </Grid>
 
           <Grid item xs={12}>
-            <Button variant='contained' sx={{ marginRight: 3.5 }}>
+            <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleAddMajor}>
               Add
             </Button>
           </Grid>
         </Grid>
       </form>
       <Divider sx={{ m: '20px' }}>Recruiting</Divider>
-      {RecruitmentData.map((item: RecruitmentDataType, index: number) => {
+      {listRecruiting.map((item: any, index: number) => {
         return (
           <Box
-            key={item.major}
-            sx={{ display: 'flex', alignItems: 'center', mb: index !== RecruitmentData.length - 1 ? 6 : 0 }}
+            key={item.majorId}
+            sx={{ display: 'flex', alignItems: 'center', mb: index !== listRecruiting.length - 1 ? 6 : 0 }}
           >
             <Box
               sx={{
@@ -133,13 +182,13 @@ const RecruitmentForm = () => {
               }}
             >
               <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>{item.major}</Typography>
+                <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>{item.name}</Typography>
               </Box>
               <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'row' , alignItems: 'center'}}>
                 <Typography variant='subtitle1' sx={{ fontWeight: 600, color: 'success.main', mr: 5 }}>
-                  {item.quantity}
+                  {item.memberCount}
                 </Typography>
-                <IconButton onClick={handleClickDelete}>
+                <IconButton onClick={()=>handleClickDelete(index)}>
                   <DeleteOutline color='error' />
                 </IconButton>
               </Box>

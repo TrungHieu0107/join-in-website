@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState } from 'react'
+import { useState, KeyboardEvent, ChangeEvent, useEffect } from 'react'
 
 // ** MUI Imports
 import TextField from '@mui/material/TextField'
@@ -7,49 +7,37 @@ import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 
 // ** Icons Imports
-import { Autocomplete } from '@mui/material'
+import { Autocomplete, Avatar, Typography } from '@mui/material'
 import { groupDBDexie } from 'src/models/db/GroupDB'
 import { ApplicationRequest } from 'src/models/query-models/ApplicationRequest'
-import { applicationAPI } from 'src/api-client'
+import { applicationAPI, userAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { useToasts } from 'react-toast-notifications'
+import { User } from 'src/models/class'
 
 interface Option {
   id: string
   label: string
   image: string
+  email:string
   name: string
   major: string
 }
 
-const options: Option[] = [
-  {
-    id: '32149839-d6f9-ed11-ad61-105bad532efe',
-    label: 'Xuan Kien',
-    image: '/images/avatars/1.png',
-    name: 'Xuan Kien',
-    major: 'Information Technology'
-  },
-  {
-    id: '59d64d8b-c6cb-4397-9a1f-126352188244',
-    label: 'Quoc Bao',
-    image: '/images/avatars/1.png',
-    name: 'Quoc Bao',
-    major: 'Information Technology'
-  },
-  {
-    id: '62e8c998-0c19-40b8-8a89-5be21f88ffb7',
-    label: 'Trung Hieu',
-    image: '/images/avatars/1.png',
-    name: 'Trung Hieu',
-    major: 'Information Technology'
-  }
-]
+
 
 const InviteForm = () => {
   // ** State
   const [selectedValues, setSelectedValues] = useState<Option[]>([])
   const addToast = useToasts()
+  const [listUser, setListUser] = useState<Option[]>([])
+  const [searchName, setSearchName] = useState<string>('');
+  const [storeSearchName,setStoreSearchName] = useState<string>('');
+
+
+  useEffect(()=>{
+    storeSearchName!=='' && getListUser()
+  },[storeSearchName])
 
   const handleInvite= async () => {
     console.log('Selected Values:', selectedValues)
@@ -64,7 +52,7 @@ const InviteForm = () => {
       }
 
       await applicationAPI
-        .postApplication(application)
+        .postInvitation(application)
         .then(async res => {
           const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
@@ -77,22 +65,62 @@ const InviteForm = () => {
       console.log(err);
     }
   }
+  const getListUser = async () =>{
+    try {
+
+      await userAPI
+        .getList(storeSearchName)
+        .then(res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
+
+          const users: User[] = data.data.map((user: User) => new User(user))
+
+          const list = users.map(user => ({
+            id: user.id,
+            label: user.email,
+            image: user.avatar,
+            email: user.email,
+            name: user.fullName,
+            major: 'Information Technology'
+          } as Option) )
+          setListUser(list)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
+
+    if (event.key === 'Enter') { console.log(event.currentTarget.value)
+      setStoreSearchName(searchName);
+    }
+  };
+
+  const handleSearch = (event:ChangeEvent<HTMLInputElement>) =>{
+    setSearchName(event.target.value)
+  }
 
   return (
     <CardContent sx={{ width: '500px' }}>
       <Autocomplete
         multiple
-        options={options}
+        options={listUser}
         getOptionLabel={option => option.label}
         onChange={(event, value) => setSelectedValues(value)}
-        renderInput={params => <TextField {...params} label='Email' variant='outlined' />}
+        renderInput={params => <TextField {...params} label='Email' variant='outlined' onKeyDown={handleEnterSearch} onChange={handleSearch} />}
         renderOption={(props, option) => (
           <li {...props}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <img src={option.image} alt={option.name} style={{ marginRight: 10, width: 30, height: 30 }} />
+              <Avatar src={option.image} alt={option.name} style={{ marginRight: 10, width: 30, height: 30 }} />
               <div>
-                <p>{option.name}</p>
-                <p>{option.major}</p>
+              <Typography fontSize={17} fontWeight={600} >{option.name}</Typography>
+                <Typography variant='body2'>{option.email}</Typography>
+                <Typography variant='body2'>{option.major}</Typography>
               </div>
             </div>
           </li>

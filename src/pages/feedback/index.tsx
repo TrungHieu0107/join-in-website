@@ -2,38 +2,46 @@
 import { Box, Button, Card, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, Rating, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material'
 import { Close, Magnify } from 'mdi-material-ui'
 import * as React from 'react'
-import { ChangeEvent, ReactNode, useState } from 'react'
+import { ChangeEvent, ReactNode, useEffect, useState } from 'react'
 import FeedbackForm from 'src/views/feedback/FeedbackForm'
 import withAuth from '../withAuth'
+import { Feedback } from 'src/models/class'
+import { QueryFeedbackListModel } from 'src/models/query-models/QueryFeedbackListModel'
+import { feedbackAPI } from 'src/api-client'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { useToasts } from 'react-toast-notifications'
 
 interface Column {
-  id: 'Rating' | 'FeedbackedDate' | 'Content'
+  id: 'rating' | 'createdDate' | 'content'
   label: string
   minWidth?: number
   align?: 'right' | 'center'
-  format?: (value: number) => string | ReactNode
+  format?: (value: any) => string | ReactNode
 }
 
 const columns: Column[] = [
   {
-    id: 'Rating',
+    id: 'rating',
     label: 'Rating',
     minWidth: 100,
     align: 'center',
     format: (value: number) => (
-      <Rating name="read-only" value={value} readOnly />
+      <Rating name="read-only" value={value} readOnly precision={0.5} />
     )
   },
   {
-    id: 'FeedbackedDate',
+    id: 'createdDate',
     label: 'Feedbacked Date',
     minWidth: 200,
     align: 'center'
   },
   {
-    id: 'Content',
+    id: 'content',
     label: 'Content',
     minWidth: 300,
+    format: (value: string) =>(
+      <div className='editor' dangerouslySetInnerHTML={{ __html: value }}/>
+    )
   },
 ]
 
@@ -77,6 +85,41 @@ const FeedbackList = () => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
 
   const [open, setOpen] = useState(false)
+
+  const [listFeedback, setListFeedback] = useState<Feedback[]>([])
+
+  const addToast = useToasts();
+  useEffect(()=>{
+    getListFeedback()
+  },[])
+
+  const getListFeedback = async () => {
+    try {
+
+      const payload : QueryFeedbackListModel = {
+        orderBy: '',
+        page: 1,
+        pageSize: 10,
+        value: ''
+      }
+
+      await feedbackAPI
+        .getList(payload)
+        .then(res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
+
+          const feedbacks: Feedback[] = data.data
+
+          setListFeedback(feedbacks)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -158,9 +201,9 @@ const FeedbackList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+            {listFeedback.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.Id}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.id}>
                   <TableCell align='center' sx={{ minWidth: '20px' }}>
                     {page * rowsPerPage + index + 1}
                   </TableCell>
@@ -169,7 +212,7 @@ const FeedbackList = () => {
 
                     return (
                       <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
+                        {column.format ? column.format(value) : value}
 
                         {/* {value} */}
                       </TableCell>

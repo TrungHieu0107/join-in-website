@@ -1,11 +1,14 @@
 import { FeedbackRequest } from 'src/models/query-models/FeedbackRequest';
 import axiosClient from './api-client'
+import { QueryFeedbackListModel } from 'src/models/query-models/QueryFeedbackListModel';
 
 const URL = '/feedbacks';
 
 export const feedbackAPI = {
-  getList() {
-    return axiosClient.get(`${URL}`)
+  getList(payload?: QueryFeedbackListModel) {
+    return axiosClient.get(`${URL}`,{
+      params:payload
+    })
   },
 
   getById(id:string) {

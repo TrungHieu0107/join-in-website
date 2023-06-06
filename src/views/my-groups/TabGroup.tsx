@@ -35,8 +35,6 @@ import { useToasts } from 'react-toast-notifications'
 import { Group } from 'src/models/class'
 import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel'
 import { groupDBDexie } from 'src/models/db/GroupDB'
-import { resolve } from 'path'
-import { reject } from 'lodash'
 
 interface Column {
   id: 'name' | 'subject' | 'class' | 'member' | 'leader'
@@ -189,8 +187,8 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             class: group.className,
             subject: group.subjectName,
             member: `${group.memberCount}/${group.groupSize}`,
-            leader: 'Thanh Huy',
-            avatarLeader: '/images/avatars/2.png'
+            leader: group.members?.at(0)?.user?.fullName,
+            avatarLeader: group.members?.at(0)?.user?.avatar
           }))
           setlistGroup(list)
         })

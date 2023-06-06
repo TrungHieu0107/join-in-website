@@ -20,7 +20,7 @@ import {
 import ApplicationForm from 'src/views/group/application/ApplicationForm'
 import { useEffect, useState } from 'react'
 import withAuth from '../withAuth'
-import { Group } from 'src/models/class'
+import { Group, GroupMajor } from 'src/models/class'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { groupDBDexie } from 'src/models/db/GroupDB'
 import { groupAPI } from 'src/api-client'
@@ -55,6 +55,7 @@ const SpaceBetweenText = (props: { title: string; content: string }) => {
     schoolName?: string
     className?: string
     subject?: string
+    leader?: string
   }
 
 const GroupView = () => {
@@ -66,16 +67,31 @@ const GroupView = () => {
     groupName: '',
     schoolName: '',
     className: '',
-    subject: ''
+    subject: '',
+    leader: ''
   })
   const [skills, setSkills] = useState<string>('')
   const [description, setDescription] = useState<string>('')
+  const [listRecruiting, setListRecruiting] = useState<GroupMajor[]>([])
 
-  const addToast = useToasts()
 
   useEffect(() =>{
     getInformation();
+    getListRecruiting();
   },[])
+
+  const getListRecruiting = async () =>{
+    try {
+      await groupAPI.getListRecruiting()
+      .then(res => {
+        const data = new CommonResponse(res);
+        const list : GroupMajor[] = data.data;
+        setListRecruiting(list)
+      })
+    } catch (err){
+      console.log(err)
+    }
+  }
 
   const getInformation = async () =>{
     try {
@@ -91,7 +107,8 @@ const GroupView = () => {
           groupName: group.name,
           schoolName: group.schoolName,
           className: group.className,
-          subject: group.subjectName
+          subject: group.subjectName,
+          leader: group.members?.at(0).user?.fullName
         });
         setSkills(group.skill ?? '');
         setDescription(group.description ?? '');
@@ -204,7 +221,7 @@ const GroupView = () => {
             </Box>
             <Box sx={{ mb: 6.75, display: 'flex', alignItems: 'center' }}>
               <AccountTieHat sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Leader: Thanh Huy</Typography>
+              <Typography variant='body1'>Leader: {values.leader}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -217,9 +234,9 @@ const GroupView = () => {
             <Divider sx={{ marginY: '20px' }} />
             <SpaceBetweenText title='Major' content='Quantity'/>
             <Divider sx={{ marginX: '20px' }} />
-            <SpaceBetweenText title='Information Technology' content='2'/>
-            <SpaceBetweenText title='English' content='1'/>
-            <SpaceBetweenText title='Business Administration' content='2'/>
+            {listRecruiting.map(recruiting =>(
+              <SpaceBetweenText title={recruiting.major?.name ?? ''} content={recruiting.memberCount?.toString() ?? '0'} key={recruiting.majorId}/>
+            ))}
           </CardContent>
 
         </Card>
@@ -237,7 +254,7 @@ const GroupView = () => {
                 <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>Skills</Typography>
               </Box>
 
-              <Typography variant='body1'>{skills}</Typography>
+              <Typography variant='body1'><div className='editor' dangerouslySetInnerHTML={{ __html: skills }}/></Typography>
             </Box>
             <Divider sx={{ marginY: '20px' }} />
             <Box sx={{ margin: 2, display: 'flex', flexDirection: 'column' }}>
@@ -245,7 +262,7 @@ const GroupView = () => {
                 <InformationVariant sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
                 <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>Description</Typography>
               </Box>
-              <Typography variant='body1'>{description}</Typography>
+              <Typography variant='body1'><div className='editor' dangerouslySetInnerHTML={{ __html: description }}/></Typography>
             </Box>
           </CardContent>
         </Card>

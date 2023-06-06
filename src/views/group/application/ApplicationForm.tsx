@@ -15,8 +15,8 @@ import {
 import { InformationVariant } from 'mdi-material-ui'
 import { SetStateAction, useEffect, useState } from 'react'
 import { useToasts } from 'react-toast-notifications'
-import { applicationAPI, majorAPI } from 'src/api-client'
-import { Major } from 'src/models/class'
+import { applicationAPI, groupAPI, majorAPI } from 'src/api-client'
+import { GroupMajor, Major } from 'src/models/class'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { groupDBDexie } from 'src/models/db/GroupDB'
 import { ApplicationRequest } from 'src/models/query-models/ApplicationRequest'
@@ -24,27 +24,34 @@ import Editor from 'src/views/dialog/editor'
 
 // ** Icons Imports
 
-interface RecruitmentDataType {
-  major: string
-  quantity: number
-}
 
-const RecruitmentData = [
-  { major: 'Information Technology', quantity: 1 },
-  { major: 'English', quantity: 2 }
-]
 
 const ApplicationForm = () => {
   // ** State
   const [description, setDescription] = useState<string>('')
   const [selectedValue, setSelectedValue] = useState('')
   const [listMajors, setListMajors] = useState<Major[]>([])
+  const [listRecruiting, setListRecruiting] = useState<GroupMajor[]>([])
 
   const addToast = useToasts()
 
   useEffect(() => {
     getListMajors()
+    getListRecruiting()
   }, [])
+
+  const getListRecruiting = async () =>{
+    try {
+      await groupAPI.getListRecruiting()
+      .then(res => {
+        const data = new CommonResponse(res);
+        const list : GroupMajor[] = data.data;
+        setListRecruiting(list)
+      })
+    } catch (err){
+      console.log(err)
+    }
+  }
 
   const handleChange = (event: SelectChangeEvent<string>) => {
     setSelectedValue(event.target.value)
@@ -141,11 +148,11 @@ const ApplicationForm = () => {
         </Grid>
       </form>
       <Divider sx={{ m: '20px' }}>Recruiting</Divider>
-      {RecruitmentData.map((item: RecruitmentDataType, index: number) => {
+      {listRecruiting.map((item: GroupMajor , index: number) => {
         return (
           <Box
-            key={item.major}
-            sx={{ display: 'flex', alignItems: 'center', mb: index !== RecruitmentData.length - 1 ? 6 : 0 }}
+            key={item.majorId}
+            sx={{ display: 'flex', alignItems: 'center', mb: index !== listRecruiting.length - 1 ? 6 : 0 }}
           >
             <Box
               sx={{
@@ -158,11 +165,11 @@ const ApplicationForm = () => {
               }}
             >
               <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>{item.major}</Typography>
+                <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>{item.major?.name}</Typography>
               </Box>
               <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <Typography variant='subtitle1' sx={{ fontWeight: 600, color: 'success.main', mr: 5 }}>
-                  {item.quantity}
+                  {item.memberCount}
                 </Typography>
               </Box>
             </Box>

@@ -3,6 +3,7 @@ import { Group, Milestone } from 'src/models/class'
 import axiosClient from './api-client'
 import { GroupRequest } from 'src/models/query-models/GroupRequest'
 import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel'
+import { groupDBDexie } from 'src/models/db/GroupDB'
 
 const URL = '/groups'
 
@@ -12,6 +13,13 @@ export const groupAPI = {
       params: payload
     })
   },
+
+  async getListRecruiting() {
+    const groupData = await groupDBDexie.getGroup()
+
+    return axiosClient.get(`${URL}/${groupData?.id}/recruiting-information`)
+  },
+
   getListFindingGroup(payload?: QueryGroupListModel) {
     return axiosClient.get(`${URL}/search-to-apply`, {
       params: payload
@@ -35,6 +43,10 @@ export const groupAPI = {
   },
   getRoleInGroup(groupId: string) {
     return axiosClient.get(`${URL}/${groupId}/role`)
+  },
+
+  putRecruiting(data: any) {
+    return axiosClient.put(`/group-majors`, data)
   },
 
   Admin: {

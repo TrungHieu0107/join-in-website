@@ -4,7 +4,7 @@ export class Feedback {
   private _id: string | undefined
   private _content: string | undefined
   private _rating: number | undefined
-  private _feedbackedDate: Date | undefined
+  private _createdDate: Date | undefined
   private _status: 'ACTIVE' | 'INACTIVE' | undefined
   private _feedbackedById: string | undefined
   private _feedbackedForId: string | undefined
@@ -35,12 +35,12 @@ export class Feedback {
     this._rating = val
   }
 
-  get feedbackedDate() {
-    return this._feedbackedDate
+  get createdDate() {
+    return this._createdDate
   }
 
-  set feedbackedDate(val: Date | undefined) {
-    this._feedbackedDate = val
+  set createdDate(val: Date | undefined) {
+    this._createdDate = val
   }
 
   get status() {

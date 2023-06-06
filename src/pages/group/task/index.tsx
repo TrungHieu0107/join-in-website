@@ -15,8 +15,6 @@ import DialogCreateNewTask from 'src/views/dialog/DialogAddNewTask'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import CustomizedSteppers from 'src/layouts/components/CustomizedSteppers'
-import moment from 'moment'
-import { StorageKeys } from 'src/constants'
 import UserGroupLayout from 'src/layouts/UserGroupLayout'
 import { GroupDBType, groupDBDexie } from 'src/models/db/GroupDB'
 import { taskAPI } from 'src/api-client'
@@ -165,7 +163,7 @@ export default function TaskListPage() {
       const id = (res as GroupDBType).id ?? ''
       setGroupId(id)
       console.log(res);
-      
+
       if(id?.length > 0){
         taskAPI
           .getList(
@@ -176,7 +174,7 @@ export default function TaskListPage() {
           .then(commonOfTasks => {
             const newValue = new CommonResponse(commonOfTasks).data
             console.log(newValue);
-            
+
             setData(newValue)
           })
           .catch(error => {
@@ -278,12 +276,7 @@ export default function TaskListPage() {
           </Box>
         </Fade>
       </Modal>
-      <Card sx={{ mt: 5 }}>
-        <CardHeader title='Milestone' />
-        <CardContent>
-          <CustomizedSteppers />
-        </CardContent>
-      </Card>
+      <CustomizedSteppers />
     </div>
   )
 }

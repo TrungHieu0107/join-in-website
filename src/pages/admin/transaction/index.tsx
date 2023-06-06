@@ -1,10 +1,8 @@
-import { Paper } from '@mui/material'
-import * as React from 'react'
 import TransactionChartView from 'src/views/charts/TransactionChart'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState,KeyboardEvent } from 'react'
 import { Transaction } from 'src/models/class'
 import {
-  CardHeader,
+  CardHeader, Chip, Paper,
   Box,
   Card,
   Grid,
@@ -28,21 +26,25 @@ import {
 import { Column } from 'src/models/common/Column'
 import { transactionAPI } from 'src/api-client/transaction'
 import withAuth from 'src/pages/withAuth'
+import { QueryTransactionListModel } from 'src/models/query-models/QueryTransactionListModel'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { useToasts } from 'react-toast-notifications'
+import { StatusObj } from 'src/constants/task-status'
 
 const columns: Column[] = [
   {
-    id: 'id',
+    id: 'transactionCode',
     label: 'Code',
     align: 'left'
   },
   {
-    id: 'type',
-    label: 'Type',
+    id: 'createdDate',
+    label: 'Created Date',
     align: 'left'
   },
   {
     id: 'transactionDate',
-    label: 'Date',
+    label: 'Confirmed Date',
     align: 'left'
   },
   {
@@ -55,22 +57,84 @@ const columns: Column[] = [
     id: 'status',
     label: 'Status',
     align: 'left',
-    format: (value: Transaction) => <Typography>{value.status}</Typography>
+    format: (value: Transaction) => {
+      const status  = value.status ?? 'WAITING';
+
+      return <Chip
+        label={status}
+        color={statusObj[status as string].color}
+        sx={{
+          height: 24,
+          fontSize: '0.75rem',
+          textTransform: 'capitalize',
+          '& .MuiChip-label': { fontWeight: 500 }
+        }}
+      />
+      }
   }
 ]
 
+const statusObj: StatusObj = {
+  SUCCESS: { color: 'success' },
+  FAIL: { color: 'error' },
+  CANCELED: { color: 'info' },
+  WAITING: { color: 'warning' }
+}
+
  const TransactionPage = () => {
-  const [transactionList, setTransactionList] = useState<Transaction[]>(transactionAPI.Admin.getListTraction())
   const [searchValue, setSearchValue] = useState<string>('')
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
-  const [currentData, setCurrentData] = useState<Transaction[]>()
+  const [currentData, setCurrentData] = useState<Transaction[]>([])
   const [isOpenDialogCheckTransaction, setIsOpenDialogCheckTransaction] = useState<boolean>(true)
   const [transactionCode, setTransactionCode] = useState<string>('')
+  const [storeSearchValue, setStoreSearchName] = useState<string>('')
+  const [updateUI,setUpdateUI] = useState<boolean>(true)
+
+  const addToast = useToasts()
 
   useEffect(() => {
-    setCurrentData(transactionList?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage))
-  }, [searchValue, page, rowsPerPage])
+    // setCurrentData(transactionList?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage))
+    getListTransaction()
+  }, [storeSearchValue, page, rowsPerPage,updateUI])
+
+  const getListTransaction = async () => {
+    try {
+      const payload: QueryTransactionListModel = {
+        pageSize: 10,
+        pageNumber: 1,
+        endDate: undefined,
+        startDate: undefined,
+        userId: undefined,
+        transactionStatus: undefined,
+        code: storeSearchValue ==='' ? undefined : storeSearchValue,
+        id: undefined
+      }
+
+      await transactionAPI
+        .getList(payload)
+        .then(res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
+
+          const transactions: Transaction[] = data.data.map((transation : Transaction) => new Transaction(transation))
+
+          setCurrentData(transactions)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
+
+    if (event.key === 'Enter') { console.log(event.currentTarget.value)
+      setStoreSearchName(searchValue);
+    }
+  };
 
   const changeSearchValue = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setSearchValue(event?.target.value)
@@ -83,16 +147,37 @@ const columns: Column[] = [
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
-    setTransactionList(transactionAPI.Admin.getListTraction())
   }
 
   const handleCloseDialogCheckTransaction = () => {
     setIsOpenDialogCheckTransaction(false)
   }
 
+  const updateTransaction = async () =>{
+    try {
+      const data : any = {
+        code: transactionCode,
+        status: 1
+      }
+      await transactionAPI.put(data)
+      .then(res =>{
+        const data = new CommonResponse(res)
+        addToast.addToast(data.message,{appearance: 'success'})
+
+        setUpdateUI(false)
+      })
+      .catch(err=>{
+        console.log(err)
+      })
+    } catch(err){
+      console.log(err)
+    }
+  }
+
   const handleCheckTransaction = () => {
-    console.log(transactionCode)
+    updateTransaction()
     handleCloseDialogCheckTransaction()
+
   }
 
   return (
@@ -111,6 +196,7 @@ const columns: Column[] = [
                       label={'Search'}
                       value={searchValue}
                       onChange={e => changeSearchValue(e)}
+                      onKeyDown={handleEnterSearch}
                       size='small'
                     />
                   </FormControl>
@@ -172,7 +258,7 @@ const columns: Column[] = [
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component='div'
-            count={transactionList?.length}
+            count={currentData?.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
