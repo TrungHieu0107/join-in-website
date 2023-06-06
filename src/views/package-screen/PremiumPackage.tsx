@@ -43,7 +43,7 @@ const PremiumPackage = () => {
         </Typography>
       </CardContent>
       <Button variant='contained' sx={{ py: 2.5, width: '100%', borderTopLeftRadius: 0, borderTopRightRadius: 0 }} onClick={() => {
-        transactionAPI.createTransaction(0).then((res) => {
+        transactionAPI.createTransaction(1).then((res) => {
         // router.push('/payment', {
         //   query: {
         //     code : new CommonResponse(res).data

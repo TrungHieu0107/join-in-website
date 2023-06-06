@@ -12,7 +12,7 @@ export const transactionAPI = {
   },
 
   createTransaction(type: number) {
-    return axiosClient.get(`/create/${type}`)
+    return axiosClient.post(`/create/${type}`)
   },
 
   post(data: Transaction) {
@@ -24,8 +24,8 @@ export const transactionAPI = {
   },
 
   put(data: any) {
-    return axiosClient.put(`${URL}/admin/update`,data)
-  },
+    return axiosClient.put(`${URL}/admin/update`, data)
+  }
 
   // Admin: {
   //   getListTraction(): Transaction[] {
