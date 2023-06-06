@@ -263,7 +263,7 @@ const Application = () => {
             avatar: member.user?.avatar,
             name: member.user?.fullName,
             role: member.role,
-            major: member.user?.applications?.at(0).applicationMajors?.at(0).major?.name,
+            major: member.user?.applications?.at(0)?.applicationMajors?.at(0)?.major?.name,
             joindate: member.joinedDate,
             status: 'ACTIVE'
           }))

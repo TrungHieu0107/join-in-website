@@ -264,7 +264,7 @@ const ApplicationScreen =  () => {
             id: application.id,
             avatar: application.user?.avatar,
             name: application.user?.fullName,
-            position: application.applicationMajors && application.applicationMajors[0].major?.name,
+            position: application.applicationMajors && application.applicationMajors[0]?.major?.name,
             createddate: application.createdDate,
             description: application.description,
             status: application.status,

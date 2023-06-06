@@ -73,9 +73,9 @@ const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info')
   }
 
   const handleSubmit = async () => {
-    await userAPI.changePassword({
+    await userAPI.updatePassword({
       password: values.newPassword,
-      verifyToken: verifyToken
+      verifyCode: verifyToken
     }).then((res) => {
       const response = new CommonResponse(res)
       if(response.status === 200) {

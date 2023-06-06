@@ -20,10 +20,10 @@ export const memberAPI = {
   },
 
   delete(id: string) {
-    return axiosClient.delete(`${URL}/${id}`)
+    return axiosClient.delete(`${URL}/${id}`,)
   },
 
   put(data: any) {
-    return axiosClient.put(`${URL}`, data)
+    return axiosClient.put(`${URL}/assign-role`)
   }
 }

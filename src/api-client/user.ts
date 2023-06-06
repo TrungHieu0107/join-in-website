@@ -59,8 +59,12 @@ export const userAPI = {
     return axiosClient.get(`${URL}/send-verifyCode`)
   },
 
-  changePassword(payload: { password: string; verifyToken: string }) {
+  changePassword(payload: { password: string; verifyCode: string }) {
     return axiosClient.put(`${URL}/reset-password`, payload)
+  },
+
+  updatePassword(payload: { password: string; verifyCode: string }) {
+    return axiosClient.put(`${URL}/update-password`, payload)
   },
 
   Admin: {
