@@ -29,5 +29,12 @@ export const authAPI = {
 
   getUrlGoogleLogin() {
     return axiosClient.get('/oauth2/google-sign-in')
+  },
+
+  getTokenLoginGoogle(googleToken: string) {
+    const data = {
+      googleToken: googleToken
+    }
+    return axiosClient.post('/oauth2/call-back', data)
   }
 }

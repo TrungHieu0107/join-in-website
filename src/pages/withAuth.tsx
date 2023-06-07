@@ -34,10 +34,16 @@ const withAuth = (WrappedComponent: React.ComponentType<any>) => {
           return
         }
         const tokenModel = new JWTModel(jwt_decode(value ?? ''))
-        console.log('JWT ', tokenModel)
 
         if (pathName.startsWith('/admin')) {
           if (tokenModel.role !== 'Admin') {
+            router.push('/user/login')
+            notify()
+
+            return
+          }
+        } else {
+          if (tokenModel.role !== 'User') {
             router.push('/user/login')
             notify()
 

@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { ReactNode } from 'react'
 
 export interface Column {
   id: string
@@ -7,5 +7,3 @@ export interface Column {
   align?: 'right' | 'center' | 'left'
   format?: (value: any) => string | ReactNode
 }
-
-

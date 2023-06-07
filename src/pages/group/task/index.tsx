@@ -217,77 +217,77 @@ export default function TaskListPage() {
   }
 
   return (
-    <div>
-      <Grid container spacing={4}>
-        <Grid item xs={6} sm={8} container spacing={2}>
-          <Grid item xs={6} md={5}>
-            <TextField
-              fullWidth
-              id='outlined-controlled'
-              label='Seach'
-              value={name}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setName(event.target.value)
-              }}
-              onKeyDown={e => {
-                if(e.key === 'Enter') {
-                  const newQuery = new QueryTaskListsModel(queryTask)
-                  newQuery.name = name
-                  setQueryTask(newQuery)
-                }
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position='start'>
-                    <Magnify />
-                  </InputAdornment>
-                )
-              }}
-              size='small'
-              placeholder='Search'
-            />
-          </Grid>
-          <Grid item xs={6} md={4}>
-            <AvatarGroup total={24}>
-              <Tooltip title='Add' placement='bottom'>
+      <div>
+        <Grid container spacing={4}>
+          <Grid item xs={6} sm={8} container spacing={2}>
+            <Grid item xs={6} md={5}>
+              <TextField
+                fullWidth
+                id='outlined-controlled'
+                label='Seach'
+                value={name}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setName(event.target.value)
+                }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    const newQuery = new QueryTaskListsModel(queryTask)
+                    newQuery.name = name
+                    setQueryTask(newQuery)
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position='start'>
+                      <Magnify />
+                    </InputAdornment>
+                  )
+                }}
+                size='small'
+                placeholder='Search'
+              />
+            </Grid>
+            <Grid item xs={6} md={4}>
+              <AvatarGroup total={24}>
+                <Tooltip title='Add' placement='bottom'>
+                  <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
+                </Tooltip>
+                <Avatar alt='Remy Sharp' src='' sizes='small' />
                 <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
-              </Tooltip>
-              <Avatar alt='Remy Sharp' src='' sizes='small' />
-              <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
-              <Avatar alt='Remy Sharp' src='' sizes='small' />
-              <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
-            </AvatarGroup>
+                <Avatar alt='Remy Sharp' src='' sizes='small' />
+                <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
+              </AvatarGroup>
+            </Grid>
+          </Grid>
+          <Grid item xs={6} md={4} container justifyContent={'flex-end'}>
+            <Button
+              color='primary'
+              variant='outlined'
+              startIcon={<Plus />}
+              size='medium'
+              style={{ marginRight: '15px' }}
+              onClick={handleClickOpen}
+            >
+              Add New Task
+            </Button>
           </Grid>
         </Grid>
-        <Grid item xs={6} md={4} container justifyContent={'flex-end'}>
-          <Button
-            color='primary'
-            variant='outlined'
-            startIcon={<Plus />}
-            size='medium'
-            style={{ marginRight: '15px' }}
-            onClick={handleClickOpen}
-          >
-            Add New Task
-          </Button>
-        </Grid>
-      </Grid>
-      <TableTaskCollapse column={column} row={data} query={queryTask} setQuery={setQueryTask}></TableTaskCollapse>
-      <Modal
-        open={addNewModal}
-        onClose={handleClose}
-        closeAfterTransition
-        aria-labelledby='transition-modal-title'
-        aria-describedby='transition-modal-descripti'
-      >
-        <Fade in={addNewModal}>
-          <Box sx={style} className='modal-size'>
-            <DialogCreateNewTask close={handleClose} groupId={groupId} onSuccess={fetchdata} />
-          </Box>
-        </Fade>
-      </Modal>
-      <CustomizedSteppers />
-    </div>
+        <TableTaskCollapse column={column} row={data} query={queryTask} setQuery={setQueryTask}></TableTaskCollapse>
+        <Modal
+          open={addNewModal}
+          onClose={handleClose}
+          closeAfterTransition
+          aria-labelledby='transition-modal-title'
+          aria-describedby='transition-modal-descripti'
+        >
+          <Fade in={addNewModal}>
+            <Box sx={style} className='modal-size'>
+              <DialogCreateNewTask close={handleClose} groupId={groupId} onSuccess={fetchdata} />
+            </Box>
+          </Fade>
+        </Modal>
+        <CustomizedSteppers />
+      </div>
   )
 }
 

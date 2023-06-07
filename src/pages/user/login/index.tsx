@@ -23,7 +23,6 @@ import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormCo
 import { Grid } from '@mui/material'
 
 // ** Icons Imports
-import Google from 'mdi-material-ui/Google'
 import EyeOutline from 'mdi-material-ui/EyeOutline'
 import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
 
@@ -44,6 +43,10 @@ import { CommonResponse } from 'src/models/common/CommonResponse'
 import { userDBDexie } from 'src/models/db/UserDB'
 import { useRouter } from 'next/router'
 import { useToasts } from 'react-toast-notifications'
+import { useSession, signIn, getSession } from 'next-auth/react'
+import { Backdrop, CircularProgress } from '@mui/material'
+import jwt_decode from 'jwt-decode'
+import { JWTModel } from 'src/models/common/JWTModel'
 
 interface State {
   email: string
@@ -70,7 +73,7 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
   }
 }))
 
-const LoginPage = () => {
+const LoginPage = (props: any) => {
   // ** State
   const [values, setValues] = useState<State>({
     email: 'hiddenwory@gmail.com',
@@ -82,14 +85,85 @@ const LoginPage = () => {
   const [passwordError, setPasswordError] = useState('')
   const router = useRouter()
   const addToast = useToasts()
-
+  const { data, status } = useSession()
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
     addToast.addToast(message, { appearance: type })
   }
 
   useEffect(() => {
-    userDBDexie.clearToken()
-  }, [])
+    setIsLoading(true)
+    userDBDexie.getToken().then(value => {
+      if (value?.length !== 0) {
+        const tokenModel = new JWTModel(jwt_decode(value ?? ''))
+        if (router.pathname.startsWith('/admin')) {
+          if (tokenModel.role !== 'Admin') {
+            userDBDexie.clearToken().then(() => {
+              setIsLoading(false)
+              router.push('/user/login?back=1', '/user/login')
+            })
+
+            return
+          }
+          router.push('/admin/dashboard/')
+        } else {
+          if (tokenModel.role !== 'User') {
+            userDBDexie.clearToken().then(() => {
+              setIsLoading(false)
+              router.push('/user/login?back=1', '/user/login')
+            })
+
+            return
+          }
+          router.push('/my-groups')
+        }
+      } else {
+        userDBDexie.getGoogleToken().then(res => {
+          console.log(res)
+
+          if (res?.length !== 0) {
+            getToken(res ?? '')
+          } else if (!router.query.back) {
+            if (data?.user?.name && status === 'authenticated') {
+              getToken(data.user.name)
+            } else {
+              setIsLoading(false)
+            }
+          } else {
+            setIsLoading(false)
+          }
+        })
+      }
+    })
+  }, [data, status])
+
+  const getToken = (gooleToken: string) => {
+    authAPI
+      .getTokenLoginGoogle(gooleToken)
+      .then(async res => {
+        const token: string = new CommonResponse(res).data
+        if (token === 'Unverify') {
+          notify('Your account is not verify. Email verify is sent', 'warning')
+          authAPI.sendVerifyEmail(values.email)
+        } else {
+          if (await userDBDexie.saveToken(token)) {
+            const tokenModel = new JWTModel(jwt_decode(token ?? ''))
+            if (tokenModel.role === 'Admin') {
+              router.push('/admin/dashboard/')
+            } else {
+              router.push('/my-groups')
+            }
+          }
+        }
+      })
+      .catch(error => {
+        console.log('authAPI', error)
+        if (error?.response?.data?.message) {
+          setValues({ ...values, messageError: error?.response?.data?.message })
+          notify(error?.response?.data?.message, 'error')
+        }
+      })
+  }
 
   const emailValidate = yup.object().shape({
     email: yup
@@ -156,7 +230,12 @@ const LoginPage = () => {
             authAPI.sendVerifyEmail(values.email)
           } else {
             if (await userDBDexie.saveToken(token)) {
-              router.push('/my-groups')
+              const tokenModel = new JWTModel(jwt_decode(token ?? ''))
+              if (tokenModel.role === 'Admin') {
+                router.push('/admin/dashboard/')
+              } else {
+                router.push('/my-groups')
+              }
             }
           }
         })
@@ -172,12 +251,9 @@ const LoginPage = () => {
     }
   }
 
-  const getUrlGoogleLogin = async () => {
-    await authAPI.getUrlGoogleLogin().then(res => {
-      console.log(res)
-
-      router.push(res as unknown as string)
-    })
+  const handleSignIn = async () => {
+    await signIn('google')
+    // Access token
   }
 
   return (
@@ -262,7 +338,7 @@ const LoginPage = () => {
                 <LinkStyled onClick={e => e.preventDefault()}>Forgot Password?</LinkStyled>
               </Link>
             </Grid>
-            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} onClick={handleSubmit}>
+            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} onClick={() => handleSubmit()}>
               Login
             </Button>
             <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -283,7 +359,7 @@ const LoginPage = () => {
                 </IconButton>
               </Link>
             </Box> */}
-            <Button fullWidth size='large' variant='outlined' sx={{ marginBottom: 7 }} onClick={getUrlGoogleLogin}>
+            <Button fullWidth size='large' variant='outlined' sx={{ marginBottom: 7 }} onClick={() => handleSignIn()}>
               {/* <Google sx={{ marginRight: '10px' }} /> */}
               <svg
                 width={30}
@@ -314,6 +390,9 @@ const LoginPage = () => {
         </CardContent>
       </Card>
       <FooterIllustrationsV1 />
+      <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </Box>
   )
 }
@@ -321,3 +400,13 @@ const LoginPage = () => {
 LoginPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 
 export default LoginPage
+
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context)
+  if (session) {
+    console.log(session)
+  }
+  return {
+    props: {}
+  }
+}

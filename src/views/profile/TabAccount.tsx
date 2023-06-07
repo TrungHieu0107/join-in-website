@@ -290,7 +290,7 @@ const TabAccount = (props: TabAccountProps) => {
           .then(async resfileBackGround => {
             let urlBackground = ''
             if (typeof resfileBackGround !== 'boolean') {
-              urlBackground = new CommonResponse(res as AxiosResponse).data
+              urlBackground = new CommonResponse(resfileBackGround as AxiosResponse).data
             } else {
               urlBackground = imgBackgroud
             }
@@ -478,6 +478,7 @@ const TabAccount = (props: TabAccountProps) => {
                   </InputAdornment>
                 )
               }}
+              value={phone}
             />
           </Grid>
           <Grid item xs={12} sm={6}>

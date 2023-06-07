@@ -19,7 +19,8 @@ import {
   Avatar,
   AvatarGroup,
   TablePagination,
-  CircularProgress
+  CircularProgress,
+  Button
 } from '@mui/material'
 
 // ** Icons Imports
@@ -37,201 +38,14 @@ import { StorageKeys } from 'src/constants'
 import moment from 'moment'
 import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel'
 import Link from 'next/link'
+import { GroupDBType, groupDBDexie } from 'src/models/db/GroupDB'
 
-const column: Column[] = [
-  {
-    id: 'name',
-    label: 'Title',
-    minWidth: 200,
-    align: 'left',
-    format: (value: Task) => (
-      <Link href={`/group/task/${value.id}`} rel='noopener' color='info'>
-        <a className='link-style'>{value.name}</a>
-      </Link>
-    )
-  },
-  {
-    id: 'group',
-    label: 'Group',
-    minWidth: 100,
-    align: 'center',
-    format: (value: Task) => (
-      <Chip
-        avatar={<Avatar alt='Test' src={value?.group?.avatar} sizes='medium' />}
-        label={value.group?.name}
-        variant='outlined'
-        color='success'
-      />
-    )
-  },
-  {
-    id: 'estimatedDays',
-    label: 'Estimate Days',
-    minWidth: 100,
-    align: 'center'
-  },
-  {
-    id: 'startDateDeadline',
-    label: 'Start Date',
-    minWidth: 150,
-    align: 'center',
-    format: (value: Task) => moment(value.startDateDeadline).format(StorageKeys.KEY_FORMAT_DATE)
-  },
-  {
-    id: 'endDateDeadline',
-    label: 'End Date',
-    minWidth: 150,
-    align: 'center',
-    format: (value: Task) => moment(value.endDateDeadline).format(StorageKeys.KEY_FORMAT_DATE)
-  },
-  {
-    id: 'impotantLevel',
-    label: 'Level',
-    minWidth: 100,
-    align: 'center',
-    format: (value?: Task) =>
-      value ? (
-        <Chip
-          label={importantLevel[value.impotantLevel ?? '']?.label}
-          color={importantLevel[value.impotantLevel ?? '']?.color}
-          sx={{
-            height: 24,
-            fontSize: '0.75rem',
-            textTransform: 'capitalize',
-            '& .MuiChip-label': { fontWeight: 500 }
-          }}
-        />
-      ) : (
-        ''
-      )
-  },
-  {
-    id: 'status',
-    label: 'Status',
-    minWidth: 100,
-    align: 'center',
-    format: (value: Task) => (
-      <Chip
-        label={statusObj[value.status ?? '']?.label}
-        color={statusObj[value.status ?? '']?.color}
-        sx={{
-          height: 24,
-          fontSize: '0.75rem',
-          textTransform: 'capitalize',
-          '& .MuiChip-label': { fontWeight: 500 }
-        }}
-      />
-    )
-  },
-  {
-    id: 'assignedFor',
-    label: 'Assignee',
-    minWidth: 100,
-    align: 'center',
-    format: (value: Task) => (
-      <AvatarGroup total={value?.assignedFor?.length}>
-        {value?.assignedFor?.map((val, index) =>
-          index < 2 ? (
-            <Tooltip key={index} title={val?.fullName ?? ''} placement='bottom'>
-              <Avatar alt='Test' src={val?.avatar} sizes='small' />
-            </Tooltip>
-          ) : (
-            ''
-          )
-        )}
-      </AvatarGroup>
-    )
-  },
-  {
-    id: 'createdBy',
-    label: 'Created By',
-    minWidth: 100,
-    align: 'center',
-    format: (value: Task) => (
-      <Tooltip title={value?.createdBy?.fullName ?? ''} placement='bottom'>
-        <Avatar alt='Test' src={value?.createdBy?.avatar} sizes='small' />
-      </Tooltip>
-    )
-  }
-]
-  
-const columnSubTask: Column[] = [
-  {
-    id: 'name',
-    label: 'Title',
-    minWidth: 200,
-    align: 'left',
-    format: (value: Task) => (
-      <Link href={`/group/task/${value.id}`}>
-        <a className='link-style'>{value.name}</a>
-      </Link>
-    )
-  },
-  {
-    id: 'estimatedDays',
-    label: 'Estimate Days',
-    minWidth: 100,
-    align: 'center'
-  },
-  {
-    id: 'startDateDeadline',
-    label: 'Start Date',
-    minWidth: 150,
-    align: 'center'
-  },
-  {
-    id: 'endDateDeadline',
-    label: 'End Date',
-    minWidth: 150,
-    align: 'center'
-  },
-  {
-    id: 'impotantLevel',
-    label: 'Level',
-    minWidth: 100,
-    align: 'center',
-    format: (value?: Task) =>
-      value ? (
-        <Chip
-          label={importantLevel[value.impotantLevel ?? '']?.label}
-          color={importantLevel[value.impotantLevel ?? '']?.color}
-          sx={{
-            height: 24,
-            fontSize: '0.75rem',
-            textTransform: 'capitalize',
-            '& .MuiChip-label': { fontWeight: 500 }
-          }}
-        />
-      ) : (
-        ''
-      )
-  },
-  {
-    id: 'status',
-    label: 'Status',
-    minWidth: 100,
-    align: 'center',
-    format: (value: Task) => (
-      <Chip
-        label={statusObj[value.status ?? '']?.label}
-        color={statusObj[value.status ?? '']?.color}
-        sx={{
-          height: 24,
-          fontSize: '0.75rem',
-          textTransform: 'capitalize',
-          '& .MuiChip-label': { fontWeight: 500 }
-        }}
-      />
-    )
-  }
-]
-
-const Row = (props: { row: Task; column?: Column[] }) => {
+const Row = (props: { row: Task; column?: Column[]; columnSubTask: Column[] }) => {
   // ** State
   const [open, setOpen] = useState<boolean>(false)
   const [data, setData] = useState<any>(props.row)
   const [loading, setLoading] = useState(false)
-  const header = props.column ?? column
+  const header = props.column ?? props.columnSubTask
 
   const toggleShowSubTask = async () => {
     if (open) {
@@ -256,11 +70,11 @@ const Row = (props: { row: Task; column?: Column[] }) => {
   return (
     <Fragment>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-        {!props.column ? (
+        {props.column ? (
           <TableCell>
             {loading ? (
               <IconButton aria-label='expand row' size='small'>
-                <CircularProgress color='success'size={24}/>
+                <CircularProgress color='success' size={24} />
               </IconButton>
             ) : (
               <IconButton aria-label='expand row' size='small' onClick={toggleShowSubTask}>
@@ -283,7 +97,7 @@ const Row = (props: { row: Task; column?: Column[] }) => {
       </TableRow>
       {!loading && data.subTasks ? (
         <TableRow>
-          <TableCell colSpan={column.length} sx={{ py: '0 !important' }}>
+          <TableCell colSpan={header.length} sx={{ py: '0 !important' }}>
             <Collapse in={open} timeout='auto' unmountOnExit>
               <Box sx={{ m: 2, mb: 5 }}>
                 <Typography variant='h6' gutterBottom component='div'>
@@ -292,7 +106,7 @@ const Row = (props: { row: Task; column?: Column[] }) => {
                 <Table size='medium' aria-label='purchases'>
                   <TableHead>
                     <TableRow>
-                      {columnSubTask?.map(col => (
+                      {props.columnSubTask?.map(col => (
                         <TableCell key={col.id} align={col.align} sx={{ minWidth: col.minWidth }}>
                           {col.label}
                         </TableCell>
@@ -301,7 +115,7 @@ const Row = (props: { row: Task; column?: Column[] }) => {
                   </TableHead>
                   <TableBody>
                     {data?.subTasks?.map((row: Task) => (
-                      <Row key={row.id} row={row} column={columnSubTask} />
+                      <Row key={row.id} row={row} columnSubTask={props.columnSubTask} />
                     ))}
                   </TableBody>
                 </Table>
@@ -317,6 +131,208 @@ export default function ToDoTableCollapsible() {
   const [rows, setRows] = useState<Task[]>([])
   const router = useRouter()
   const [queryModel, setQueryModel] = useState<QueryTaskListsModel>()
+
+  const clickNameTodo = async (value: Task) => {
+    await groupDBDexie
+      .saveGroup({
+        id: value.group?.id,
+        name: value.group?.name,
+        avatar: value.group?.avatar
+      } as GroupDBType)
+      .then(res => {
+        router.push(`/group/task/${value.id}`)
+      })
+  }
+
+  const column: Column[] = [
+    {
+      id: 'name',
+      label: 'Title',
+      minWidth: 200,
+      align: 'left',
+      format: (value: Task) => (
+        <Link href={'#'} rel='noopener' color='info'>
+            <a className='link-style' onClick={() => clickNameTodo(value)}>
+              {value.name}
+            </a>
+        </Link>
+      )
+    },
+    {
+      id: 'group',
+      label: 'Group',
+      minWidth: 100,
+      align: 'center',
+      format: (value: Task) => (
+        <Chip
+          avatar={<Avatar alt='Test' src={value?.group?.avatar} sizes='medium' />}
+          label={value.group?.name}
+          variant='outlined'
+          color='success'
+        />
+      )
+    },
+    {
+      id: 'estimatedDays',
+      label: 'Estimate Days',
+      minWidth: 100,
+      align: 'center'
+    },
+    {
+      id: 'startDateDeadline',
+      label: 'Start Date',
+      minWidth: 150,
+      align: 'center',
+      format: (value: Task) => moment(value.startDateDeadline).format(StorageKeys.KEY_FORMAT_DATE)
+    },
+    {
+      id: 'endDateDeadline',
+      label: 'End Date',
+      minWidth: 150,
+      align: 'center',
+      format: (value: Task) => moment(value.endDateDeadline).format(StorageKeys.KEY_FORMAT_DATE)
+    },
+    {
+      id: 'impotantLevel',
+      label: 'Level',
+      minWidth: 100,
+      align: 'center',
+      format: (value?: Task) =>
+        value ? (
+          <Chip
+            label={importantLevel[value.impotantLevel ?? '']?.label}
+            color={importantLevel[value.impotantLevel ?? '']?.color}
+            sx={{
+              height: 24,
+              fontSize: '0.75rem',
+              textTransform: 'capitalize',
+              '& .MuiChip-label': { fontWeight: 500 }
+            }}
+          />
+        ) : (
+          ''
+        )
+    },
+    {
+      id: 'status',
+      label: 'Status',
+      minWidth: 100,
+      align: 'center',
+      format: (value: Task) => (
+        <Chip
+          label={statusObj[value.status ?? '']?.label}
+          color={statusObj[value.status ?? '']?.color}
+          sx={{
+            height: 24,
+            fontSize: '0.75rem',
+            textTransform: 'capitalize',
+            '& .MuiChip-label': { fontWeight: 500 }
+          }}
+        />
+      )
+    },
+    {
+      id: 'assignedFor',
+      label: 'Assignee',
+      minWidth: 100,
+      align: 'center',
+      format: (value: Task) => (
+        <AvatarGroup total={value?.assignedFor?.length}>
+          {value?.assignedFor?.map((val, index) =>
+            index < 2 ? (
+              <Tooltip key={index} title={val?.fullName ?? ''} placement='bottom'>
+                <Avatar alt='Test' src={val?.avatar} sizes='small' />
+              </Tooltip>
+            ) : (
+              ''
+            )
+          )}
+        </AvatarGroup>
+      )
+    },
+    {
+      id: 'createdBy',
+      label: 'Created By',
+      minWidth: 100,
+      align: 'center',
+      format: (value: Task) => (
+        <Tooltip title={value?.createdBy?.fullName ?? ''} placement='bottom'>
+          <Avatar alt='Test' src={value?.createdBy?.avatar} sizes='small' />
+        </Tooltip>
+      )
+    }
+  ]
+
+  const columnSubTask: Column[] = [
+    {
+      id: 'name',
+      label: 'Title',
+      minWidth: 200,
+      align: 'left',
+      format: (value: Task) => (
+        <Link href={`/group/task/${value.id}`}>
+          <a className='link-style'>{value.name}</a>
+        </Link>
+      )
+    },
+    {
+      id: 'estimatedDays',
+      label: 'Estimate Days',
+      minWidth: 100,
+      align: 'center'
+    },
+    {
+      id: 'startDateDeadline',
+      label: 'Start Date',
+      minWidth: 150,
+      align: 'center'
+    },
+    {
+      id: 'endDateDeadline',
+      label: 'End Date',
+      minWidth: 150,
+      align: 'center'
+    },
+    {
+      id: 'impotantLevel',
+      label: 'Level',
+      minWidth: 100,
+      align: 'center',
+      format: (value?: Task) =>
+        value ? (
+          <Chip
+            label={importantLevel[value.impotantLevel ?? '']?.label}
+            color={importantLevel[value.impotantLevel ?? '']?.color}
+            sx={{
+              height: 24,
+              fontSize: '0.75rem',
+              textTransform: 'capitalize',
+              '& .MuiChip-label': { fontWeight: 500 }
+            }}
+          />
+        ) : (
+          ''
+        )
+    },
+    {
+      id: 'status',
+      label: 'Status',
+      minWidth: 100,
+      align: 'center',
+      format: (value: Task) => (
+        <Chip
+          label={statusObj[value.status ?? '']?.label}
+          color={statusObj[value.status ?? '']?.color}
+          sx={{
+            height: 24,
+            fontSize: '0.75rem',
+            textTransform: 'capitalize',
+            '& .MuiChip-label': { fontWeight: 500 }
+          }}
+        />
+      )
+    }
+  ]
 
   useEffect(() => {
     getListTask()
@@ -373,7 +389,7 @@ export default function ToDoTableCollapsible() {
           </TableHead>
           <TableBody>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => (
-              <Row key={row.id} row={row} />
+              <Row key={row.id} row={row} column={column} columnSubTask={columnSubTask} />
             ))}
           </TableBody>
         </Table>

@@ -40,10 +40,14 @@ export default function AssignView(props: IAssignViewProps) {
         const listAssign: Member[] = []
         for (let index = 0; index < list.length; index++) {
           const element = list[index]
-          if (props.data.assignedFor?.filter(item => item.id === element.user?.id)) {
-            listAssign.push(element)
-          }
+          props.data.assignedFor?.map(item => { 
+            if (item.id === element.user?.id) {
+              listAssign.push(element)
+            }
+          })
         }
+
+        console.log('listAssign', props.data.assignedFor, listAssign)
 
         setSelectedMember(listAssign)
         setListMember(list)

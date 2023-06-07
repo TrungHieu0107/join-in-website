@@ -341,7 +341,7 @@ export default function MainTaskView({ data, handleError, notify , onSuccess }: 
             </Box>
           }
           action={
-            editable && isLeader ? (
+            editable ? (
               <Grid container spacing={2}>
                 <Grid item>
                   <Button
