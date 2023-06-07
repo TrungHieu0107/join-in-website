@@ -98,12 +98,9 @@ const ApplicationScreen =  () => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [totalItems, setTotalItems] = useState<number>(0)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-
-
   const [open, setOpen] = useState(false)
-
   const [openPopupApplication, setOpenPopupApplication] = useState(false)
-
+  const [updateUI,setUpdateUI] = useState<boolean>(true)
   const [listApplications, setListApplications] = useState<any[]>([])
   const [selectedRow, setSelectedRow] = useState<any>()
   const [searchName, setSearchName] = useState<string>('');
@@ -111,7 +108,7 @@ const ApplicationScreen =  () => {
 
   useEffect(() => {
     getListApplication()
-  }, [storeSearchName,page, rowsPerPage])
+  }, [storeSearchName,page, rowsPerPage,updateUI])
 
   const handleRejectApplication = async () =>{
     try {
@@ -124,6 +121,7 @@ const ApplicationScreen =  () => {
         console.log(err)
       })
       handlePopupApplication()
+      setUpdateUI(!updateUI)
     }catch (err){
       console.log(err)
     }
@@ -140,6 +138,7 @@ const ApplicationScreen =  () => {
         console.log(err)
       })
       handlePopupApplication()
+      setUpdateUI(!updateUI)
     }catch (err){
       console.log(err)
     }
@@ -217,7 +216,7 @@ const ApplicationScreen =  () => {
       const payload : QueryApplicationListModel = {
         groupId: groupData?.id,
         name: storeSearchName,
-        majorIdsString:[],
+        majorIdsString:'',
         orderBy: '',
         page: page + 1,
         pageSize: rowsPerPage,

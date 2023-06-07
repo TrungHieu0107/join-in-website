@@ -1,7 +1,7 @@
 export class QueryApplicationListModel {
   groupId: string | undefined
   name: string | undefined
-  majorIdsString: string[] | undefined
+  majorIdsString: string | undefined
   pageSize: number | undefined
   page: number | undefined
   orderBy: string | undefined

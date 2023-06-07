@@ -5,10 +5,10 @@ import { Member } from 'src/models'
 const URL = '/members'
 
 export const memberAPI = {
-  async getList() {
+  async getList(name: string) {
     const groupData = await groupDBDexie.getGroup()
 
-    return axiosClient.get(`${URL}/${groupData?.id}`)
+    return axiosClient.get(`${URL}/${groupData?.id}?name=${name}`)
   },
 
   getAllMember(groupId: string) {

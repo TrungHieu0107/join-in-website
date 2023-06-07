@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ChangeEvent, ReactNode, useEffect } from 'react'
+import { useState, ChangeEvent, ReactNode, useEffect, KeyboardEvent } from 'react'
 
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
@@ -118,18 +118,20 @@ const Application = () => {
   const [openAlertDelete, setOpenAlertDelete] = useState(false)
 
   const [openPopupChangeRole, setOpenPopupChangeRole] = useState(false)
-
   const [listMembers, setListMember] = useState<any[]>([])
   const [selectedRole, setSelectedRole] = useState<any>({
     value: '',
     label: ''
   })
   const [updateUI, setUpdateUI] = useState(false)
+  const [searchName, setSearchName] = useState<string>('');
+  const [storeSearchName,setStoreSearchName] = useState<string>('');
+  const [reason, setReason]= useState<string>('')
 
 
   useEffect(() => {
     getListMember()
-  }, [updateUI])
+  }, [updateUI,storeSearchName])
 
   const handleChangeRole = (event: SelectChangeEvent<string>) => {
     setSelectedRole({ value: event.target.value,
@@ -169,6 +171,21 @@ const Application = () => {
     } catch (e) {
       console.log('Member Form: ', e)
     }
+  }
+
+  const handleClickSearch = () =>{
+    setStoreSearchName(searchName);
+  }
+
+  const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
+
+    if (event.key === 'Enter') { console.log(event.currentTarget.value)
+      setStoreSearchName(searchName);
+    }
+  };
+
+  const handleSearch = (event:ChangeEvent<HTMLInputElement>) =>{
+    setSearchName(event.target.value)
   }
 
   const handleClickPopupChangeRole = () => {
@@ -238,6 +255,10 @@ const Application = () => {
     setPage(0)
   }
 
+  const handleChangeReason = (event:ChangeEvent<HTMLInputElement>) =>{
+    setReason(event.target.value)
+  }
+
   const handleClickOpenFeedback = () => {
     setOpenFeedback(true)
 
@@ -250,7 +271,7 @@ const Application = () => {
   const getListMember = async () => {
     try {
       await memberAPI
-        .getList()
+        .getList(storeSearchName)
         .then(res => {
           const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
@@ -289,10 +310,14 @@ const Application = () => {
         <TextField
           size='small'
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
+          placeholder='Search by name'
+          onChange={handleSearch}
+          onKeyDown={handleEnterSearch}
+          value={searchName}
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
-                <Magnify fontSize='small' />
+                <Magnify fontSize='small' onClick={handleClickSearch}/>
               </InputAdornment>
             )
           }}
@@ -422,10 +447,28 @@ const Application = () => {
         aria-labelledby='alert-dialog-title'
         aria-describedby='alert-dialog-description'
       >
-        <DialogTitle id='alert-dialog-title'>{'Kicked out of the group EXE'}</DialogTitle>
+        <DialogTitle id='alert-dialog-title'>{'Kicked out of the group'}</DialogTitle>
         <DialogContent>
+        <TextField
+             id="reason"
+            label="Reason"
+            multiline
+            rows={4}
+            placeholder='Reason'
+            value={reason}
+            onChange={handleChangeReason}
+            fullWidth
+            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' }, mt:2 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position='start'>
+                  <InformationVariant />
+                </InputAdornment>
+              )
+            }}
+          />
           <DialogContentText id='alert-dialog-description'>
-            Do you want to kick <b>{selectedRow?.name}</b> out of the group <b>EXE</b>?
+            Do you want to kick <b>{selectedRow?.name}</b> out of the group?
           </DialogContentText>
         </DialogContent>
         <DialogActions>

@@ -86,6 +86,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   const [searchName, setSearchName] = useState<string>('')
   const [storeSearchName, setStoreSearchName] = useState<string>('')
   const [updateUI, setUpdateUI] = useState<boolean>(true)
+  const [reason, setReason]= useState<string>('')
 
   useEffect(() => {
     getListGroup()
@@ -223,6 +224,9 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     }
   }
 
+  const handleChangeReason = (event:ChangeEvent<HTMLInputElement>) =>{
+    setReason(event.target.value)
+  }
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -357,6 +361,24 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
       >
         <DialogTitle id='alert-dialog-title'>{'Group EXE'}</DialogTitle>
         <DialogContent>
+        <TextField
+             id="reason"
+            label="Reason"
+            multiline
+            value={reason}
+            onChange={handleChangeReason}
+            rows={4}
+            placeholder='Reason'
+            fullWidth
+            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' }, mt:2 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position='start'>
+                  <InformationVariant />
+                </InputAdornment>
+              )
+            }}
+          />
           <DialogContentText id='alert-dialog-description'>Do you want to move out this group?</DialogContentText>
         </DialogContent>
         <DialogActions>
