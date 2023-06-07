@@ -22,7 +22,7 @@ import { MajorGroupCard } from 'src/models/views/MajorGroupCard'
 const FindingGroupsPage = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 12
-  const totalItems = 100
+  const [totalItems,setTotalItems] = useState<number>(0);
   const totalPages = Math.ceil(totalItems / itemsPerPage)
   const [listGroup, setlistGroup] = useState<GroupCard[]>([])
   const [searchName, setSearchName] = useState<string>('');
@@ -43,8 +43,8 @@ const FindingGroupsPage = () => {
       const payload : QueryGroupListModel = {
         name: storeSearchName,
         orderBy: '',
-        page: 1,
-        pageSize: 10,
+        page: currentPage,
+        pageSize: itemsPerPage,
         type: '',
         value: ''
       }
@@ -54,6 +54,8 @@ const FindingGroupsPage = () => {
         .then(res => {
           const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
+          const totalItems :number = data.pagination?.total ?? 0
+          setTotalItems(totalItems)
 
           const groups: Group[] = data.data
           const list : GroupCard[]  = groups.map(group => {
@@ -129,6 +131,7 @@ const FindingGroupsPage = () => {
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 }, padding: '15px' }}
           onChange={handleSearch}
           onKeyDown={handleEnterSearch}
+          placeholder='Search by group, school,..'
           value={searchName}
           InputProps={{
             startAdornment: (

@@ -30,6 +30,8 @@ import { QueryTransactionListModel } from 'src/models/query-models/QueryTransact
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { useToasts } from 'react-toast-notifications'
 import { StatusObj } from 'src/constants/task-status'
+import moment from 'moment'
+import { StorageKeys } from 'src/constants'
 
 const columns: Column[] = [
   {
@@ -40,12 +42,14 @@ const columns: Column[] = [
   {
     id: 'createdDate',
     label: 'Created Date',
-    align: 'left'
+    align: 'left',
+    format: (value: string) => moment(value).format(StorageKeys.KEY_FORMAT_DATE)
   },
   {
     id: 'transactionDate',
     label: 'Confirmed Date',
-    align: 'left'
+    align: 'left',
+    format: (value: string) => moment(value).format(StorageKeys.KEY_FORMAT_DATE)
   },
   {
     id: 'user',
@@ -85,6 +89,7 @@ const statusObj: StatusObj = {
   const [searchValue, setSearchValue] = useState<string>('')
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
+  const [totalItems, setTotalItems] = useState<number>(0);
   const [currentData, setCurrentData] = useState<Transaction[]>([])
   const [isOpenDialogCheckTransaction, setIsOpenDialogCheckTransaction] = useState<boolean>(true)
   const [transactionCode, setTransactionCode] = useState<string>('')
@@ -101,8 +106,8 @@ const statusObj: StatusObj = {
   const getListTransaction = async () => {
     try {
       const payload: QueryTransactionListModel = {
-        pageSize: 10,
-        pageNumber: 1,
+        pageSize: rowsPerPage,
+        pageNumber: page + 1,
         endDate: undefined,
         startDate: undefined,
         userId: undefined,
@@ -117,6 +122,7 @@ const statusObj: StatusObj = {
           const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
 
+          setTotalItems(data.pagination?.total ?? 0)
           const transactions: Transaction[] = data.data.map((transation : Transaction) => new Transaction(transation))
 
           setCurrentData(transactions)
@@ -258,7 +264,7 @@ const statusObj: StatusObj = {
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component='div'
-            count={currentData?.length}
+            count={totalItems}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

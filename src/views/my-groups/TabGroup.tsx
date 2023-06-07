@@ -67,78 +67,6 @@ const columns: readonly Column[] = [
   }
 ]
 
-const rows = [
-  {
-    id: '1',
-    name: 'JoinIn Group',
-    avatarGroup: '/images/avatars/1.png',
-    class: 'EXE201_1',
-    subject: 'EXE201',
-    member: '4/5',
-    leader: 'Thanh Huy',
-    avatarLeader: '/images/avatars/2.png'
-  },
-  {
-    id: '2',
-    name: 'JoinIn Group',
-    avatarGroup: '/images/avatars/1.png',
-    class: 'EXE201_1',
-    subject: 'EXE201',
-    member: '4/5',
-    leader: 'Thanh Huy',
-    avatarLeader: '/images/avatars/2.png'
-  },
-  {
-    id: '3',
-    name: 'JoinIn Group',
-    avatarGroup: '/images/avatars/1.png',
-    class: 'EXE201_1',
-    subject: 'EXE201',
-    member: '4/5',
-    leader: 'Thanh Huy',
-    avatarLeader: '/images/avatars/2.png'
-  },
-  {
-    id: '4',
-    name: 'JoinIn Group',
-    avatarGroup: '/images/avatars/1.png',
-    class: 'EXE201_1',
-    subject: 'EXE201',
-    member: '4/5',
-    leader: 'Thanh Huy',
-    avatarLeader: '/images/avatars/2.png'
-  },
-  {
-    id: '5',
-    name: 'JoinIn Group',
-    avatarGroup: '/images/avatars/1.png',
-    class: 'EXE201_1',
-    subject: 'EXE201',
-    member: '4/5',
-    leader: 'Thanh Huy',
-    avatarLeader: '/images/avatars/2.png'
-  },
-  {
-    id: '6',
-    name: 'JoinIn Group',
-    avatarGroup: '/images/avatars/1.png',
-    class: 'EXE201_1',
-    subject: 'EXE201',
-    member: '4/5',
-    leader: 'Thanh Huy',
-    avatarLeader: '/images/avatars/2.png'
-  },
-  {
-    id: '7',
-    name: 'JoinIn Group',
-    avatarGroup: '/images/avatars/1.png',
-    class: 'EXE201_1',
-    subject: 'EXE201',
-    member: '4/5',
-    leader: 'Thanh Huy',
-    avatarLeader: '/images/avatars/2.png'
-  }
-]
 
 export default function TabGroup({ renderType }: GroupRenderProps) {
   const addToast = useToasts()
@@ -150,25 +78,26 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedRow, setSelectedRow] = useState<any>(null)
   const router = useRouter()
-
+  const [totalItems, setTotalItems] = useState<number>(0)
   const [open, setOpen] = useState(false)
 
   const [openAlert, setOpenAlert] = useState(false)
   const [listGroup, setlistGroup] = useState<any[]>([])
   const [searchName, setSearchName] = useState<string>('')
   const [storeSearchName, setStoreSearchName] = useState<string>('')
+  const [updateUI, setUpdateUI] = useState<boolean>(true)
 
   useEffect(() => {
     getListGroup()
-  }, [storeSearchName])
+  }, [storeSearchName, page, rowsPerPage,updateUI])
 
   const getListGroup = async () => {
     try {
       const payload: QueryGroupListModel = {
         name: storeSearchName,
         orderBy: '',
-        page: 1,
-        pageSize: 10,
+        page: page + 1,
+        pageSize: rowsPerPage,
         type: renderType === 'all' ? '' : renderType,
         value: ''
       }
@@ -178,7 +107,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         .then(res => {
           const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
-
+          setTotalItems(data.pagination?.total ?? 0)
           const groups: Group[] = data.data
           const list = groups.map(group => ({
             id: group.id,
@@ -230,6 +159,11 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     setOpen(false)
   }
 
+  const handleCloseUpdateUI = () => {
+    setOpen(false)
+    setUpdateUI(!updateUI)
+  }
+
   const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>, row: any) => {
     event.stopPropagation()
     setAnchorEl(event.currentTarget)
@@ -249,8 +183,8 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const handleViewDetail = async (row?: any) => {
     // Handle view detail action
-    row && setSelectedRow(row)
-    await saveGroupInfor (row ?? selectedRow)
+    row?.id && setSelectedRow(row)
+    await saveGroupInfor (row?.id ? row : selectedRow)
     router.push('/group/task')
 
     // handleOptionsClose()
@@ -316,6 +250,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
           onChange={handleSearch}
           onKeyDown={handleEnterSearch}
+          placeholder='Search by group, class,...'
           value={searchName}
           InputProps={{
             startAdornment: (
@@ -338,7 +273,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             </DialogActions>
           </Box>
           <DialogContent>
-            <GroupForm type='CREATE'/>
+            <GroupForm type='CREATE' onButtonClickClose={handleCloseUpdateUI}/>
           </DialogContent>
         </Dialog>
       </Box>
@@ -435,7 +370,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'
-        count={rows.length}
+        count={totalItems}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

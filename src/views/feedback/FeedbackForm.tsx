@@ -9,14 +9,13 @@ import Button from '@mui/material/Button'
 import {  Avatar, Rating } from '@mui/material'
 import {  InformationVariant, Star } from 'mdi-material-ui'
 import Editor from '../dialog/editor'
-import React, { SetStateAction, useEffect, useState } from 'react'
-import { feedbackAPI, userAPI } from 'src/api-client'
+import React, { FC, SetStateAction, useState } from 'react'
+import { feedbackAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 
 import { FeedbackRequest } from 'src/models/query-models/FeedbackRequest'
 import {  groupDBDexie } from 'src/models/db/GroupDB'
 import { useToasts } from 'react-toast-notifications'
-import { User } from 'src/models/class'
 
 
 const labels: { [index: string]: string } = {
@@ -36,39 +35,30 @@ function getLabelText(value: number) {
   return `${value} Star${value !== 1 ? 's' : ''}, ${labels[value]}`
 }
 
-const FeedbackForm = () => {
+interface ChildComponentProps {
+  onButtonClick: () => void;
+  member: any
+}
+
+const FeedbackForm : FC<ChildComponentProps> = ({ onButtonClick,member }) => {
   // ** State
-  const id = '62e8c998-0c19-40b8-8a89-5be21f88ffb7';
   const [valueRating, setValueRating] = useState<number |null>(2)
   const [hover, setHover] = useState(-1)
   const [content, setContent] = useState<string>('')
-  const [user, setUser] = useState<User>();
 
   const addToast = useToasts();
 
-  useEffect(()=>{
-    getProfile();
-  },[])
-
-  const getProfile = async () =>{
-    await userAPI.getById(id)
-    .then(res => {
-      const data = new CommonResponse(res);
-      const user : User = data.data
-      setUser(user);
-      console.log(user)
-    })
-    .catch(err => {
-      console.log(err)
-    })
+  const handleSubmit = () =>{
+    submitFeedback();
+    onButtonClick()
   }
 
-  const handleSubmit = async () =>{
+  const submitFeedback = async () =>{
     try {
       const groupData = await groupDBDexie.getGroup()
       const feedbackRequest : FeedbackRequest =
       {
-        FeedbackedForId: user?.id,
+        FeedbackedForId: member?.id,
         GroupId: groupData?.id,
         Content: content,
         Rating: valueRating
@@ -95,8 +85,8 @@ const FeedbackForm = () => {
         <Grid container spacing={7}>
           <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-              <Avatar src={user?.avatar} alt='Profile Pic'  sx={{ width: 120, height: 120 }}/>
-              <Typography variant='h5'>{user?.fullName}</Typography>
+              <Avatar src={member?.avatar} alt='Profile Pic'  sx={{ width: 120, height: 120 }}/>
+              <Typography variant='h5'>{member?.name}</Typography>
             </Box>
           </Grid>
 

@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, KeyboardEvent, ChangeEvent, useEffect } from 'react'
+import { useState, KeyboardEvent, ChangeEvent, useEffect, FC } from 'react'
 
 // ** MUI Imports
 import TextField from '@mui/material/TextField'
@@ -24,9 +24,11 @@ interface Option {
   major: string
 }
 
+interface ChildComponentProps {
+  onButtonClick: () => void;
+}
 
-
-const InviteForm = () => {
+const InviteForm : FC<ChildComponentProps> = ({ onButtonClick }) => {
   // ** State
   const [selectedValues, setSelectedValues] = useState<Option[]>([])
   const addToast = useToasts()
@@ -39,14 +41,20 @@ const InviteForm = () => {
     storeSearchName!=='' && getListUser()
   },[storeSearchName])
 
-  const handleInvite= async () => {
-    console.log('Selected Values:', selectedValues)
+  const handleInvite = () =>{
+    if (selectedValues.length !== 0){
+      inviteMember()
+      onButtonClick()
+    }
+  }
+
+  const inviteMember = async () => {
     try {
       const groupData = await groupDBDexie.getGroup()
       const listUser = selectedValues.map(item => item.id);
 
       const application: ApplicationRequest = {
-        Description: 'hello',
+        Description: '',
         GroupId: groupData?.id,
         UserIds: listUser
       }
@@ -65,6 +73,7 @@ const InviteForm = () => {
       console.log(err);
     }
   }
+
   const getListUser = async () =>{
     try {
 

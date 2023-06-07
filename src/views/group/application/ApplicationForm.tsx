@@ -13,10 +13,10 @@ import {
   SelectChangeEvent
 } from '@mui/material'
 import { InformationVariant } from 'mdi-material-ui'
-import { SetStateAction, useEffect, useState } from 'react'
+import { FC, SetStateAction, useEffect, useState } from 'react'
 import { useToasts } from 'react-toast-notifications'
-import { applicationAPI, groupAPI, majorAPI } from 'src/api-client'
-import { GroupMajor, Major } from 'src/models/class'
+import { applicationAPI, groupAPI } from 'src/api-client'
+import { GroupMajor } from 'src/models/class'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { groupDBDexie } from 'src/models/db/GroupDB'
 import { ApplicationRequest } from 'src/models/query-models/ApplicationRequest'
@@ -24,19 +24,19 @@ import Editor from 'src/views/dialog/editor'
 
 // ** Icons Imports
 
+interface ChildComponentProps {
+  onButtonClick: () => void;
+}
 
-
-const ApplicationForm = () => {
+const ApplicationForm : FC<ChildComponentProps> = ({ onButtonClick }) => {
   // ** State
   const [description, setDescription] = useState<string>('')
   const [selectedValue, setSelectedValue] = useState('')
-  const [listMajors, setListMajors] = useState<Major[]>([])
   const [listRecruiting, setListRecruiting] = useState<GroupMajor[]>([])
 
   const addToast = useToasts()
 
   useEffect(() => {
-    getListMajors()
     getListRecruiting()
   }, [])
 
@@ -58,18 +58,14 @@ const ApplicationForm = () => {
   }
 
   const handleClickSend = async () => {
-    await sendApplication()
-
-    // close form (optional)
+    if (selectedValue !== ''){
+      await sendApplication()
+      onButtonClick()
+    }
   }
 
   const sendApplication = async () => {
     try {
-      // use for test, can delete
-      // const data : any = {
-      //   id: '0dfb1947-defb-ed11-9eff-c809a8bfd17e',
-      // }
-      // await groupDBDexie.saveGroup(data);
 
       const groupData = await groupDBDexie.getGroup()
 
@@ -93,22 +89,6 @@ const ApplicationForm = () => {
     }
   }
 
-  const getListMajors = async () => {
-    try {
-      await majorAPI
-        .getList()
-        .then(res => {
-          const data = new CommonResponse(res)
-          const majors: Major[] = data.data
-          setListMajors(majors)
-        })
-        .catch(error => {
-          console.log(error);
-        })
-    } catch (err) {
-      addToast.addToast(err, { appearance: 'error' })
-    }
-  }
 
   return (
     <CardContent>
@@ -118,9 +98,9 @@ const ApplicationForm = () => {
             <FormControl fullWidth>
               <InputLabel>Major</InputLabel>
               <Select label='Role' value={selectedValue} onChange={handleChange}>
-                {listMajors.map(item => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.name}
+                {listRecruiting.map(item => (
+                  <MenuItem key={item.major?.id} value={item.major?.id}>
+                    {item.major?.name}
                   </MenuItem>
                 ))}
               </Select>

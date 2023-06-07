@@ -1,15 +1,16 @@
 
-import { Box, Button, Card, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, Rating, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material'
-import { Close, Magnify } from 'mdi-material-ui'
+import { Box, Card, InputAdornment, Rating, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material'
+import { Magnify } from 'mdi-material-ui'
 import * as React from 'react'
 import { ChangeEvent, ReactNode, useEffect, useState } from 'react'
-import FeedbackForm from 'src/views/feedback/FeedbackForm'
 import withAuth from '../withAuth'
 import { Feedback } from 'src/models/class'
 import { QueryFeedbackListModel } from 'src/models/query-models/QueryFeedbackListModel'
 import { feedbackAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { useToasts } from 'react-toast-notifications'
+import moment from 'moment'
+import { StorageKeys } from 'src/constants'
 
 interface Column {
   id: 'rating' | 'createdDate' | 'content'
@@ -33,7 +34,8 @@ const columns: Column[] = [
     id: 'createdDate',
     label: 'Feedbacked Date',
     minWidth: 200,
-    align: 'center'
+    align: 'center',
+    format: (value: string) => moment(value).format(StorageKeys.KEY_FORMAT_DATE)
   },
   {
     id: 'content',
@@ -45,58 +47,27 @@ const columns: Column[] = [
   },
 ]
 
-function createData() {
-  return {
-    Id:12,
-    Content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ',
-    Rating: 4,
-    FeedbackedDate: '2023-02-01'
-  }
-}
-
-const rows = [
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData(),
-  createData()
-]
-
 const FeedbackList = () => {
 
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
+  const [totalItems, setTotalItems] = useState<number>(0);
   const [listFeedback, setListFeedback] = useState<Feedback[]>([])
 
+
   const addToast = useToasts();
+
   useEffect(()=>{
     getListFeedback()
-  },[])
+  },[page,rowsPerPage])
 
   const getListFeedback = async () => {
     try {
 
       const payload : QueryFeedbackListModel = {
         orderBy: '',
-        page: 1,
-        pageSize: 10,
+        page: page + 1,
+        pageSize: rowsPerPage,
         value: ''
       }
 
@@ -105,7 +76,7 @@ const FeedbackList = () => {
         .then(res => {
           const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
-
+          setTotalItems(data.pagination?.total ?? 0)
           const feedbacks: Feedback[] = data.data
 
           setListFeedback(feedbacks)
@@ -118,50 +89,7 @@ const FeedbackList = () => {
     }
   }
 
-  const [open, setOpen] = useState(false)
 
-  const [listFeedback, setListFeedback] = useState<Feedback[]>([])
-
-  const addToast = useToasts();
-  useEffect(()=>{
-    getListFeedback()
-  },[])
-
-  const getListFeedback = async () => {
-    try {
-
-      const payload : QueryFeedbackListModel = {
-        orderBy: '',
-        page: 1,
-        pageSize: 10,
-        value: ''
-      }
-
-      await feedbackAPI
-        .getList(payload)
-        .then(res => {
-          const data = new CommonResponse(res)
-          addToast.addToast(data.message, { appearance: 'success' })
-
-          const feedbacks: Feedback[] = data.data
-
-          setListFeedback(feedbacks)
-        })
-        .catch(err => {
-          console.log(err)
-        })
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
-  const handleClickOpen = () => {
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-  }
 
 
 
@@ -198,25 +126,6 @@ const FeedbackList = () => {
             )
           }}
         />
-        <Button size='small' variant='contained' sx={{marginRight: '20px'}} onClick={handleClickOpen}>
-          Open Feedback
-        </Button>
-
-        <Dialog open={open} onClose={handleClose}>
-        <Box sx={{  display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <DialogTitle>Open Feedback</DialogTitle>
-        <DialogActions>
-          <Button onClick={handleClose}>
-            <Close sx={{color: 'red'}}/>
-          </Button>
-        </DialogActions>
-        </Box>
-
-        <DialogContent>
-          <FeedbackForm/>
-        </DialogContent>
-
-      </Dialog>
       </Box>
 
 
@@ -261,7 +170,7 @@ const FeedbackList = () => {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'
-        count={rows.length}
+        count={totalItems}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

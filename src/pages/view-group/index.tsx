@@ -24,7 +24,6 @@ import { Group, GroupMajor } from 'src/models/class'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { groupDBDexie } from 'src/models/db/GroupDB'
 import { groupAPI } from 'src/api-client'
-import { useToasts } from 'react-toast-notifications'
 
 
 
@@ -96,7 +95,6 @@ const GroupView = () => {
   const getInformation = async () =>{
     try {
       const groupData = await groupDBDexie.getGroup()
-      console.log(groupData)
       await groupAPI.getById(groupData?.id)
       .then(res =>{
         const data = new CommonResponse(res);
@@ -108,7 +106,7 @@ const GroupView = () => {
           schoolName: group.schoolName,
           className: group.className,
           subject: group.subjectName,
-          leader: group.members?.at(0).user?.fullName
+          leader: group.members?.at(0)?.user?.fullName
         });
         setSkills(group.skill ?? '');
         setDescription(group.description ?? '');
@@ -279,7 +277,7 @@ const GroupView = () => {
         </Box>
 
         <DialogContent>
-          <ApplicationForm/>
+          <ApplicationForm onButtonClick={handleClose}/>
         </DialogContent>
 
       </Dialog>

@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent, SetStateAction, useEffect } from 'react'
+import { useState, ElementType, ChangeEvent, SetStateAction, useEffect, FC } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -11,18 +11,19 @@ import CardContent from '@mui/material/CardContent'
 import Button, { ButtonProps } from '@mui/material/Button'
 
 // ** Icons Imports
-import {  Divider, InputAdornment } from '@mui/material'
-import { AccountGroup, AlphaACircleOutline, Book,  InformationVariant, School, TownHall } from 'mdi-material-ui'
+import { Divider, InputAdornment } from '@mui/material'
+import { AccountGroup, AlphaACircleOutline, Book, InformationVariant, School, TownHall } from 'mdi-material-ui'
 import Editor from '../dialog/editor'
 import { useToasts } from 'react-toast-notifications'
 import { GroupRequest } from 'src/models/query-models/GroupRequest'
 import { groupAPI, userAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
-import {  groupDBDexie } from 'src/models/db/GroupDB'
+import { groupDBDexie } from 'src/models/db/GroupDB'
 import { Group } from 'src/models/class'
 import { AxiosResponse } from 'axios'
 
 interface State {
+  id?: string
   groupName?: string
   schoolName?: string
   className?: string
@@ -33,7 +34,8 @@ const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
   height: 120,
   marginRight: theme.spacing(6.25),
-  borderRadius: theme.shape.borderRadius
+  borderRadius: theme.shape.borderRadius,
+  objectFit: 'contain'
 }))
 
 const ImgBackgroundStyled = styled('img')(({ theme }) => ({
@@ -41,7 +43,8 @@ const ImgBackgroundStyled = styled('img')(({ theme }) => ({
   height: 200,
   marginRight: theme.spacing(6.25),
   marginBottom: theme.spacing(6.25),
-  borderRadius: theme.shape.borderRadius
+  borderRadius: theme.shape.borderRadius,
+  objectFit: 'contain'
 }))
 
 const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
@@ -61,12 +64,17 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   }
 }))
 
+interface ChildComponentProps {
+  onButtonClickClose?: () => void;
+  type: string
+}
 
-const GroupForm  = (props : {type: string}) => {
+const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
   // ** State
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
   const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
   const [values, setValues] = useState<State>({
+    id: '',
     groupName: '',
     schoolName: '',
     className: '',
@@ -79,36 +87,38 @@ const GroupForm  = (props : {type: string}) => {
 
   const addToast = useToasts()
 
-  useEffect(() =>{
-    if (props.type !=='CREATE'){
-      getInformation();
+  useEffect(() => {
+    if (type !== 'CREATE') {
+      getInformation()
     }
-  },[])
+  }, [])
 
-  const getInformation = async () =>{
+  const getInformation = async () => {
     try {
       const groupData = await groupDBDexie.getGroup()
-      await groupAPI.getById(groupData?.id)
-      .then(res =>{
-        const data = new CommonResponse(res);
-        const group : Group = data.data
+      await groupAPI
+        .getById(groupData?.id)
+        .then(res => {
+          const data = new CommonResponse(res)
+          const group: Group = data.data
 
-        setValues({
-          groupName: group.name,
-          schoolName: group.schoolName,
-          className: group.className,
-          subject: group.subjectName
-        });
-        setSkills(group.skill ?? '');
-        setDescription(group.description ?? '');
-        setImgBackground(group.theme ?? '/images/cards/background-user.png')
-        setImgSrc(group.avatar ?? '/images/avatars/1.png')
-      })
-      .catch(err =>{
-        console.log(err)
-      })
-    } catch(err){
-      console.log(err);
+          setValues({
+            id: group.id,
+            groupName: group.name,
+            schoolName: group.schoolName,
+            className: group.className,
+            subject: group.subjectName
+          })
+          setSkills(group.skill ?? '')
+          setDescription(group.description ?? '')
+          setImgBackground(group.theme ?? '/images/cards/background-user.png')
+          setImgSrc(group.avatar ?? '/images/avatars/1.png')
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    } catch (err) {
+      console.log(err)
     }
   }
 
@@ -123,7 +133,7 @@ const GroupForm  = (props : {type: string}) => {
       reader.onload = () => setImgSrc(reader.result as string)
 
       reader.readAsDataURL(files[0])
-      setFileAvatar(files);
+      setFileAvatar(files)
     }
   }
 
@@ -134,29 +144,29 @@ const GroupForm  = (props : {type: string}) => {
       reader.onload = () => setImgBackground(reader.result as string)
 
       reader.readAsDataURL(files[0])
-      setFileBackGround(files);
+      setFileBackGround(files)
     }
   }
 
-  const uploadImage = async (): Promise<any> =>{
-    const response = await userAPI.uploadImage(fileAvatar ? fileAvatar[0] : undefined);
+  const uploadImage = async (): Promise<any> => {
+    const response = await userAPI.uploadImage(fileAvatar ? fileAvatar[0] : undefined)
 
     return new CommonResponse(response as AxiosResponse).data
   }
 
-  const uploadBackground = async (): Promise<any> =>{
-    const response = await userAPI.uploadImage(fileBackGround ? fileBackGround[0] : undefined);
+  const uploadBackground = async (): Promise<any> => {
+    const response = await userAPI.uploadImage(fileBackGround ? fileBackGround[0] : undefined)
 
     return new CommonResponse(response as AxiosResponse).data
   }
 
   const handleCreateGroup = async () => {
     try {
+      const urlAvatar = await uploadImage()
+      const urlBackground = await uploadBackground()
 
-      const urlAvatar = await uploadImage();
-      const urlBackground = await uploadBackground();
-
-      const group : GroupRequest = {
+      const group: GroupRequest = {
+        Id: values.id,
         Name: values.groupName,
         SchoolName: values.schoolName,
         ClassName: values.className,
@@ -167,45 +177,72 @@ const GroupForm  = (props : {type: string}) => {
         Theme: urlBackground
       }
 
-      await groupAPI
-        .post(group)
-        .then(async res => {
-          const data = new CommonResponse(res)
-          addToast.addToast(data.message, { appearance: 'success' })
-        })
-        .catch(error => {
-          console.log('Application Form: ', error)
-        })
-
-    } catch(err){
+      if (type === 'CREATE') {
+        await groupAPI
+          .post(group)
+          .then(async res => {
+            const data = new CommonResponse(res)
+            addToast.addToast(data.message, { appearance: 'success' })
+          })
+          .catch(error => {
+            console.log('Application Form: ', error)
+          })
+          onButtonClickClose && onButtonClickClose()
+      } else {
+        await groupAPI
+          .put(group)
+          .then(async res => {
+            const data = new CommonResponse(res)
+            addToast.addToast(data.message, { appearance: 'success' })
+          })
+          .catch(error => {
+            console.log('Application Form: ', error)
+          })
+      }
+    } catch (err) {
       console.log(err)
     }
   }
 
   const handleReset = () => {
-    // Reset All
+    if (type === 'CREATE'){
+      setValues({
+        id: '',
+        groupName: '',
+        schoolName: '',
+        className: '',
+        subject: ''
+      })
+      setSkills('')
+      setDescription('')
+      setImgBackground('/images/cards/background-user.png')
+      setImgSrc('/images/avatars/1.png')
+    } else {
+      getInformation()
+    }
   }
 
   return (
     <CardContent>
       <form>
         <Grid container spacing={7}>
-          <Grid item xs={12} >
-            <TextField fullWidth
-            label='Group Name'
-            placeholder='Group Name'
-            value={values.groupName}
-            onChange={handleChange('groupName')}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <AccountGroup />
-                </InputAdornment>
-              )
-            }}
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label='Group Name'
+              placeholder='Group Name'
+              value={values.groupName}
+              onChange={handleChange('groupName')}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <AccountGroup />
+                  </InputAdornment>
+                )
+              }}
             />
           </Grid>
-          <Grid item xs={12} >
+          <Grid item xs={12}>
             <TextField
               fullWidth
               label='School Name'
@@ -221,7 +258,7 @@ const GroupForm  = (props : {type: string}) => {
               }}
             />
           </Grid>
-          <Grid item xs={12} >
+          <Grid item xs={12}>
             <TextField
               fullWidth
               label='Class Name'
@@ -231,13 +268,13 @@ const GroupForm  = (props : {type: string}) => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
-                    <School  />
+                    <School />
                   </InputAdornment>
                 )
               }}
             />
           </Grid>
-          <Grid item xs={12} >
+          <Grid item xs={12}>
             <TextField
               fullWidth
               label='Subject'
@@ -255,31 +292,33 @@ const GroupForm  = (props : {type: string}) => {
           </Grid>
 
           <Grid item xs={12} sm={12}>
-          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <AlphaACircleOutline sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Skills</Typography>
             </Box>
-            <Editor name='skill'
-             value={skills}
-             onChange={(dataChange: SetStateAction<string>) => {
-              setSkills(dataChange.toString())
-            }}
-             />
+            <Editor
+              name='skill'
+              value={skills}
+              onChange={(dataChange: SetStateAction<string>) => {
+                setSkills(dataChange.toString())
+              }}
+            />
           </Grid>
           <Grid item xs={12} sm={12}>
-          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <InformationVariant sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Description</Typography>
             </Box>
-            <Editor name='description'
-             value={description}
-             onChange={(dataChange: SetStateAction<string>) => {
-              setDescription(dataChange.toString())
-            }}
-             />
+            <Editor
+              name='description'
+              value={description}
+              onChange={(dataChange: SetStateAction<string>) => {
+                setDescription(dataChange.toString())
+              }}
+            />
           </Grid>
 
-          <Grid item xs={12}  sx={{ marginTop: 4.8, marginBottom: 3 }}>
+          <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <ImgStyled src={imgSrc} alt='Profile Pic' />
               <Box>
@@ -302,7 +341,7 @@ const GroupForm  = (props : {type: string}) => {
               </Box>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={12}  sx={{ marginTop: 4.8, marginBottom: 3 }}>
+          <Grid item xs={12} sm={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
               <ImgBackgroundStyled src={imgBackgroud} alt='Profile Pic' />
               <Box>
@@ -331,9 +370,9 @@ const GroupForm  = (props : {type: string}) => {
           </Grid>
 
           <Grid item xs={12}>
-          <Divider sx={{mb: 7}}/>
+            <Divider sx={{ mb: 7 }} />
             <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleCreateGroup}>
-              Create
+              {type}
             </Button>
             <Button type='reset' variant='outlined' color='secondary' onClick={handleReset}>
               Reset

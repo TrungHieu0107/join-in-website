@@ -32,7 +32,7 @@ import {
   Select,
   SelectChangeEvent
 } from '@mui/material'
-import { Account, Close, DotsHorizontal, ExitToApp, InformationVariant, Magnify } from 'mdi-material-ui'
+import { Account, Close, CommentQuote, DotsHorizontal, ExitToApp, InformationVariant, Magnify } from 'mdi-material-ui'
 import InviteForm from 'src/views/group/member/InviteForm'
 import { StatusObj } from 'src/constants/task-status'
 import AvatarName from 'src/layouts/components/AvatarName'
@@ -43,6 +43,10 @@ import { useToasts } from 'react-toast-notifications'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { Member } from 'src/models/class'
 import { groupDBDexie } from 'src/models/db/GroupDB'
+import FeedbackForm from 'src/views/feedback/FeedbackForm'
+import moment from 'moment'
+import { StorageKeys } from 'src/constants'
+import { getMemberRoleValueNumber } from 'src/constants/member-role'
 
 interface Column {
   id: 'name' | 'role' | 'major' | 'joindate' | 'status'
@@ -54,7 +58,7 @@ interface Column {
 
 const optionsRole = [
   { value: 'LEADER', label: 'Leader' },
-  { value: 'SUB-LEADER', label: 'Sub Leader' },
+  { value: 'SUB_LEADER', label: 'Sub Leader' },
   { value: 'MEMBER', label: 'Member' }
 ]
 
@@ -69,7 +73,8 @@ const columns: readonly Column[] = [
   {
     id: 'joindate',
     label: 'Join Date',
-    minWidth: 100
+    minWidth: 100,
+    format: (value: string) => moment(value).format(StorageKeys.KEY_FORMAT_DATE)
   },
   {
     id: 'status',
@@ -95,35 +100,7 @@ const statusObj: StatusObj = {
   OUT: { color: 'error' }
 }
 
-const rows = [
-  {
-    id: '1',
-    avatar: '/images/avatars/2.png',
-    name: 'Xuan Kien',
-    role: 'Member',
-    major: 'Information Technology',
-    joindate: '30-5-2023',
-    status: 'ACTIVE'
-  },
-  {
-    id: '2',
-    avatar: '/images/avatars/2.png',
-    name: 'Trung Hieu',
-    role: 'Member',
-    major: 'Information Technology',
-    joindate: '30-5-2023',
-    status: 'ACTIVE'
-  },
-  {
-    id: '3',
-    avatar: '/images/avatars/2.png',
-    name: 'Quoc Bao',
-    role: 'Member',
-    major: 'Information Technology',
-    joindate: '30-5-2023',
-    status: 'OUT'
-  }
-]
+
 
 const Application = () => {
   const router = useRouter()
@@ -137,7 +114,7 @@ const Application = () => {
   const [selectedRow, setSelectedRow] = useState<any>()
 
   const [open, setOpen] = useState(false)
-
+  const [openFeedback, setOpenFeedback] = useState(false)
   const [openAlertDelete, setOpenAlertDelete] = useState(false)
 
   const [openPopupChangeRole, setOpenPopupChangeRole] = useState(false)
@@ -147,12 +124,12 @@ const Application = () => {
     value: '',
     label: ''
   })
-
+  const [updateUI, setUpdateUI] = useState(false)
 
 
   useEffect(() => {
     getListMember()
-  }, [])
+  }, [updateUI])
 
   const handleChangeRole = (event: SelectChangeEvent<string>) => {
     setSelectedRole({ value: event.target.value,
@@ -160,21 +137,31 @@ const Application = () => {
     })
   }
 
-  const handleSubmitChangeRole = async () => {
+  const handleSubmitChangeRole = () =>{
+    if (selectedRole.value !== '' && selectedRow?.role !== selectedRole.value){
+      changeRoleMember()
+      handlePopupChangeRole()
+    }
+  }
+
+  const changeRoleMember = async () => {
     try {
       const groupData = await groupDBDexie.getGroup()
 
       const member: any = {
-        role: 0,
+        role: getMemberRoleValueNumber(selectedRole.value),
         groupId: groupData?.id,
         memberId: selectedRow?.id
       }
+
+      console.log(member)
 
       await memberAPI
         .put(member)
         .then(async res => {
           const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
+          setUpdateUI(!updateUI)
         })
         .catch(error => {
           console.log('Member Form: ', error)
@@ -226,9 +213,10 @@ const Application = () => {
     handleOptionsClose()
   }
 
+
   const handleViewDetail = (row?: any) => {
     // Handle view detail action
-    row && setSelectedRow(row)
+    row?.id && setSelectedRow(row)
     router.push('/profile')
 
     // handleOptionsClose()
@@ -248,6 +236,15 @@ const Application = () => {
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
+  }
+
+  const handleClickOpenFeedback = () => {
+    setOpenFeedback(true)
+
+  }
+
+  const handleCloseFeedback = () => {
+    setOpenFeedback(false)
   }
 
   const getListMember = async () => {
@@ -313,10 +310,26 @@ const Application = () => {
             </DialogActions>
           </Box>
           <DialogContent>
-            <InviteForm />
+            <InviteForm onButtonClick={handleClose} />
           </DialogContent>
         </Dialog>
       </Box>
+
+        <Dialog open={openFeedback} onClose={handleCloseFeedback}>
+        <Box sx={{  display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <DialogTitle>Open Feedback</DialogTitle>
+        <DialogActions>
+          <Button onClick={handleCloseFeedback}>
+            <Close sx={{color: 'red'}}/>
+          </Button>
+        </DialogActions>
+        </Box>
+
+        <DialogContent>
+          <FeedbackForm member={selectedRow} onButtonClick={handleCloseFeedback}/>
+        </DialogContent>
+
+      </Dialog>
 
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label='sticky table'>
@@ -387,12 +400,15 @@ const Application = () => {
           <MenuItem onClick={handleDelete}>
             <ExitToApp fontSize='small' sx={{ mr: 3 }} /> Move Out
           </MenuItem>
+          <MenuItem onClick={handleClickOpenFeedback}>
+            <CommentQuote fontSize='small' sx={{ mr: 3 }} /> Feedback
+          </MenuItem>
         </Menu>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
+        rowsPerPageOptions={[listMembers.length]}
         component='div'
-        count={rows.length}
+        count={listMembers.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

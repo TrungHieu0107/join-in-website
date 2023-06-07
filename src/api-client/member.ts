@@ -24,6 +24,6 @@ export const memberAPI = {
   },
 
   put(data: any) {
-    return axiosClient.put(`${URL}/assign-role`)
+    return axiosClient.put(`${URL}/assign-role`,data)
   }
 }

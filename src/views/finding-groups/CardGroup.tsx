@@ -40,9 +40,11 @@ const CardGroup : FC<GroupProps> = ({groupCard }) => {
           resolve(group)
         })
         .catch(err =>{
+          console.log(err)
           reject(err)
         })
       })
+
 
       await groupDBDexie.saveGroup({
           id: value.id,
@@ -100,7 +102,7 @@ const CardGroup : FC<GroupProps> = ({groupCard }) => {
               School: <b>{groupCard.SchoolName}</b>
             </Typography>
           </Box>
-          <Button variant='contained' onClick={handleClickOpen}>Open</Button>
+          <Button variant='contained' onClick={()=>handleClickOpen()}>Open</Button>
         </Box>
 
         <ButtonGroup variant='text' aria-label='text button group' size='small'>

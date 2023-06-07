@@ -38,6 +38,8 @@ import { Application } from 'src/models/class'
 import { ApplicationStatus } from 'src/constants/application-status'
 import { QueryApplicationListModel } from 'src/models/query-models/QueryApplicationListModel'
 import { groupDBDexie } from 'src/models/db/GroupDB'
+import moment from 'moment'
+import { StorageKeys } from 'src/constants'
 
 interface Column {
   id: 'name' | 'position' | 'createddate' | 'description' | 'status' | 'confirmeddate'
@@ -53,7 +55,8 @@ const columns: readonly Column[] = [
   {
     id: 'createddate',
     label: 'Created Date',
-    minWidth: 100
+    minWidth: 100,
+    format: (value: string) => moment(value).format(StorageKeys.KEY_FORMAT_DATE)
   },
   {
     id: 'status',
@@ -75,7 +78,8 @@ const columns: readonly Column[] = [
   {
     id: 'confirmeddate',
     label: 'Confirmed Date',
-    minWidth: 100
+    minWidth: 100,
+    format: (value: string) => moment(value).format(StorageKeys.KEY_FORMAT_DATE)
   }
 ]
 
@@ -85,38 +89,6 @@ const statusObj: StatusObj = {
   WAITING: { color: 'warning' }
 }
 
-const rows = [
-  {
-    id: '1',
-    avatar: '/images/avatars/2.png',
-    name: 'Xuan Kien',
-    position: 'Information Technology',
-    createddate: '29-5-2023',
-    description: 'hello',
-    status: 'ACCEPTED',
-    confirmeddate: '29-5-2023'
-  },
-  {
-    id: '2',
-    avatar: '/images/avatars/2.png',
-    name: 'Quoc Bao',
-    position: 'Information Technology',
-    createddate: '29-5-2023',
-    description: 'hello',
-    status: 'WAITING',
-    confirmeddate: ''
-  },
-  {
-    id: '3',
-    avatar: '/images/avatars/2.png',
-    name: 'Trung Hieu',
-    position: 'Information Technology',
-    createddate: '29-5-2023',
-    description: 'hello',
-    status: 'REJECTED',
-    confirmeddate: '29-5-2023'
-  }
-]
 
 const ApplicationScreen =  () => {
   const addToast = useToasts()
@@ -124,7 +96,7 @@ const ApplicationScreen =  () => {
   // ** States
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
-
+  const [totalItems, setTotalItems] = useState<number>(0)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
 
@@ -139,7 +111,7 @@ const ApplicationScreen =  () => {
 
   useEffect(() => {
     getListApplication()
-  }, [storeSearchName])
+  }, [storeSearchName,page, rowsPerPage])
 
   const handleRejectApplication = async () =>{
     try {
@@ -218,7 +190,7 @@ const ApplicationScreen =  () => {
 
   const handleViewDetail = (row?: any) => {
     // Handle view detail action
-    row && setSelectedRow(row)
+    row?.id && setSelectedRow(row)
     handleClickPopupApplication()
 
     // handleOptionsClose()
@@ -247,8 +219,8 @@ const ApplicationScreen =  () => {
         name: storeSearchName,
         majorIdsString:[],
         orderBy: '',
-        page: 1,
-        pageSize: 10,
+        page: page + 1,
+        pageSize: rowsPerPage,
         value: ''
       }
 
@@ -257,14 +229,14 @@ const ApplicationScreen =  () => {
         .then(res => {
           const data = new CommonResponse(res)
           addToast.addToast(data.message, { appearance: 'success' })
-
+          setTotalItems(data.pagination?.total ?? 0)
           const applications: Application[] = data.data.map((application :Application) => new Application(application))
 
           const list = applications.map(application => ({
             id: application.id,
             avatar: application.user?.avatar,
             name: application.user?.fullName,
-            position: application.applicationMajors && application.applicationMajors[0]?.major?.name,
+            position:  application.applicationMajors?.at(0)?.major?.name,
             createddate: application.createdDate,
             description: application.description,
             status: application.status,
@@ -296,6 +268,7 @@ const ApplicationScreen =  () => {
         <TextField
           size='small'
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
+          placeholder='Search by name'
           onChange={handleSearch}
           onKeyDown={handleEnterSearch}
           value={searchName}
@@ -391,7 +364,7 @@ const ApplicationScreen =  () => {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'
-        count={rows.length}
+        count={totalItems}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
