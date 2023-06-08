@@ -86,7 +86,7 @@ const UserManagemePage = () => {
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [data, setData] = useState<User[]>(userAPI.Admin.getListUser())
-  const [rowsSelected, setRowsSelected] = useState<number[]>([])
+  const [rowsSelected, setRowsSelected] = useState<string[]>([])
   const [currentData, setCurrentData] = useState<User[]>()
 
   useEffect(() => {
@@ -94,7 +94,7 @@ const UserManagemePage = () => {
     setCurrentData(data?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage))
   }, [searchValue, page, rowsPerPage])
 
-  const handleCheckRowIndex = (event: any, id: number) => {
+  const handleCheckRowIndex = (event: any, id: string) => {
     const selectedRows = [...rowsSelected]
     if (event.target.checked) {
       selectedRows.push(id)
@@ -107,7 +107,9 @@ const UserManagemePage = () => {
 
   const handleCheckAllRow = (event: any) => {
     if (event.target.checked) {
-      setRowsSelected(currentData?.map(value => value.id ?? -1) ?? [])
+      const list: any[] = []
+      currentData?.map(value => list.push(value.id ?? -1))
+      setRowsSelected(list)
     } else {
       setRowsSelected([])
     }
@@ -148,7 +150,9 @@ const UserManagemePage = () => {
               </Grid>
               <Grid item container sm={7} md={8} spacing={0.5} justifyContent={'flex-end'}>
                 <Grid item>
-                  <Button size='small' variant='outlined' color='error' sx={{m:1}}>Ban</Button>
+                  <Button size='small' variant='outlined' color='error' sx={{ m: 1 }}>
+                    Ban
+                  </Button>
                 </Grid>
               </Grid>
             </Grid>
@@ -176,13 +180,13 @@ const UserManagemePage = () => {
             <TableBody>
               {currentData?.map((row, index) => {
                 const rowData: any = row
-                
+
                 return (
                   <TableRow hover role='checkbox' tabIndex={-1} key={rowData?.Id}>
                     <TableCell align='center' padding='none'>
                       <Checkbox
-                        onChange={e => handleCheckRowIndex(e, row.id ?? -1)}
-                        checked={rowsSelected.indexOf(row.id ?? -1) !== -1}
+                        onChange={e => handleCheckRowIndex(e, row.id ?? '')}
+                        checked={rowsSelected.indexOf(row.id ?? '') !== -1}
                       />
                     </TableCell>
                     <TableCell align='center'>{page * rowsPerPage + index + 1}</TableCell>

@@ -55,6 +55,7 @@ export const userAPI = {
         }
       })
     }
+
     return axiosClient.get(`${URL}/user/profile`)
   },
 

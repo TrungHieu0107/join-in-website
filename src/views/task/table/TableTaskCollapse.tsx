@@ -136,9 +136,7 @@ function Row(props: {
 
 export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
   const [values, setValues] = useState<ITableTaskCollapseProps>(props)
-  const [page, setPage] = useState<number>(0)
   const [queryTask, setQueryTask] = useState<QueryTaskListsModel>(new QueryTaskListsModel())
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10)
 
   useEffect(() => {
     setValues(props)

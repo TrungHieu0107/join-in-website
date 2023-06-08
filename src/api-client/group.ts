@@ -1,5 +1,4 @@
-import moment from 'moment'
-import { Group, Milestone } from 'src/models/class'
+import { Group } from 'src/models/class'
 import axiosClient from './api-client'
 import { GroupRequest } from 'src/models/query-models/GroupRequest'
 import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel'

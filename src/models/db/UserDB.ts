@@ -55,6 +55,7 @@ export const userDBDexie = {
     const db = new UserDBDexie()
     try {
       const data = await db.googleToken.toArray()
+
       return data.length > 0 ? data[data.length - 1].value : ''
     } catch (error) {
       console.log('getToken \n', error)

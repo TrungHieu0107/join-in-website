@@ -87,7 +87,6 @@ export class Feedback {
     this.id = value?.id
     this.content = value?.content
     this.rating = value?.rating
-    this.feedbackedDate = value?.feedbackedDate
     this.status = value?.status
     this.feedbackedById = value?.feedbackedById
     this.feedbackedForId = value?.feedbackedForId

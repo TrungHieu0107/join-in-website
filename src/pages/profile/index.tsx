@@ -12,7 +12,6 @@ import { styled } from '@mui/material/styles'
 import MuiTab, { TabProps } from '@mui/material/Tab'
 
 // ** Icons Imports
-import AccountOutline from 'mdi-material-ui/AccountOutline'
 import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
 
 // ** Demo Tabs Imports
@@ -25,7 +24,6 @@ import withAuth from '../withAuth'
 import { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { useToasts } from 'react-toast-notifications'
-import { truncate } from 'fs'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {

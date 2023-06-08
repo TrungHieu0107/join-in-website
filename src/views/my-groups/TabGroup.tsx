@@ -100,7 +100,8 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         page: page + 1,
         pageSize: rowsPerPage,
         type: renderType === 'all' ? '' : renderType,
-        value: ''
+        value: '',
+        majorIdsString: undefined
       }
 
       await groupAPI

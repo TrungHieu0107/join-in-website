@@ -1,7 +1,6 @@
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import Button from '@mui/material/Button'
 import Avatar from '@mui/material/Avatar'
 import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
@@ -29,15 +28,6 @@ interface ProfileViewProps {
   handleError: (error: any) => void
   userId?: string
   actionProfile?: ReactNode
-}
-
-{
-  /* <Button variant='contained' color='success' sx={{ marginRight: 5 }}>
-                    Accept
-                  </Button>
-                  <Button variant='outlined' color='error'>
-                    Reject
-                  </Button> */
 }
 
 const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) => {
@@ -145,8 +135,8 @@ const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) =
               <Book sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>
                 <ul>
-                  {data.majors?.map(item => (
-                    <li>{item.name}</li>
+                  {data.majors?.map((item, index) => (
+                    <li key={index}>{item.name}</li>
                   ))}
                 </ul>
               </Typography>

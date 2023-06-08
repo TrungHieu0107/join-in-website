@@ -46,9 +46,11 @@ const columns: Column[] = [
     id: 'groupSize',
     label: 'Member',
     align: 'left',
-    format: (value: Group) => (<Typography>
-      {value.memberCount}/{value.groupSize}
-    </Typography>)
+    format: (value: Group) => (
+      <Typography>
+        {value.memberCount}/{value.groupSize}
+      </Typography>
+    )
   },
   {
     id: 'schoolName',
@@ -75,7 +77,7 @@ const columns: Column[] = [
   }
 ]
 
- const  GroupManagePage = () => {
+const GroupManagePage = () => {
   const [groupList, setGroupList] = useState<Group[]>(groupAPI.Admin.getListGroup())
   const [searchValue, setSearchValue] = useState<string>('')
   const [page, setPage] = useState<number>(0)
@@ -87,20 +89,19 @@ const columns: Column[] = [
     setCurrentData(groupList?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage))
   }, [searchValue, page, rowsPerPage])
 
-  const handleCheckRowIndex = (event: any, id: number) => {
-    const selectedRows = [...rowsSelected]
-    if (event.target.checked) {
-      selectedRows.push(id)
-    } else {
-      selectedRows.splice(rowsSelected.indexOf(id), 1)
-    }
+  // const handleCheckRowIndex = (event: any, id: number) => {
+  //   const selectedRows = [...rowsSelected]
+  //   if (event.target.checked) {
+  //     selectedRows.push(id)
+  //   } else {
+  //     selectedRows.splice(rowsSelected.indexOf(id), 1)
+  //   }
 
-    setRowsSelected(selectedRows)
-  }
+  //   setRowsSelected(selectedRows)
+  // }
 
   const handleCheckAllRow = (event: any) => {
     if (event.target.checked) {
-
       // setRowsSelected(currentData?.map(value => value.id ?? -1) ?? [])
     } else {
       setRowsSelected([])
@@ -173,13 +174,14 @@ const columns: Column[] = [
             <TableBody>
               {currentData?.map((row, index) => {
                 const rowData: any = row
-                
+
                 return (
                   <TableRow hover role='checkbox' tabIndex={-1} key={rowData?.Id}>
                     <TableCell align='center' padding='none'>
                       <Checkbox
-                        // onChange={e => handleCheckRowIndex(e, row.id ?? -1)}
-                        // checked={rowsSelected.indexOf(row.id ?? -1) !== -1}
+
+                      // onChange={e => handleCheckRowIndex(e, row.id ?? -1)}
+                      // checked={rowsSelected.indexOf(row.id ?? -1) !== -1}
                       />
                     </TableCell>
                     <TableCell align='center'>{page * rowsPerPage + index + 1}</TableCell>

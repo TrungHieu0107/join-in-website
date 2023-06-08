@@ -10,10 +10,7 @@ export const authOptions: AuthOptions = {
   ],
   secret: process.env.JWT_SECRET,
   callbacks: {
-    async session({ session, user, token }) {
-      return session
-    },
-    async jwt({ token, user, account, profile, isNewUser }) {
+    async jwt({ token, account }) {
       if (account?.access_token) {
         token.name = account?.access_token
       }

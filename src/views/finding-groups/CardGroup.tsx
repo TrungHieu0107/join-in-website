@@ -10,10 +10,6 @@ import { Button, ButtonGroup } from '@mui/material'
 import { useRouter } from 'next/router'
 import { GroupCard } from 'src/models/views/GroupCard'
 import { FC } from 'react'
-import { Group } from 'src/models/class'
-import { CommonResponse } from 'src/models/common/CommonResponse'
-import { groupDBDexie } from 'src/models/db/GroupDB'
-import { groupAPI } from 'src/api-client'
 
 interface GroupProps {
   groupCard: GroupCard
@@ -25,7 +21,7 @@ const CardGroup: FC<GroupProps> = ({ groupCard }) => {
   const handleClickOpen = async () => {
     //handle Click Open View Group
     // await saveGroupInfor()
-    router.push('/view-group?groupId=' + groupCard.Id)
+    router.push('/view-group?group=' + groupCard.Id)
   }
 
   return (

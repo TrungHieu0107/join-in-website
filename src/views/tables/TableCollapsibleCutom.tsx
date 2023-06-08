@@ -19,8 +19,7 @@ import {
   Avatar,
   AvatarGroup,
   TablePagination,
-  CircularProgress,
-  Button
+  CircularProgress
 } from '@mui/material'
 
 // ** Icons Imports
@@ -127,10 +126,11 @@ const Row = (props: { row: Task; column?: Column[]; columnSubTask: Column[] }) =
     </Fragment>
   )
 }
+
 export default function ToDoTableCollapsible() {
   const [rows, setRows] = useState<Task[]>([])
   const router = useRouter()
-  const [queryModel, setQueryModel] = useState<QueryTaskListsModel>()
+  const [queryModel] = useState<QueryTaskListsModel>()
 
   const clickNameTodo = async (value: Task) => {
     await groupDBDexie
@@ -139,7 +139,7 @@ export default function ToDoTableCollapsible() {
         name: value.group?.name,
         avatar: value.group?.avatar
       } as GroupDBType)
-      .then(res => {
+      .then(() => {
         router.push(`/group/task/${value.id}`)
       })
   }
@@ -152,9 +152,9 @@ export default function ToDoTableCollapsible() {
       align: 'left',
       format: (value: Task) => (
         <Link href={'#'} rel='noopener' color='info'>
-            <a className='link-style' onClick={() => clickNameTodo(value)}>
-              {value.name}
-            </a>
+          <a className='link-style' onClick={() => clickNameTodo(value)}>
+            {value.name}
+          </a>
         </Link>
       )
     },

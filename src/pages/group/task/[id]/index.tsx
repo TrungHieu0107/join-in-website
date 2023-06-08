@@ -156,15 +156,17 @@ export default function SubTaskPage() {
       })
   }
 
-  const fetchDataTask =async () => {
-    typeof id === 'string' && taskAPI.getById(id).then(res => {
-      const commonResponse = new CommonResponse(res)
-      console.log(commonResponse)
+  const fetchDataTask = async () => {
+    typeof id === 'string' &&
+      taskAPI.getById(id).then(res => {
+        const commonResponse = new CommonResponse(res)
+        console.log(commonResponse)
+        console.log(queryTask)
 
-      const newData = new Task(commonResponse.data)
+        const newData = new Task(commonResponse.data)
 
-      setData(newData)
-    })
+        setData(newData)
+      })
   }
 
   const handleError = (error: any) => {
@@ -205,9 +207,14 @@ export default function SubTaskPage() {
     setAddNewModal(false)
   }
 
-  return (
-    data ? <div>
-      <MainTaskView data={data !== undefined ? data : new Task()} handleError={handleError} notify={notify} onSuccess={fetchDataTask}></MainTaskView>
+  return data ? (
+    <div>
+      <MainTaskView
+        data={data !== undefined ? data : new Task()}
+        handleError={handleError}
+        notify={notify}
+        onSuccess={fetchDataTask}
+      ></MainTaskView>
       {!data?.mainTaskId ? (
         <Card sx={{ marginTop: '5px' }}>
           <CardContent>
@@ -307,11 +314,13 @@ export default function SubTaskPage() {
       >
         <Fade in={addNewModal}>
           <Box sx={style} className='modal-size'>
-            <DialogCreateNewTask close={handleClose} groupId={groupId} mainTask={data} onSuccess={fetchDataTask}/>
+            <DialogCreateNewTask close={handleClose} groupId={groupId} mainTask={data} onSuccess={fetchDataTask} />
           </Box>
         </Fade>
       </Modal>
-    </div> : <div></div>
+    </div>
+  ) : (
+    <div></div>
   )
 }
 

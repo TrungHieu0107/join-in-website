@@ -16,6 +16,7 @@ const FooterContent = () => {
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
       <Button onClick={() => router.back()}>Back</Button>
       {hidden ? null : (
+        
         // <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', '& :not(:last-child)': { mr: 4 } }}>
         //   <Link
         //     target='_blank'
