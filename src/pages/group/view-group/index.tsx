@@ -19,6 +19,7 @@ import {
 } from 'mdi-material-ui'
 import ApplicationForm from 'src/views/group/application/ApplicationForm'
 import { useEffect, useState } from 'react'
+import withAuth from '../../withAuth'
 import { Group, GroupMajor } from 'src/models/class'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { groupDBDexie } from 'src/models/db/GroupDB'
@@ -27,7 +28,28 @@ import GroupDetail from 'src/views/group/group-detail/GroupDetial'
 import { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { useToasts } from 'react-toast-notifications'
-import withAuth from '../withAuth'
+
+const SpaceBetweenText = (props: { title: string; content: string }) => {
+  return (
+    <Box
+      sx={{
+        mt: 7,
+        width: '100%',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}
+    >
+      <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'column' }}>
+        <Typography sx={{ fontSize: '1rem' }}>{props.title}</Typography>
+      </Box>
+      <Typography variant='subtitle2' sx={{ fontWeight: 600 }}>
+        {props.content}
+      </Typography>
+    </Box>
+  )
+}
 
 interface State {
   groupName?: string
@@ -50,9 +72,10 @@ const GroupView = () => {
   const [skills, setSkills] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [listRecruiting, setListRecruiting] = useState<GroupMajor[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLeader, setIsLeader] = useState<boolean>(false)
   const addToast = useToasts()
   const router = useRouter()
-  const query = router.query
 
   const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
     addToast.addToast(message, { appearance: type })
@@ -61,7 +84,8 @@ const GroupView = () => {
   useEffect(() => {
     getInformation()
     getListRecruiting()
-  }, [query])
+    checkRole()
+  }, [])
 
   const getListRecruiting = async () => {
     try {
@@ -82,14 +106,9 @@ const GroupView = () => {
 
   const getInformation = async () => {
     try {
-      if (!query.groupId) {
-        router.push('/finding-groups')
-
-        return
-      }
-
+      const groupData = await groupDBDexie.getGroup()
       await groupAPI
-        .getById(query.groupId as string)
+        .getById(groupData?.id)
         .then(res => {
           const data = new CommonResponse(res)
 
@@ -115,6 +134,34 @@ const GroupView = () => {
     }
   }
 
+  const checkRole = async () => {
+    setIsLoading(true)
+    await groupDBDexie.getGroup().then(async groupData => {
+      groupData &&
+        (await groupAPI
+          .getRoleInGroup(groupData.id ?? '')
+          .then(role => {
+            const r = new CommonResponse(role).data
+            console.log(r === 'LEADER' || r === 'SUB_LEADER')
+
+            if (r === 'LEADER' || r === 'SUB_LEADER') {
+              setIsLeader(true)
+            } else {
+              setIsLeader(false)
+            }
+            setTimeout(() => {
+              setIsLoading(false)
+            }, 1000)
+          })
+          .catch(error => {
+            handleError(error)
+            setTimeout(() => {
+              setIsLoading(false)
+            }, 1000)
+          }))
+    })
+  }
+
   const handleError = (error: any) => {
     const dataErr = (error as AxiosError)?.response
     if (dataErr?.status === 401) {
@@ -137,8 +184,17 @@ const GroupView = () => {
       skills={skills}
       listRecruiting={listRecruiting}
       actionGroup={
-        <Button variant='contained' sx={{ marginRight: 5 }} onClick={() => {}}>
-          Apply
+        <Button
+          variant='contained'
+          sx={{ marginRight: 5 }}
+          disabled={!isLeader}
+          onClick={() => {
+            if (isLeader) {
+              router.push('/group/group-setting')
+            }
+          }}
+        >
+          Update
         </Button>
       }
     />

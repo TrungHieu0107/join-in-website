@@ -15,9 +15,6 @@ import ModeToggler from 'src/@core/layouts/components/shared-components/ModeTogg
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
 import NotificationDropdown from 'src/@core/layouts/components/shared-components/NotificationDropdown'
 
-import { useToasts } from 'react-toast-notifications'
-import { Button } from '@mui/material'
-
 interface Props {
   hidden: boolean
   settings: Settings
@@ -31,12 +28,6 @@ const AppBarContent = (props: Props) => {
 
   // ** Hook
   const hiddenSm = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
-  const addToast = useToasts()
-
-  
-  const notify = () => {
-    addToast.addToast('Click', { appearance: 'success' })
-  }
 
   return (
     <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -67,7 +58,6 @@ const AppBarContent = (props: Props) => {
             />
           </Box>
         )} */}
-        <Button onClick={notify}>Click</Button>
         <ModeToggler settings={settings} saveSettings={saveSettings} />
         <NotificationDropdown />
         <UserDropdown />

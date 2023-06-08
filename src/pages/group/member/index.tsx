@@ -30,7 +30,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  SelectChangeEvent
+  SelectChangeEvent,
+  Modal
 } from '@mui/material'
 import { Account, Close, CommentQuote, DotsHorizontal, ExitToApp, InformationVariant, Magnify } from 'mdi-material-ui'
 import InviteForm from 'src/views/group/member/InviteForm'
@@ -47,6 +48,9 @@ import FeedbackForm from 'src/views/feedback/FeedbackForm'
 import moment from 'moment'
 import { StorageKeys } from 'src/constants'
 import { getMemberRoleValueNumber } from 'src/constants/member-role'
+import ProfileView from 'src/views/profile/ProfileView'
+import { AxiosError } from 'axios'
+import UserGroupLayout from 'src/layouts/UserGroupLayout'
 
 interface Column {
   id: 'name' | 'role' | 'major' | 'joindate' | 'status'
@@ -62,45 +66,10 @@ const optionsRole = [
   { value: 'MEMBER', label: 'Member' }
 ]
 
-const columns: readonly Column[] = [
-  { id: 'name', label: 'Name', minWidth: 200 },
-  { id: 'role', label: 'Role', minWidth: 100 },
-  {
-    id: 'major',
-    label: 'Major',
-    minWidth: 100
-  },
-  {
-    id: 'joindate',
-    label: 'Join Date',
-    minWidth: 100,
-    format: (value: string) => moment(value).format(StorageKeys.KEY_FORMAT_DATE)
-  },
-  {
-    id: 'status',
-    label: 'Status',
-    minWidth: 200,
-    format: (value: any) => (
-      <Chip
-        label={value}
-        color={statusObj[value].color}
-        sx={{
-          height: 24,
-          fontSize: '0.75rem',
-          textTransform: 'capitalize',
-          '& .MuiChip-label': { fontWeight: 500 }
-        }}
-      />
-    )
-  }
-]
-
 const statusObj: StatusObj = {
   ACTIVE: { color: 'info' },
   OUT: { color: 'error' }
 }
-
-
 
 const Application = () => {
   const router = useRouter()
@@ -116,6 +85,7 @@ const Application = () => {
   const [open, setOpen] = useState(false)
   const [openFeedback, setOpenFeedback] = useState(false)
   const [openAlertDelete, setOpenAlertDelete] = useState(false)
+  const [modalProfileOpen, setModalProfileOpen] = useState(false)
 
   const [openPopupChangeRole, setOpenPopupChangeRole] = useState(false)
   const [listMembers, setListMember] = useState<any[]>([])
@@ -124,23 +94,65 @@ const Application = () => {
     label: ''
   })
   const [updateUI, setUpdateUI] = useState(false)
-  const [searchName, setSearchName] = useState<string>('');
-  const [storeSearchName,setStoreSearchName] = useState<string>('');
-  const [reason, setReason]= useState<string>('')
+  const [searchName, setSearchName] = useState<string>('')
+  const [storeSearchName, setStoreSearchName] = useState<string>('')
+  const [reason, setReason] = useState<string>('')
 
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
+
+  const columns: Column[] = [
+    {
+      id: 'name',
+      label: 'Name',
+      minWidth: 200,
+      format: (value: any) => <AvatarName avatar={value.avatar} title={value.name} />
+    },
+    { id: 'role', label: 'Role', minWidth: 100 },
+    {
+      id: 'major',
+      label: 'Major',
+      minWidth: 100
+    },
+    {
+      id: 'joindate',
+      label: 'Join Date',
+      minWidth: 100,
+      format: (value: string) => moment(value).format(StorageKeys.KEY_FORMAT_DATE)
+    },
+    {
+      id: 'status',
+      label: 'Status',
+      minWidth: 200,
+      format: (value: any) => (
+        <Chip
+          label={value}
+          color={statusObj[value].color}
+          sx={{
+            height: 24,
+            fontSize: '0.75rem',
+            textTransform: 'capitalize',
+            '& .MuiChip-label': { fontWeight: 500 }
+          }}
+        />
+      )
+    }
+  ]
 
   useEffect(() => {
     getListMember()
-  }, [updateUI,storeSearchName])
+  }, [updateUI, storeSearchName])
 
   const handleChangeRole = (event: SelectChangeEvent<string>) => {
-    setSelectedRole({ value: event.target.value,
-      label: optionsRole.find((option) => option.value === event.target.value)?.label
+    setSelectedRole({
+      value: event.target.value,
+      label: optionsRole.find(option => option.value === event.target.value)?.label
     })
   }
 
-  const handleSubmitChangeRole = () =>{
-    if (selectedRole.value !== '' && selectedRow?.role !== selectedRole.value){
+  const handleSubmitChangeRole = () => {
+    if (selectedRole.value !== '' && selectedRow?.role !== selectedRole.value) {
       changeRoleMember()
       handlePopupChangeRole()
     }
@@ -173,18 +185,18 @@ const Application = () => {
     }
   }
 
-  const handleClickSearch = () =>{
-    setStoreSearchName(searchName);
+  const handleClickSearch = () => {
+    setStoreSearchName(searchName)
   }
 
   const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
-
-    if (event.key === 'Enter') { console.log(event.currentTarget.value)
-      setStoreSearchName(searchName);
+    if (event.key === 'Enter') {
+      console.log(event.currentTarget.value)
+      setStoreSearchName(searchName)
     }
-  };
+  }
 
-  const handleSearch = (event:ChangeEvent<HTMLInputElement>) =>{
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchName(event.target.value)
   }
 
@@ -230,12 +242,11 @@ const Application = () => {
     handleOptionsClose()
   }
 
-
-  const handleViewDetail = (row?: any) => {
+  const handleViewDetail = (row: any) => {
     // Handle view detail action
-    row?.id && setSelectedRow(row)
-    router.push('/profile')
 
+    setSelectedRow(row)
+    setModalProfileOpen(true)
     // handleOptionsClose()
   }
 
@@ -255,13 +266,12 @@ const Application = () => {
     setPage(0)
   }
 
-  const handleChangeReason = (event:ChangeEvent<HTMLInputElement>) =>{
+  const handleChangeReason = (event: ChangeEvent<HTMLInputElement>) => {
     setReason(event.target.value)
   }
 
   const handleClickOpenFeedback = () => {
     setOpenFeedback(true)
-
   }
 
   const handleCloseFeedback = () => {
@@ -283,6 +293,7 @@ const Application = () => {
             role: member.role,
             major: member.user?.applications?.at(0)?.applicationMajors?.at(0)?.major?.name,
             joindate: member.joinedDate,
+            userId: member.user?.id,
             status: 'ACTIVE'
           }))
           setListMember(list)
@@ -292,6 +303,19 @@ const Application = () => {
         })
     } catch (err) {
       console.log(err)
+    }
+  }
+
+  const handleError = (error: any) => {
+    const dataErr = (error as AxiosError)?.response
+    if (dataErr?.status === 401) {
+      notify('Login expired.', 'error')
+      router.push('/user/login')
+    } else if (dataErr?.status === 500) {
+      if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
+      else notify('Something error', 'error')
+    } else {
+      console.log(error)
     }
   }
 
@@ -317,7 +341,7 @@ const Application = () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
-                <Magnify fontSize='small' onClick={handleClickSearch}/>
+                <Magnify fontSize='small' onClick={handleClickSearch} />
               </InputAdornment>
             )
           }}
@@ -340,20 +364,19 @@ const Application = () => {
         </Dialog>
       </Box>
 
-        <Dialog open={openFeedback} onClose={handleCloseFeedback}>
-        <Box sx={{  display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <DialogTitle>Open Feedback</DialogTitle>
-        <DialogActions>
-          <Button onClick={handleCloseFeedback}>
-            <Close sx={{color: 'red'}}/>
-          </Button>
-        </DialogActions>
+      <Dialog open={openFeedback} onClose={handleCloseFeedback}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <DialogTitle>Open Feedback</DialogTitle>
+          <DialogActions>
+            <Button onClick={handleCloseFeedback}>
+              <Close sx={{ color: 'red' }} />
+            </Button>
+          </DialogActions>
         </Box>
 
         <DialogContent>
-          <FeedbackForm member={selectedRow} onButtonClick={handleCloseFeedback}/>
+          <FeedbackForm member={selectedRow} onButtonClick={handleCloseFeedback} />
         </DialogContent>
-
       </Dialog>
 
       <TableContainer sx={{ maxHeight: 440 }}>
@@ -374,7 +397,7 @@ const Application = () => {
           <TableBody>
             {listMembers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={handleViewDetail}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.id}>
                   <TableCell align='center' sx={{ minWidth: '20px' }}>
                     {page * rowsPerPage + index + 1}
                   </TableCell>
@@ -386,7 +409,14 @@ const Application = () => {
                         {/* {column.format && typeof value === 'string' ? column.format(value) : value} */}
                         {/* {value} */}
                         {column.id === 'name' ? (
-                          <AvatarName avatar={row.avatar} title={value} />
+                          <AvatarName
+                            avatar={row.avatar}
+                            title={
+                              <a className='link-style' onClick={() => handleViewDetail(row)}>
+                                {value}
+                              </a>
+                            }
+                          />
                         ) : (
                           <div>{column.format && typeof value === 'string' ? column.format(value) : value}</div>
                         )}
@@ -449,16 +479,16 @@ const Application = () => {
       >
         <DialogTitle id='alert-dialog-title'>{'Kicked out of the group'}</DialogTitle>
         <DialogContent>
-        <TextField
-             id="reason"
-            label="Reason"
+          <TextField
+            id='reason'
+            label='Reason'
             multiline
             rows={4}
             placeholder='Reason'
             value={reason}
             onChange={handleChangeReason}
             fullWidth
-            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' }, mt:2 }}
+            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' }, mt: 2 }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position='start'>
@@ -502,7 +532,9 @@ const Application = () => {
                   <InputLabel>Role</InputLabel>
                   <Select label='Role' value={selectedRole.value || selectedRow?.role} onChange={handleChangeRole}>
                     {optionsRole.map(option => (
-                      <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -525,8 +557,39 @@ const Application = () => {
           )}
         </DialogActions>
       </Dialog>
+
+      <Modal
+        open={modalProfileOpen}
+        onClose={() => setModalProfileOpen(false)}
+        sx={{
+          maxWidth: '80%',
+          minWidth: '50%',
+          overflow: 'auto',
+          backgroundColor: '#FFFFFF',
+          top: '10%',
+          bottom: '10%',
+          left: '10%',
+          right: '10%',
+          borderRadius: '5px'
+        }}
+        closeAfterTransition
+        aria-labelledby='transition-modal-title'
+        aria-describedby='transition-modal-description'
+      >
+        <Box
+          sx={{
+            backgroundColor: 'white',
+            padding: '10px'
+          }}
+        >
+          <ProfileView handleError={handleError} userId={selectedRow?.userId} />
+        </Box>
+      </Modal>
     </Paper>
   )
 }
+
+Application.getLayout = (page: ReactNode) => <UserGroupLayout>{page}</UserGroupLayout>
+
 
 export default withAuth(Application)

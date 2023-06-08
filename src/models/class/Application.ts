@@ -61,20 +61,20 @@ export class Application {
     this._description = val
   }
 
-  get userId() {
-    return this._userId
-  }
-
-  set userId(val: string | undefined) {
-    this._userId = val
-  }
-
   get groupId() {
     return this._groupId
   }
 
   set groupId(val: string | undefined) {
     this._groupId = val
+  }
+
+  get userId() {
+    return this._userId
+  }
+
+  set userId(val: string | undefined) {
+    this._userId = val
   }
 
   get user() {

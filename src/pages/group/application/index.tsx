@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ChangeEvent, ReactNode, useEffect,KeyboardEvent } from 'react'
+import { useState, ChangeEvent, ReactNode, useEffect, KeyboardEvent } from 'react'
 
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
@@ -25,7 +25,8 @@ import {
   Chip,
   Typography,
   Grid,
-  Avatar
+  Avatar,
+  Modal
 } from '@mui/material'
 import { Close, DotsHorizontal, Magnify } from 'mdi-material-ui'
 import RecruitmentForm from 'src/views/group/application/RecruitmentForm'
@@ -40,6 +41,10 @@ import { QueryApplicationListModel } from 'src/models/query-models/QueryApplicat
 import { groupDBDexie } from 'src/models/db/GroupDB'
 import moment from 'moment'
 import { StorageKeys } from 'src/constants'
+import ProfileView from 'src/views/profile/ProfileView'
+import { AxiosError } from 'axios'
+import { useRouter } from 'next/router'
+import UserGroupLayout from 'src/layouts/UserGroupLayout'
 
 interface Column {
   id: 'name' | 'position' | 'createddate' | 'description' | 'status' | 'confirmeddate'
@@ -89,10 +94,9 @@ const statusObj: StatusObj = {
   WAITING: { color: 'warning' }
 }
 
-
-const ApplicationScreen =  () => {
+const ApplicationScreen = () => {
   const addToast = useToasts()
-
+  const router = useRouter()
   // ** States
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -100,62 +104,69 @@ const ApplicationScreen =  () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [open, setOpen] = useState(false)
   const [openPopupApplication, setOpenPopupApplication] = useState(false)
-  const [updateUI,setUpdateUI] = useState<boolean>(true)
+  const [updateUI, setUpdateUI] = useState<boolean>(true)
   const [listApplications, setListApplications] = useState<any[]>([])
   const [selectedRow, setSelectedRow] = useState<any>()
-  const [searchName, setSearchName] = useState<string>('');
-  const [storeSearchName,setStoreSearchName] = useState<string>('');
+  const [searchName, setSearchName] = useState<string>('')
+  const [storeSearchName, setStoreSearchName] = useState<string>('')
+  const [modalProfileOpen, setModalProfileOpen] = useState(false)
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
 
   useEffect(() => {
     getListApplication()
-  }, [storeSearchName,page, rowsPerPage,updateUI])
+  }, [storeSearchName, page, rowsPerPage, updateUI])
 
-  const handleRejectApplication = async () =>{
+  const handleRejectApplication = async () => {
     try {
-      await applicationAPI.putApplication({applicationId: selectedRow?.id, status: ApplicationStatus.DISAPPROVED})
-      .then(res =>{
-        const data = new CommonResponse(res)
-        addToast.addToast(data.message,{appearance:'success'})
-      })
-      .catch(err => {
-        console.log(err)
-      })
+      await applicationAPI
+        .putApplication({ applicationId: selectedRow?.id, status: ApplicationStatus.DISAPPROVED })
+        .then(res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
+        })
+        .catch(err => {
+          console.log(err)
+        })
       handlePopupApplication()
       setUpdateUI(!updateUI)
-    }catch (err){
+    } catch (err) {
       console.log(err)
     }
   }
 
-  const handleAcceptApplication = async () =>{
+  const handleAcceptApplication = async () => {
     try {
-      await applicationAPI.putApplication({applicationId: selectedRow?.id, status: ApplicationStatus.APPROVED})
-      .then(res =>{
-        const data = new CommonResponse(res)
-        addToast.addToast(data.message,{appearance:'success'})
-      })
-      .catch(err => {
-        console.log(err)
-      })
+      await applicationAPI
+        .putApplication({ applicationId: selectedRow?.id, status: ApplicationStatus.APPROVED })
+        .then(res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
+        })
+        .catch(err => {
+          console.log(err)
+        })
       handlePopupApplication()
       setUpdateUI(!updateUI)
-    }catch (err){
+    } catch (err) {
       console.log(err)
     }
   }
 
-  const handleClickSearch = () =>{
-    setStoreSearchName(searchName);
+  const handleClickSearch = () => {
+    setStoreSearchName(searchName)
   }
 
   const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
-
-    if (event.key === 'Enter') { console.log(event.currentTarget.value)
-      setStoreSearchName(searchName);
+    if (event.key === 'Enter') {
+      console.log(event.currentTarget.value)
+      setStoreSearchName(searchName)
     }
-  };
+  }
 
-  const handleSearch = (event:ChangeEvent<HTMLInputElement>) =>{
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchName(event.target.value)
   }
 
@@ -179,7 +190,6 @@ const ApplicationScreen =  () => {
     event.stopPropagation()
     setAnchorEl(event.currentTarget)
     setSelectedRow(row)
-
   }
 
   const handleOptionsClose = () => {
@@ -195,9 +205,11 @@ const ApplicationScreen =  () => {
     // handleOptionsClose()
   }
 
-  const handleViewProfile = () => {
+  const handleViewProfile = (row?: any) => {
     // Handle change status action
-    // handleOptionsClose()
+    row && setSelectedRow(row)
+    setModalProfileOpen(true)
+    handleOptionsClose()
   }
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -211,12 +223,11 @@ const ApplicationScreen =  () => {
 
   const getListApplication = async () => {
     try {
-
       const groupData = await groupDBDexie.getGroup()
-      const payload : QueryApplicationListModel = {
+      const payload: QueryApplicationListModel = {
         groupId: groupData?.id,
         name: storeSearchName,
-        majorIdsString:'',
+        majorIdsString: '',
         orderBy: '',
         page: page + 1,
         pageSize: rowsPerPage,
@@ -227,21 +238,23 @@ const ApplicationScreen =  () => {
         .getList(payload)
         .then(res => {
           const data = new CommonResponse(res)
+          console.log(data)
+
           addToast.addToast(data.message, { appearance: 'success' })
           setTotalItems(data.pagination?.total ?? 0)
-          const applications: Application[] = data.data.map((application :Application) => new Application(application))
+          const applications: Application[] = data.data.map((application: Application) => new Application(application))
 
           const list = applications.map(application => ({
             id: application.id,
             avatar: application.user?.avatar,
             name: application.user?.fullName,
-            position:  application.applicationMajors?.at(0)?.major?.name,
+            position: application.applicationMajors?.at(0)?.major?.name,
             createddate: application.createdDate,
             description: application.description,
             status: application.status,
-            confirmeddate: application.confirmedDate
+            confirmeddate: application.confirmedDate,
+            userId: application.userId
           }))
-          console.log(list)
           setListApplications(list)
         })
         .catch(err => {
@@ -249,6 +262,19 @@ const ApplicationScreen =  () => {
         })
     } catch (err) {
       console.log(err)
+    }
+  }
+
+  const handleError = (error: any) => {
+    const dataErr = (error as AxiosError)?.response
+    if (dataErr?.status === 401) {
+      notify('Login expired.', 'error')
+      router.push('/user/login')
+    } else if (dataErr?.status === 500) {
+      if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
+      else notify('Something error', 'error')
+    } else {
+      console.log(error)
     }
   }
 
@@ -274,7 +300,7 @@ const ApplicationScreen =  () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
-                <Magnify fontSize='small' onClick={handleClickSearch}/>
+                <Magnify fontSize='small' onClick={handleClickSearch} />
               </InputAdornment>
             )
           }}
@@ -315,7 +341,14 @@ const ApplicationScreen =  () => {
           <TableBody>
             {listApplications.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={()=>handleViewDetail(row)}>
+                <TableRow
+                  hover
+                  role='checkbox'
+                  tabIndex={-1}
+                  key={row.id}
+
+                  // onClick={() => handleViewDetail(row)}
+                >
                   <TableCell align='center' sx={{ minWidth: '20px' }}>
                     {page * rowsPerPage + index + 1}
                   </TableCell>
@@ -326,7 +359,14 @@ const ApplicationScreen =  () => {
                       <TableCell key={column.id} align={column.align}>
                         {/* {column.format && typeof value === 'string' ? column.format(value) : value} */}
                         {column.id === 'name' ? (
-                          <AvatarName avatar={row.avatar} title={value} />
+                          <AvatarName
+                            avatar={row.avatar}
+                            title={
+                              <a className='link-style' onClick={() => handleViewProfile(row)}>
+                                {value}
+                              </a>
+                            }
+                          />
                         ) : (
                           <div>{column.format && typeof value === 'string' ? column.format(value) : value}</div>
                         )}
@@ -357,7 +397,7 @@ const ApplicationScreen =  () => {
           }}
         >
           <MenuItem onClick={handleViewDetail}>View Application</MenuItem>
-          <MenuItem onClick={handleViewProfile}>View Profile</MenuItem>
+          <MenuItem onClick={() => handleViewProfile(selectedRow)}>View Profile</MenuItem>
         </Menu>
       </TableContainer>
       <TablePagination
@@ -404,17 +444,59 @@ const ApplicationScreen =  () => {
         </DialogContent>
         <DialogActions>
           <Box display='flex' justifyContent='center' width='100%'>
-            <Button onClick={handleRejectApplication} variant='outlined' color='error' sx={{ mr: 10 }} disabled={selectedRow?.status !== 'WAITING'}>
+            <Button
+              onClick={handleRejectApplication}
+              variant='outlined'
+              color='error'
+              sx={{ mr: 10 }}
+              disabled={selectedRow?.status !== 'WAITING'}
+            >
               Reject
             </Button>
-            <Button onClick={handleAcceptApplication} autoFocus variant='contained' color='success' disabled={selectedRow?.status !== 'WAITING'}>
+            <Button
+              onClick={handleAcceptApplication}
+              autoFocus
+              variant='contained'
+              color='success'
+              disabled={selectedRow?.status !== 'WAITING'}
+            >
               Accept
             </Button>
           </Box>
         </DialogActions>
       </Dialog>
+
+      <Modal
+        open={modalProfileOpen}
+        onClose={() => setModalProfileOpen(false)}
+        sx={{
+          maxWidth: '80%',
+          minWidth: '50%',
+          overflow: 'auto',
+          backgroundColor: '#FFFFFF',
+          top: '10%',
+          bottom: '10%',
+          left: '10%',
+          right: '10%',
+          borderRadius: '5px'
+        }}
+        closeAfterTransition
+        aria-labelledby='transition-modal-title'
+        aria-describedby='transition-modal-description'
+      >
+        <Box
+          sx={{
+            backgroundColor: 'white',
+            padding: '10px'
+          }}
+        >
+          <ProfileView handleError={handleError} userId={selectedRow?.userId} />
+        </Box>
+      </Modal>
     </Paper>
   )
 }
+
+ApplicationScreen.getLayout = (page: ReactNode) => <UserGroupLayout>{page}</UserGroupLayout>
 
 export default ApplicationScreen

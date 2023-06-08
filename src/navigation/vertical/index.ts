@@ -49,22 +49,17 @@ export default function Navigation(): VerticalNavItemsType {
         path: '/group/application'
       },
       {
+        sectionTitle: 'Group info'
+      },
+      {
+        title: 'Info',
+        icon: Account,
+        path: '/group/view-group'
+      },
+      {
         title: 'Settings',
         icon: Cog,
         path: '/group/group-setting'
-      },
-      {
-        sectionTitle: 'Personal'
-      },
-      {
-        title: 'Profile',
-        icon: Account,
-        path: '/view-group'
-      },
-      {
-        title: 'Log Out',
-        icon: Logout,
-        path: '/user/login'
       },
       {
         sectionTitle: 'Others'
@@ -104,11 +99,6 @@ export default function Navigation(): VerticalNavItemsType {
         title: 'Profile',
         icon: Account,
         path: '/profile'
-      },
-      {
-        title: 'Log Out',
-        icon: Logout,
-        path: '/user/login'
       }
     ]
   }
@@ -141,12 +131,7 @@ export default function Navigation(): VerticalNavItemsType {
       title: 'Feedback',
       icon: CommentAlert,
       path: '/feedback'
-    },
-    {
-      title: 'Log Out',
-      icon: Logout,
-      path: '/user/login'
-    },
+    }
 
     // {
     //   sectionTitle: 'Template'

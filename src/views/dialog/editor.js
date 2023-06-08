@@ -13,21 +13,25 @@ function Editor({ onChange, name, value }) {
         setEditorLoaded(true)
       })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }, [editorLoaded])
 
   const loadEditor = async () => {
-    if(!editorRef.current){
-      return Promise.resolve(
-        (editorRef.current = {
-          CKEditor: require('@ckeditor/ckeditor5-react').CKEditor,
-          ClassicEditor: require('@ckeditor/ckeditor5-build-classic')
-        })
-      )
+    try {
+      if (!editorRef.current) {
+        return Promise.resolve(
+          (editorRef.current = {
+            CKEditor: require('@ckeditor/ckeditor5-react').CKEditor,
+            ClassicEditor: require('@ckeditor/ckeditor5-build-classic')
+          })
+        )
+      }
+      return Promise.resolve(editorRef.current)
+    } catch (error) {
+      setEditorLoaded(true)
+      console.log(error)
     }
-
-    return Promise.resolve(editorRef.current)
   }
 
   return (

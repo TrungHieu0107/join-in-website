@@ -6,6 +6,7 @@ import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
+import Button from '@mui/material/Button'
 import TabContext from '@mui/lab/TabContext'
 import { styled } from '@mui/material/styles'
 import MuiTab, { TabProps } from '@mui/material/Tab'
@@ -24,6 +25,7 @@ import withAuth from '../withAuth'
 import { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { useToasts } from 'react-toast-notifications'
+import { truncate } from 'fs'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -45,7 +47,8 @@ const TabName = styled('span')(({ theme }) => ({
 
 const Profile = () => {
   // ** State
-  const [value, setValue] = useState<string>('account')
+  const [value, setValue] = useState<string>('view')
+  const [editable, setEditable] = useState<boolean>(false)
   const addToast = useToasts()
   const router = useRouter()
 
@@ -79,10 +82,10 @@ const Profile = () => {
           sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
         >
           <Tab
-            value='account'
+            value='view'
             label={
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <AccountOutline />
+                <LockOpenOutline />
                 <TabName>Account</TabName>
               </Box>
             }
@@ -96,25 +99,33 @@ const Profile = () => {
               </Box>
             }
           />
-          <Tab
-            value='view'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <LockOpenOutline />
-                <TabName>View</TabName>
-              </Box>
-            }
-          />
         </TabList>
-
-        <TabPanel sx={{ p: 0 }} value='account'>
-          <TabAccount />
+        <TabPanel sx={{ p: 0 }} value='view'>
+          {!editable ? (
+            <ProfileView
+              handleError={handleError}
+              actionProfile={
+                <>
+                  <Button variant='contained' color='success' sx={{ marginRight: 5 }} onClick={() => setEditable(true)}>
+                    Edit
+                  </Button>
+                </>
+              }
+            />
+          ) : (
+            <TabAccount
+              actionProfile={
+                <>
+                  <Button variant='contained' color='error' sx={{ marginRight: 5 }} onClick={() => setEditable(false)}>
+                    Cancel
+                  </Button>
+                </>
+              }
+            />
+          )}
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='security'>
           <TabSecurity />
-        </TabPanel>
-        <TabPanel sx={{ p: 0 }} value='view'>
-          <ProfileView handleError={handleError} />
         </TabPanel>
       </TabContext>
     </Card>

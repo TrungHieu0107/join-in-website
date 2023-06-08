@@ -3,18 +3,7 @@ import { useState, ChangeEvent, useEffect, KeyboardEvent } from 'react'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
-import {
-  Autocomplete,
-  Avatar,
-  Box,
-  Button,
-  Card,
-  Grid,
-  InputAdornment,
-  Pagination,
-  TextField,
-  Typography
-} from '@mui/material'
+import { Autocomplete, Box, Button, Card, Grid, InputAdornment, Pagination, TextField, Typography } from '@mui/material'
 import CardGroup from 'src/views/finding-groups/CardGroup'
 import { Magnify } from 'mdi-material-ui'
 import { useRouter } from 'next/router'
@@ -39,12 +28,12 @@ const FindingGroupsPage = () => {
   const [selectedValues, setSelectedValues] = useState<Major[]>([])
   const router = useRouter()
   const addToast = useToasts()
-  const [updateUI,setUpdateUI] = useState<boolean>(true);
+  const [updateUI, setUpdateUI] = useState<boolean>(true)
 
   useEffect(() => {
     getListMajors()
     getListGroup()
-  }, [storeSearchName, currentPage,updateUI])
+  }, [storeSearchName, currentPage, updateUI])
 
   const getListMajors = async () => {
     try {
@@ -84,17 +73,19 @@ const FindingGroupsPage = () => {
           setTotalItems(totalItems)
 
           const groups: Group[] = data.data
-          const list: GroupCard[] = groups.map(group => {
-            const majors: MajorGroupCard[] | undefined = group.groupMajors?.map(major => {
-              return {
+          const list: GroupCard[] = []
+          groups.map(group => {
+            const majors: MajorGroupCard[] = []
+            group.groupMajors?.map(major => {
+              majors.push({
                 Id: major.majorId,
                 Quantity: major.memberCount,
                 Name: major.major?.name,
                 ShortName: major.major?.shortName
-              }
+              } as MajorGroupCard)
             })
 
-            return {
+            list.push({
               Id: group.id,
               Name: group.name,
               SchoolName: group.schoolName,
@@ -102,9 +93,9 @@ const FindingGroupsPage = () => {
               SubjectName: group.subjectName,
               MemberCount: group.memberCount,
               Major: majors,
-              Avatar: group.avatar,
-              Theme: group.theme
-            }
+              Avatar: group.avatar ?? '',
+              Theme: group.theme ?? ''
+            })
           })
           setlistGroup(list)
         })
@@ -173,7 +164,7 @@ const FindingGroupsPage = () => {
           }}
         />
         <Autocomplete
-          sx={{ padding: '15px',width:'30%' }}
+          sx={{ padding: '15px', width: '30%' }}
           size='small'
           multiple
           options={listMajors}
@@ -190,7 +181,9 @@ const FindingGroupsPage = () => {
             </li>
           )}
         />
-        <Button variant='contained' onClick={handleClickSearch}><Magnify fontSize='small'/></Button>
+        <Button variant='contained' onClick={handleClickSearch}>
+          <Magnify fontSize='small' />
+        </Button>
       </Box>
 
       <Grid container spacing={7}>

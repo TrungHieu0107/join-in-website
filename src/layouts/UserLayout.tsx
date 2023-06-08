@@ -17,8 +17,6 @@ import VerticalAppBarContent from './components/vertical/AppBarContent'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
-import { Box } from '@mui/material'
-import Link from 'next/link'
 import UpgradeToProImg from './components/UpgradeToProImg'
 
 interface Props {

@@ -19,49 +19,13 @@ interface GroupProps {
   groupCard: GroupCard
 }
 
-const CardGroup : FC<GroupProps> = ({groupCard }) => {
-
+const CardGroup: FC<GroupProps> = ({ groupCard }) => {
   const router = useRouter()
 
-  const handleClickOpen = async() => {
+  const handleClickOpen = async () => {
     //handle Click Open View Group
-    await saveGroupInfor()
-    router.push('/view-group')
-  }
-
-  const saveGroupInfor = async () => {
-    try {
-      const value : Group = await new Promise((resolve,reject)=>{
-        groupAPI.getById(groupCard.Id)
-        .then(res =>{
-          const data = new CommonResponse(res)
-          const group : Group = data.data
-
-          resolve(group)
-        })
-        .catch(err =>{
-          console.log(err)
-          reject(err)
-        })
-      })
-
-
-      await groupDBDexie.saveGroup({
-          id: value.id,
-          name: value.name,
-          avatarGroup: value.avatar,
-          createdBy: '',
-          groupSize: value.groupSize,
-          memberCount: value.memberCount,
-          schoolName: value.schoolName,
-          className: value.className,
-          subject: value.subjectName,
-          theme: value.theme
-        })
-
-    } catch(err){
-      console.log(err)
-    }
+    // await saveGroupInfor()
+    router.push('/view-group?groupId=' + groupCard.Id)
   }
 
   return (
@@ -102,15 +66,28 @@ const CardGroup : FC<GroupProps> = ({groupCard }) => {
               School: <b>{groupCard.SchoolName}</b>
             </Typography>
           </Box>
-          <Button variant='contained' onClick={()=>handleClickOpen()}>Open</Button>
+          <Button variant='contained' onClick={() => handleClickOpen()}>
+            Open
+          </Button>
         </Box>
 
         <ButtonGroup variant='text' aria-label='text button group' size='small'>
           <Typography variant='body1'>Recruit: </Typography>
-          {groupCard.Major?.map(major =><Button key={major.Id}>{major.ShortName}</Button> )}
+          {groupCard.Major?.map(major => (
+            <Button key={major.Id}>{major.ShortName}</Button>
+          ))}
         </ButtonGroup>
 
-        <Box sx={{mt: 3, gap: 2, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box
+          sx={{
+            mt: 3,
+            gap: 2,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
           <Typography variant='subtitle2' sx={{ whiteSpace: 'nowrap', color: 'text.primary' }}>
             {groupCard.MemberCount} members
           </Typography>

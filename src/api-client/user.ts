@@ -47,7 +47,14 @@ export const userAPI = {
     )
   },
 
-  getLoginProfile() {
+  getProfile(userId?: string) {
+    if (userId) {
+      return axiosClient.get(`${URL}/profile`, {
+        params: {
+          userId: userId
+        }
+      })
+    }
     return axiosClient.get(`${URL}/user/profile`)
   },
 

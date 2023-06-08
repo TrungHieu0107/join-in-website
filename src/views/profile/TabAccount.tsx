@@ -1,5 +1,14 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent, SyntheticEvent, forwardRef, SetStateAction, useEffect } from 'react'
+import {
+  useState,
+  ElementType,
+  ChangeEvent,
+  SyntheticEvent,
+  forwardRef,
+  SetStateAction,
+  useEffect,
+  ReactNode
+} from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -104,6 +113,7 @@ interface ObjectValidate {
 interface TabAccountProps {
   code?: string
   handleError?: (error: any) => void
+  actionProfile?: ReactNode
 }
 
 const TabAccount = (props: TabAccountProps) => {
@@ -133,7 +143,6 @@ const TabAccount = (props: TabAccountProps) => {
   useEffect(() => {
     console.log(props)
     fetchData()
-
   }, [props])
 
   const fetchData = async () => {
@@ -141,7 +150,7 @@ const TabAccount = (props: TabAccountProps) => {
       if (res) {
         setIsLogin(true)
         await userAPI
-          .getLoginProfile()
+          .getProfile()
           .then(async res => {
             const commonResponse = new CommonResponse(res)
             const data = new User(commonResponse.data)
@@ -194,7 +203,6 @@ const TabAccount = (props: TabAccountProps) => {
           value: list
         } as ObjectValidate)
         setMajorOptions(data)
-
       })
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
@@ -563,10 +571,11 @@ const TabAccount = (props: TabAccountProps) => {
               Save Changes
             </Button>
             {!router.pathname.includes('initialization') ? (
-              <Button type='reset' variant='outlined' color='secondary'>
+              <Button type='reset' sx={{ marginRight: 3.5 }} variant='outlined' color='info'>
                 Reset
               </Button>
             ) : null}
+            {props.actionProfile && props.actionProfile}
           </Grid>
         </Grid>
       </form>

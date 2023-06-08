@@ -18,46 +18,54 @@ import {
   InformationVariant,
   Phone
 } from 'mdi-material-ui'
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { User } from 'src/models/class'
 import { majorAPI, userAPI } from 'src/api-client'
-import { AxiosError } from 'axios'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import moment from 'moment'
 import { StorageKeys } from 'src/constants'
 
-const textDemo =
-  'One of the key skills that is highly valued is communication. Effective communication skills enable you to express your ideas clearly, listen actively, and engage in productive discussions. It encompasses both verbal and written communication, allowing you to convey your message effectively and build strong relationships.'
-
 interface ProfileViewProps {
   handleError: (error: any) => void
+  userId?: string
+  actionProfile?: ReactNode
 }
 
-const ProfileView = ({ handleError }: ProfileViewProps) => {
+{
+  /* <Button variant='contained' color='success' sx={{ marginRight: 5 }}>
+                    Accept
+                  </Button>
+                  <Button variant='outlined' color='error'>
+                    Reject
+                  </Button> */
+}
+
+const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) => {
   const [data, setData] = useState<User>(new User())
 
-  useEffect(() => {fetchData()}, [])
+  useEffect(() => {
+    fetchData()
+
+    console.log(userId)
+  }, [userId])
 
   const fetchData = async () => {
     await userAPI
-      .getLoginProfile()
+      .getProfile(userId)
       .then(async res => {
         const commonResponse = new CommonResponse(res)
         const user = new User(commonResponse.data)
-        if(commonResponse.status === 200){
+        if (commonResponse.status === 200) {
           await majorAPI.getAllMajorOfUser().then(majors => {
             const commonMajorsResponse = new CommonResponse(majors)
             user.majors = commonMajorsResponse.data
             setData(user)
           })
         }
-        
       })
       .catch(error => {
         handleError(error)
       })
-
-    
   }
 
   return (
@@ -104,14 +112,7 @@ const ProfileView = ({ handleError }: ProfileViewProps) => {
                   <Typography variant='h5'>{data.fullName}</Typography>
                   <Rating readOnly value={1} name='read-only' sx={{ marginRight: 2 }} />
                 </Box>
-                <Box sx={{ mr: 2, mb: 1, display: 'flex' }}>
-                  <Button variant='contained' color='success' sx={{ marginRight: 5 }}>
-                    Accept
-                  </Button>
-                  <Button variant='outlined' color='error'>
-                    Reject
-                  </Button>
-                </Box>
+                <Box sx={{ mr: 2, mb: 1, display: 'flex' }}>{actionProfile && actionProfile}</Box>
               </Box>
             </Box>
           </CardContent>
@@ -144,9 +145,9 @@ const ProfileView = ({ handleError }: ProfileViewProps) => {
               <Book sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>
                 <ul>
-                  {data.majors?.map(item => 
+                  {data.majors?.map(item => (
                     <li>{item.name}</li>
-                  )}
+                  ))}
                 </ul>
               </Typography>
             </Box>
