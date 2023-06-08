@@ -19,8 +19,12 @@ export const memberAPI = {
     return axiosClient.post(`${URL}`, data)
   },
 
-  delete(id: string) {
-    return axiosClient.delete(`${URL}/${id}`,)
+  kickOut(data: any) {
+    return axiosClient.put(`${URL}/leader/member`,data)
+  },
+
+  moveOut(data: any){
+    return axiosClient.put(`${URL}/member`,data)
   },
 
   put(data: any) {

@@ -150,7 +150,7 @@ const FindingGroupsPage = () => {
       >
         <TextField
           size='small'
-          sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 }, padding: '15px' }}
+          sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1 }, padding: '15px' }}
           onChange={handleSearch}
           onKeyDown={handleEnterSearch}
           placeholder='Search by group, school,..'

@@ -24,12 +24,12 @@ import {
   DialogActions,
   DialogContentText
 } from '@mui/material'
-import { Close, DotsHorizontal, ExitToApp, InformationVariant, Magnify } from 'mdi-material-ui'
+import { Close, Delete, DotsHorizontal, ExitToApp, InformationVariant, Magnify } from 'mdi-material-ui'
 import { GroupRenderProps } from 'src/type/types'
 import { useRouter } from 'next/router'
 import GroupForm from './GroupForm'
 import AvatarName from 'src/layouts/components/AvatarName'
-import { groupAPI } from 'src/api-client'
+import { groupAPI, memberAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { useToasts } from 'react-toast-notifications'
 import { Group } from 'src/models/class'
@@ -80,7 +80,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   const router = useRouter()
   const [totalItems, setTotalItems] = useState<number>(0)
   const [open, setOpen] = useState(false)
-
+  const [openAlertDeleteGroup, setOpenAlertDeleteGroup] = useState(false)
   const [openAlert, setOpenAlert] = useState(false)
   const [listGroup, setlistGroup] = useState<any[]>([])
   const [searchName, setSearchName] = useState<string>('')
@@ -96,6 +96,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     try {
       const payload: QueryGroupListModel = {
         name: storeSearchName,
+        majorIdsString:'',
         orderBy: '',
         page: page + 1,
         pageSize: rowsPerPage,
@@ -144,12 +145,27 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     setSearchName(event.target.value)
   }
 
+  const handleClickOpenAlertDeleteGroup = () => {
+    setOpenAlertDeleteGroup(true)
+  }
+
+  const handleCloseAlertDeleteGroup = () => {
+    setOpenAlertDeleteGroup(false)
+  }
+
   const handleClickOpenAlert = () => {
     setOpenAlert(true)
   }
 
   const handleCloseAlert = () => {
     setOpenAlert(false)
+  }
+
+  const handleMoveOutGroup = () => {
+    if (reason !== ''){
+      moveOutGroup()
+    }
+
   }
 
   const handleClickOpen = () => {
@@ -179,7 +195,45 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   const handleDelete = () => {
     // Handle delete action
     handleClickOpenAlert()
-    handleOptionsClose()
+
+    // handleOptionsClose()
+  }
+
+  const handleDeleteGroup = async () => {
+    try {
+      await groupAPI.delete(selectedRow?.Id)
+      .then(res =>{
+        const data = new CommonResponse(res)
+        setUpdateUI(!updateUI)
+        addToast.addToast(data.message,{appearance:'success'})
+      })
+      .catch(err =>{
+        console.log(err)
+      })
+    } catch (err){
+      console.log(err)
+    }
+  }
+
+  const moveOutGroup = async () =>{
+    try {
+      const request :any = {
+        groupId: selectedRow?.id,
+        description: reason
+      }
+      await memberAPI.moveOut(request)
+      .then(res =>{
+        const data = new CommonResponse(res)
+        setUpdateUI(!updateUI)
+        addToast.addToast(data.message,{appearance:'success'})
+        setOpenAlert(false)
+      })
+      .catch(err =>{
+        console.log(err)
+      })
+    } catch (err){
+      console.log(err)
+    }
   }
 
   const handleViewDetail = async (row?: any) => {
@@ -350,6 +404,9 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           <MenuItem onClick={handleDelete}>
             <ExitToApp fontSize='small' sx={{ mr: 3 }} /> Out Group
           </MenuItem>
+          <MenuItem onClick={handleClickOpenAlertDeleteGroup}>
+            <Delete fontSize='small' sx={{ mr: 3 }} /> Delete Group
+          </MenuItem>
         </Menu>
       </TableContainer>
 
@@ -359,7 +416,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         aria-labelledby='alert-dialog-title'
         aria-describedby='alert-dialog-description'
       >
-        <DialogTitle id='alert-dialog-title'>{'Group EXE'}</DialogTitle>
+        <DialogTitle id='alert-dialog-title'>{selectedRow?.name}</DialogTitle>
         <DialogContent>
         <TextField
              id="reason"
@@ -383,7 +440,25 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAlert}>Cancel</Button>
-          <Button onClick={handleCloseAlert} autoFocus>
+          <Button onClick={handleMoveOutGroup} autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openAlertDeleteGroup}
+        onClose={handleCloseAlertDeleteGroup}
+        aria-labelledby='alert-dialog-title'
+        aria-describedby='alert-dialog-description'
+      >
+        <DialogTitle id='alert-dialog-title'>{selectedRow?.name}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id='alert-dialog-description'>Do you want to delete this group?</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAlertDeleteGroup}>Cancel</Button>
+          <Button onClick={handleDeleteGroup} autoFocus>
             Yes
           </Button>
         </DialogActions>

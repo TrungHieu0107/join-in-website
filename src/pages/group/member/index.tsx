@@ -217,6 +217,37 @@ const Application = () => {
     setOpenAlertDelete(false)
   }
 
+  const handleKickOutGroup = () => {
+    console.log(reason)
+    if (reason !== ''){
+      kickOutGroup()
+    }
+  }
+
+  const kickOutGroup = async () =>{
+    try {
+      const dataGroup = await groupDBDexie.getGroup()
+      const request :any = {
+        memberId: selectedRow?.id,
+        description: reason,
+        groupId: dataGroup?.id
+      }
+      console.log(request)
+      await memberAPI.kickOut(request)
+      .then(res =>{
+        const data = new CommonResponse(res)
+        setUpdateUI(!updateUI)
+        setOpenAlertDelete(false)
+        addToast.addToast(data.message,{appearance:'success'})
+      })
+      .catch(err =>{
+        console.log(err)
+      })
+    } catch (err){
+      console.log(err)
+    }
+  }
+
   const handleClickOpen = () => {
     setOpen(true)
   }
@@ -239,7 +270,8 @@ const Application = () => {
   const handleDelete = () => {
     // Handle delete action
     handleClickOpenAlertDelete()
-    handleOptionsClose()
+
+    // handleOptionsClose()
   }
 
   const handleViewDetail = (row: any) => {
@@ -247,6 +279,7 @@ const Application = () => {
 
     setSelectedRow(row)
     setModalProfileOpen(true)
+
     // handleOptionsClose()
   }
 
@@ -503,7 +536,7 @@ const Application = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAlertDelete}>Cancel</Button>
-          <Button onClick={handleCloseAlertDelete} autoFocus>
+          <Button onClick={handleKickOutGroup} autoFocus>
             Yes
           </Button>
         </DialogActions>

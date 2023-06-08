@@ -11,7 +11,7 @@ import CardContent from '@mui/material/CardContent'
 import Button, { ButtonProps } from '@mui/material/Button'
 
 // ** Icons Imports
-import { Divider, InputAdornment } from '@mui/material'
+import { Backdrop, CircularProgress, Divider, InputAdornment } from '@mui/material'
 import { AccountGroup, AlphaACircleOutline, Book, InformationVariant, School, TownHall } from 'mdi-material-ui'
 import Editor from '../dialog/editor'
 import { useToasts } from 'react-toast-notifications'
@@ -84,6 +84,7 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
   const [description, setDescription] = useState<string>('')
   const [fileAvatar, setFileAvatar] = useState<FileList>()
   const [fileBackGround, setFileBackGround] = useState<FileList>()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const addToast = useToasts()
 
@@ -162,6 +163,7 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
 
   const handleCreateGroup = async () => {
     try {
+      setIsLoading(true)
       const urlAvatar = await uploadImage()
       const urlBackground = await uploadBackground()
 
@@ -188,6 +190,7 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
             console.log('Application Form: ', error)
           })
           onButtonClickClose && onButtonClickClose()
+
       } else {
         await groupAPI
           .put(group)
@@ -199,6 +202,7 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
             console.log('Application Form: ', error)
           })
       }
+      setIsLoading(false)
     } catch (err) {
       console.log(err)
     }
@@ -380,6 +384,9 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
           </Grid>
         </Grid>
       </form>
+      <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </CardContent>
   )
 }
