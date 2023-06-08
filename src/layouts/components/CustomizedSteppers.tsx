@@ -13,6 +13,8 @@ import { Milestone } from 'src/models/class'
 import { milestoneAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { useToasts } from 'react-toast-notifications'
+import { useRouter } from 'next/router'
+import { AxiosError } from 'axios'
 
 const QontoConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -72,6 +74,11 @@ export default function CustomizedSteppers() {
   const [listMilestones, setListMilestones] = useState<Milestone[]>([])
   const [currentMilestone, setCurrentMilestone] = useState<Milestone>()
   const addToast = useToasts()
+  const router = useRouter()
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
 
   useEffect(() => {
     getListMilestone()
@@ -89,10 +96,23 @@ export default function CustomizedSteppers() {
           setCurrentMilestone(milestones[data.data.currentMilestoneOrder - 1])
         })
         .catch(error => {
-          console.log(error)
+          handleError(error)
         })
     } catch (err) {
-      addToast.addToast(err, { appearance: 'error' })
+      console.log(err)
+    }
+  }
+
+  const handleError = (error: any) => {
+    const dataErr = (error as AxiosError)?.response
+    if (dataErr?.status === 401) {
+      notify('Login expired.', 'error')
+      router.push('/user/login')
+    } else if (dataErr?.status === 500) {
+      if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
+      else notify('Something error', 'error')
+    } else {
+      console.log(error)
     }
   }
 
@@ -120,6 +140,5 @@ export default function CustomizedSteppers() {
         </Stack>
       </CardContent>
     </Card>
-
   )
 }

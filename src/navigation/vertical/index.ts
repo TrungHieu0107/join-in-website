@@ -23,7 +23,6 @@ import {
   CommentAlert,
   FileOutline,
   FileTree,
-  Logout,
   CashMultiple
 } from 'mdi-material-ui'
 import { useRouter } from 'next/router'

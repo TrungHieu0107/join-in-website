@@ -71,7 +71,7 @@ const statusObj: StatusObj = {
   OUT: { color: 'error' }
 }
 
-const Application = () => {
+const MemberPage = () => {
   const router = useRouter()
   const addToast = useToasts()
 
@@ -286,8 +286,6 @@ const Application = () => {
   const handleChangeStatus = () => {
     // Handle change status action
     handleClickPopupChangeRole()
-
-    // handleOptionsClose()
   }
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -622,7 +620,6 @@ const Application = () => {
   )
 }
 
-Application.getLayout = (page: ReactNode) => <UserGroupLayout>{page}</UserGroupLayout>
+MemberPage.getLayout = (page: ReactNode) => <UserGroupLayout>{page}</UserGroupLayout>
 
-
-export default withAuth(Application)
+export default withAuth(MemberPage)

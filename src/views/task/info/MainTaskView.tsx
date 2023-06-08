@@ -16,7 +16,6 @@ import {
   InputLabel,
   Alert,
   AlertTitle,
-  Backdrop,
   CircularProgress
 } from '@mui/material'
 import { SetStateAction, useEffect, useState } from 'react'
@@ -29,10 +28,7 @@ import AssignView from './AssignView'
 import moment from 'moment'
 import { groupAPI, taskAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
-import { Fullscreen } from 'mdi-material-ui'
 import { UpdateTaskModel } from 'src/models/query-models/UpdateTaskModel'
-import { status } from 'nprogress'
-import { StorageKeys } from 'src/constants'
 
 export interface IMainTaskViewProps {
   data: Task
@@ -45,7 +41,7 @@ const DEFAULT_INPUT_WIDTH = 200
 const MAX_INPUT_WIDTH = 700
 const FONT_SIZE = 9
 
-export default function MainTaskView({ data, handleError, notify , onSuccess }: IMainTaskViewProps) {
+export default function MainTaskView({ data, handleError, notify, onSuccess }: IMainTaskViewProps) {
   const [value, setValues] = useState<Task>(new Task(data))
   const [editable, setEditable] = useState<boolean>(false)
   const [isEdit, setIsEdit] = useState(false)
@@ -56,8 +52,8 @@ export default function MainTaskView({ data, handleError, notify , onSuccess }: 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    console.log(data);
-    
+    console.log(data)
+
     if (taskName) {
       if (taskName.length * FONT_SIZE > DEFAULT_INPUT_WIDTH) {
         setInputWidth(
@@ -75,7 +71,7 @@ export default function MainTaskView({ data, handleError, notify , onSuccess }: 
       moment(value.endDateDeadline).add('days', 1).format('yyyy-MM-DD'),
       moment().format('yyyy-MM-DD')
     )
-    
+
     setValues(new Task(data))
     setTaskName(data.name ?? '')
   }, [data])
@@ -92,7 +88,7 @@ export default function MainTaskView({ data, handleError, notify , onSuccess }: 
         .then(role => {
           const r = new CommonResponse(role).data
           console.log(r === 'LEADER' || r === 'SUB_LEADER')
-          
+
           setIsLeader(r === 'LEADER' || r === 'SUB_LEADER')
           setTimeout(() => {
             setIsLoading(false)
@@ -147,7 +143,6 @@ export default function MainTaskView({ data, handleError, notify , onSuccess }: 
     const val: Task = new Task(value)
     value.name = taskName
     val.description = description
-    // setValues(val)
 
     const data = new UpdateTaskModel({
       id: val.id ?? '',
@@ -159,8 +154,8 @@ export default function MainTaskView({ data, handleError, notify , onSuccess }: 
       impotantLevel: importantLevel[val.impotantLevel ?? ''].valueNumber ?? 1,
       status: statusObj[val.status ?? ''].valueNumber ?? 0
     })
-    console.log(data);
-    
+    console.log(data)
+
     setIsLoading(true)
     taskAPI
       .updateTask(data)
@@ -181,7 +176,7 @@ export default function MainTaskView({ data, handleError, notify , onSuccess }: 
       })
   }
 
-  const onChangeValue = async (task:Task) => {
+  const onChangeValue = async (task: Task) => {
     setValues(task)
   }
 
@@ -395,7 +390,7 @@ export default function MainTaskView({ data, handleError, notify , onSuccess }: 
               translate: '-50px'
             }}
           >
-            <TimeLineView data={value} editable={editable} isLeader={isLeader} changeValue={onChangeValue}/>
+            <TimeLineView data={value} editable={editable} isLeader={isLeader} changeValue={onChangeValue} />
           </Grid>
           <Divider
             orientation='vertical'

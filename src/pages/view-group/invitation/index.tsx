@@ -5,9 +5,10 @@ import { applicationAPI, groupAPI } from 'src/api-client'
 import { ApplicationMajor, Group, GroupMajor, User } from 'src/models/class'
 import GroupDetail from 'src/views/group/group-detail/GroupDetial'
 
-import { Button } from '@mui/material'
 import withAuth from 'src/pages/withAuth'
 import { CommonResponse } from 'src/models/common/CommonResponse'
+import InvitationView from 'src/views/group/invitation/InvitationView'
+import { AxiosError } from 'axios'
 
 interface ApplicationInfo {
   id: string
@@ -22,7 +23,7 @@ interface ApplicationInfo {
   applicationMajors: ApplicationMajor
 }
 
-interface GroupData {
+export interface GroupData {
   groupName?: string
   schoolName?: string
   className?: string
@@ -49,6 +50,10 @@ const InviteInfomationPage = () => {
     listRecruiting: []
   })
   const addToast = useToasts()
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
   const router = useRouter()
   const query = router.query
 
@@ -57,7 +62,7 @@ const InviteInfomationPage = () => {
   }, [query])
 
   const getApplication = async () => {
-    const applicationId = router.query.applicationId?.toString()
+    const applicationId = router.query.application?.toString()
     if (!applicationId) return
 
     await applicationAPI
@@ -86,13 +91,27 @@ const InviteInfomationPage = () => {
             })
           })
           .catch(err => {
-            // handleError(err)
+            handleError(err)
           })
       })
       .catch(error => {
         console.log(error)
       })
   }
+
+  const handleError = (error: any) => {
+    const dataErr = (error as AxiosError)?.response
+    if (dataErr?.status === 401) {
+      notify('Login expired.', 'error')
+      router.push('/user/login')
+    } else if (dataErr?.status === 500) {
+      if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
+      else notify('Something error', 'error')
+    } else {
+      console.log(error)
+    }
+  }
+
   return (
     <GroupDetail
       values={values}
@@ -101,11 +120,7 @@ const InviteInfomationPage = () => {
       imgSrc={values.imgSrc ?? ''}
       skills={values.skills ?? ''}
       listRecruiting={values.listRecruiting ?? []}
-      actionGroup={
-        <Button variant='contained' sx={{ marginRight: 5 }} onClick={() => {}}>
-          Apply
-        </Button>
-      }
+      invitation={<InvitationView values={values} />}
     />
   )
 }

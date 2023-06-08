@@ -1,10 +1,9 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { Backdrop, CircularProgress, Typography, Grid } from '@mui/material'
-import { verify } from 'crypto'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import { CheckCircleOutline, CheckUnderline, Scale } from 'mdi-material-ui'
-import { clearTimeout } from 'timers'
+import { CheckCircleOutline } from 'mdi-material-ui'
+
 const VerifyEmailPage = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const router = useRouter()
@@ -13,16 +12,17 @@ const VerifyEmailPage = () => {
     if (code?.length === 0) {
       router.push('/user/login')
     } else {
-      const timer1 = setTimeout(() => {
+      setTimeout(() => {
         setIsSuccess(true)
       },3000)
 
-      const timer2 = setTimeout(() => {
+      setTimeout(() => {
         router.push('/profile/initialization?token=' + code, '/profile/initialization')
       }, 4000)
 
     }
   }, [code])
+  
   return (
     <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={true}>
       <Grid container direction={'column'} justifyContent={'center'} alignItems={'center'}>

@@ -1,4 +1,3 @@
-import { User } from 'src/models/class'
 import axiosClient from './api-client'
 
 export const authAPI = {
@@ -35,6 +34,7 @@ export const authAPI = {
     const data = {
       googleToken: googleToken
     }
+
     return axiosClient.post('/oauth2/call-back', data)
   }
 }

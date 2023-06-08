@@ -1,18 +1,19 @@
-import { Box, Grid, Typography } from '@mui/material';
-import { ReactNode, useEffect, useState } from 'react';
-import BlankLayout from 'src/@core/layouts/BlankLayout';
+import { Box, Grid, Typography } from '@mui/material'
+import { ReactNode, useEffect, useState } from 'react'
+import BlankLayout from 'src/@core/layouts/BlankLayout'
 import TabAccount from 'src/views/profile/TabAccount'
-import {useRouter} from 'next/router'
+import { useRouter } from 'next/router'
 
-const InitializationProfilePage =  () => {
+const InitializationProfilePage = () => {
   const router = useRouter()
   const [code, setCode] = useState<string>('')
 
   useEffect(() => {
     console.log(router.query)
-    
+
     setCode(router.query?.token as string)
   }, [])
+
   return (
     <Box>
       <Grid
@@ -23,14 +24,14 @@ const InitializationProfilePage =  () => {
         justifyContent={'center'}
         alignItems={'center'}
         style={{
-            margin: 'auto'
+          margin: 'auto'
         }}
       >
         <Grid item m={5} mt={10}>
           <Typography variant='h6'>Create your profile</Typography>
         </Grid>
         <Grid item>
-          <TabAccount code={code}/>
+          <TabAccount code={code} />
         </Grid>
       </Grid>
     </Box>

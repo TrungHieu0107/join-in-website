@@ -40,7 +40,6 @@ import { Message, QueryKeys } from 'src/constants'
 import { authAPI } from 'src/api-client'
 import { useRouter } from 'next/router'
 import MyLogo from 'src/layouts/components/MyLogo'
-import { User } from 'src/models/class'
 import { AxiosError } from 'axios'
 import { useToasts } from 'react-toast-notifications'
 import { CommonResponse } from 'src/models/common/CommonResponse'
@@ -85,11 +84,11 @@ const RegisterPage = () => {
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [passwordConfirmError, setPasswordConfirmError] = useState('')
-    const addToast = useToasts()
+  const addToast = useToasts()
 
-    const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
-      addToast.addToast(message, { appearance: type })
-    }
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
 
   // ** Hook
   const router = useRouter()
@@ -169,7 +168,7 @@ const RegisterPage = () => {
         setPasswordConfirmError('')
       })
 
-      console.log(isError, passwordConfirmError)
+    console.log(isError, passwordConfirmError)
 
     if (isError) {
       return
@@ -181,10 +180,12 @@ const RegisterPage = () => {
 
     authAPI
       .signUp(user)
-      .then(() => {})
+      .then(() => {
+        router.push('/user/login')
+      })
       .catch(error => {
-        console.log(error);
-        
+        console.log(error)
+
         if ((error as AxiosError)?.response?.status === 400) {
           const commonResposne = new CommonResponse((error as AxiosError)?.response?.data as CommonResponse)
           notify(commonResposne.message ?? 'Error', 'error')
@@ -199,7 +200,7 @@ const RegisterPage = () => {
       <Card sx={{ zIndex: 1 }}>
         <CardContent sx={{ padding: theme => `${theme.spacing(12, 9, 7)} !important` }}>
           <Box sx={{ mb: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <MyLogo width='50' height='50'/>
+            <MyLogo width='50' height='50' />
             <Typography
               variant='h6'
               sx={{
@@ -274,7 +275,7 @@ const RegisterPage = () => {
               </InputLabel>
               <OutlinedInput
                 label='Confirm'
-                error= {passwordConfirmError.length > 0}
+                error={passwordConfirmError.length > 0}
                 value={values.passwordConfirm}
                 id='auth-register-password-confirm'
                 onChange={handleChange('passwordConfirm')}
@@ -343,9 +344,11 @@ const RegisterPage = () => {
                 </IconButton>
               </Link>
             </Box> */}
-            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} >
-                <Google sx={{ color: '#FFFFFF', marginRight:'10px'}} />
-                <Typography fontWeight='bold' color='#FFFFFF'>Login with Google</Typography>
+            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }}>
+              <Google sx={{ color: '#FFFFFF', marginRight: '10px' }} />
+              <Typography fontWeight='bold' color='#FFFFFF'>
+                Login with Google
+              </Typography>
             </Button>
           </form>
         </CardContent>

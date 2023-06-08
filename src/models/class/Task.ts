@@ -1,4 +1,4 @@
-import { AssignedTask, Group, User, Comment, Member } from './index'
+import { AssignedTask, Group, User, Comment } from './index'
 
 export class Task {
   private _id: undefined | string

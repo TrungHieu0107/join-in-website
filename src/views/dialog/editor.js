@@ -27,6 +27,7 @@ function Editor({ onChange, name, value }) {
           })
         )
       }
+
       return Promise.resolve(editorRef.current)
     } catch (error) {
       setEditorLoaded(true)

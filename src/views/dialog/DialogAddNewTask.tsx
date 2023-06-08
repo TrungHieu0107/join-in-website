@@ -1,5 +1,5 @@
 // ** React Imports
-import { forwardRef, SetStateAction, useEffect, useState } from 'react'
+import { forwardRef, SetStateAction, useState } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -25,7 +25,7 @@ import DatePicker from 'react-datepicker'
 // ** Icons Imports
 import Editor from './editor'
 import { Calendar, Close, Exclamation, InformationVariant, ListStatus, Pen } from 'mdi-material-ui'
-import { Autocomplete, InputAdornment } from '@mui/material'
+import { InputAdornment } from '@mui/material'
 import { Task } from 'src/models/class'
 import { StorageKeys } from 'src/constants'
 import { importantLevel, importantLevelList } from 'src/constants/important-level'
@@ -81,38 +81,6 @@ export interface DialogCreateNewTask {
   onSuccess?: () => Promise<void>
 }
 
-interface Option {
-  value: string
-  label: string
-  image: string
-  name: string
-  major: string
-}
-
-const options: Option[] = [
-  {
-    value: 'option1',
-    label: 'Xuan Kien',
-    image: '/images/avatars/1.png',
-    name: 'Xuan Kien',
-    major: 'Information Technology'
-  },
-  {
-    value: 'option2',
-    label: 'Quoc Bao',
-    image: '/images/avatars/1.png',
-    name: 'Quoc Bao',
-    major: 'Information Technology'
-  },
-  {
-    value: 'option3',
-    label: 'Trung Hieu',
-    image: '/images/avatars/1.png',
-    name: 'Trung Hieu',
-    major: 'Information Technology'
-  }
-]
-
 const DialogCreateNewTask = (props: DialogCreateNewTask) => {
   // ** States
   const [importantLv, setimportantLv] = useState<string>('')
@@ -121,7 +89,6 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
   const [from, setFrom] = useState<Date | null | undefined>(null)
   const [description, setDescription] = useState<string>('')
   const [name, setName] = useState<string>('')
-  
 
   const { mainTask, close, groupId, onSuccess } = props
   const addToast = useToasts()

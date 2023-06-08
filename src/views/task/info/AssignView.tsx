@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AssignedTask, Member, Task, User } from 'src/models/class'
+import { Member, Task } from 'src/models/class'
 import { Autocomplete, Avatar, Box, Chip, CircularProgress, TextField, Typography } from '@mui/material'
 import { memberAPI, taskAPI } from 'src/api-client'
 import { useRouter } from 'next/router'
@@ -12,7 +12,6 @@ export interface IAssignViewProps {
 }
 
 export default function AssignView(props: IAssignViewProps) {
-  const [value, setValue] = useState<Task>(props.data)
   const [listMember, setListMember] = useState<Member[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const router = useRouter()
@@ -40,7 +39,7 @@ export default function AssignView(props: IAssignViewProps) {
         const listAssign: Member[] = []
         for (let index = 0; index < list.length; index++) {
           const element = list[index]
-          props.data.assignedFor?.map(item => { 
+          props.data.assignedFor?.map(item => {
             if (item.id === element.user?.id) {
               listAssign.push(element)
             }
@@ -109,16 +108,18 @@ export default function AssignView(props: IAssignViewProps) {
         getOptionLabel={option => (option?.user?.fullName ? option?.user.fullName : 'Không tên')}
         renderTags={(tagValue, getTagProps) =>
           tagValue.map((option, index) => (
-            <Chip
-              avatar={<Avatar alt='Natacha' src={option?.user?.avatar} sizes='medium' />}
-              label={option?.user?.fullName}
-              {...getTagProps({ index })}
-              variant='outlined'
-              sx={{
-                m: 1
-              }}
-              disabled={false}
-            />
+            <div key={index}>
+              <Chip
+                avatar={<Avatar alt='Natacha' src={option?.user?.avatar} sizes='medium' />}
+                label={option?.user?.fullName}
+                {...getTagProps({ index })}
+                variant='outlined'
+                sx={{
+                  m: 1
+                }}
+                disabled={false}
+              />
+            </div>
           ))
         }
         renderOption={(props, option) => (

@@ -6,25 +6,18 @@ import {
   CardContent,
   Box,
   Typography,
-  Button,
-  Divider,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  DialogContent
+  Divider
 } from '@mui/material'
 import {
   AccountTieHat,
   Book,
   School,
   TownHall,
-  Close,
   AlphaACircleOutline,
   InformationVariant,
   AccountGroup
 } from 'mdi-material-ui'
-import { ReactNode, useState } from 'react'
-import ApplicationForm from '../application/ApplicationForm'
+import { ReactNode } from 'react'
 import { GroupMajor } from 'src/models/class'
 
 const SpaceBetweenText = (props: { title: string; content: string }) => {

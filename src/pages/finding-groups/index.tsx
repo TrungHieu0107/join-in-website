@@ -48,7 +48,7 @@ const FindingGroupsPage = () => {
           console.log(error)
         })
     } catch (err) {
-      addToast.addToast(err, { appearance: 'error' })
+      console.log(err)
     }
   }
 

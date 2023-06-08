@@ -23,47 +23,44 @@ import { GroupMajor, Major } from 'src/models/class'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { groupDBDexie } from 'src/models/db/GroupDB'
 
-
 const RecruitmentForm = () => {
   // ** State
   const [selectedValue, setSelectedValue] = useState('')
   const [listMajors, setListMajors] = useState<Major[]>([])
-  const [quantity, setQuantity] = useState<number>(0);
+  const [quantity, setQuantity] = useState<number>(0)
   const [listRecruiting, setListRecruiting] = useState<any[]>([])
   const addToast = useToasts()
 
   useEffect(() => {
     getListMajors()
-    getListRecruiting();
+    getListRecruiting()
   }, [])
 
-  const getListRecruiting = async () =>{
+  const getListRecruiting = async () => {
     try {
-      await groupAPI.getListRecruiting()
-      .then(res => {
-        const data = new CommonResponse(res);
-        const list : any[] = data.data.map((value : GroupMajor) =>({
+      await groupAPI.getListRecruiting().then(res => {
+        const data = new CommonResponse(res)
+        const list: any[] = data.data.map((value: GroupMajor) => ({
           majorId: value.major?.id,
-          memberCount : value.memberCount,
+          memberCount: value.memberCount,
           name: value.major?.name
-        }));
+        }))
         console.log(list)
         setListRecruiting(list)
       })
-    } catch (err){
+    } catch (err) {
       console.log(err)
     }
   }
 
-  const handleChange =  (event: SelectChangeEvent<string>) => {
+  const handleChange = (event: SelectChangeEvent<string>) => {
     setSelectedValue(event.target.value)
-    const recru =  listRecruiting.find((recr) => recr.majorId === event.target.value);
+    const recru = listRecruiting.find(recr => recr.majorId === event.target.value)
     setQuantity(recru?.memberCount ?? 0)
   }
 
-
-  const handleChangeQuantity = (event: ChangeEvent<HTMLInputElement>) =>{
-    setQuantity(Number(event.target.value));
+  const handleChangeQuantity = (event: ChangeEvent<HTMLInputElement>) => {
+    setQuantity(Number(event.target.value))
   }
 
   const getListMajors = async () => {
@@ -76,50 +73,49 @@ const RecruitmentForm = () => {
           setListMajors(majors)
         })
         .catch(error => {
-          console.log(error);
+          console.log(error)
         })
     } catch (err) {
-      addToast.addToast(err, { appearance: 'error' })
+      console.log(err)
     }
   }
 
-  const handleAddMajor = ()=>{
-    const updateList = [...listRecruiting];
-    const majorIndex = updateList.findIndex((recr) => recr.majorId === selectedValue)
-    if (majorIndex !==-1){
+  const handleAddMajor = () => {
+    const updateList = [...listRecruiting]
+    const majorIndex = updateList.findIndex(recr => recr.majorId === selectedValue)
+    if (majorIndex !== -1) {
       updateList[majorIndex].memberCount = quantity
-    } else{
-      const dataMajor = listMajors.find(major => major.id===selectedValue)
-      updateList.push({majorId:selectedValue, memberCount:quantity, name: dataMajor?.name})
+    } else {
+      const dataMajor = listMajors.find(major => major.id === selectedValue)
+      updateList.push({ majorId: selectedValue, memberCount: quantity, name: dataMajor?.name })
     }
     saveRecruitingList(updateList)
     setListRecruiting(updateList)
   }
 
-  const handleClickDelete = (indexInput:number) => {
+  const handleClickDelete = (indexInput: number) => {
     // handle delete recruitment
-    const updateRecruiting = listRecruiting.filter((data,index)=> index !== indexInput)
+    const updateRecruiting = listRecruiting.filter((data, index) => index !== indexInput)
     saveRecruitingList(updateRecruiting)
     setListRecruiting(updateRecruiting)
   }
 
-  const saveRecruitingList = async (listRecruiting: any[]) =>{
+  const saveRecruitingList = async (listRecruiting: any[]) => {
     try {
       // const listMajor :any[] = listRecruiting.map(data => ({
       //   majorId: data.majorId,
       //   memberCount: data.memberCount
       // }))
       const groupData = await groupDBDexie.getGroup()
-      const request : any = {
+      const request: any = {
         groupId: groupData?.id,
         groupMajorsDTO: listRecruiting
       }
-      await groupAPI.putRecruiting(request)
-      .then(res => {
-        const data = new CommonResponse(res);
-        addToast.addToast(data.message,)
+      await groupAPI.putRecruiting(request).then(res => {
+        const data = new CommonResponse(res)
+        addToast.addToast(data.message)
       })
-    } catch (err){
+    } catch (err) {
       console.log(err)
     }
   }
@@ -184,11 +180,11 @@ const RecruitmentForm = () => {
               <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{ fontWeight: 600, fontSize: '1rem' }}>{item.name}</Typography>
               </Box>
-              <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'row' , alignItems: 'center'}}>
+              <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <Typography variant='subtitle1' sx={{ fontWeight: 600, color: 'success.main', mr: 5 }}>
                   {item.memberCount}
                 </Typography>
-                <IconButton onClick={()=>handleClickDelete(index)}>
+                <IconButton onClick={() => handleClickDelete(index)}>
                   <DeleteOutline color='error' />
                 </IconButton>
               </Box>

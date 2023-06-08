@@ -18,11 +18,10 @@ import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
 import { TextField } from '@mui/material'
 import { ShieldCheck } from 'mdi-material-ui'
 import { userAPI } from 'src/api-client'
-  import { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import { useToasts } from 'react-toast-notifications'
 import { AxiosError } from 'axios'
 import { CommonResponse } from 'src/models/common/CommonResponse'
-
 
 interface State {
   newPassword: string
@@ -45,11 +44,12 @@ const TabSecurity = () => {
   })
   const [verifyToken, setVerifyToken] = useState<string>('')
   const router = useRouter()
-const addToast = useToasts()
+  const addToast = useToasts()
 
-const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
-  addToast.addToast(message, { appearance: type })
-}
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
+
   // Handle New Password
   const handleNewPasswordChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value })
@@ -73,30 +73,33 @@ const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info')
   }
 
   const handleSubmit = async () => {
-    await userAPI.updatePassword({
-      password: values.newPassword,
-      verifyCode: verifyToken
-    }).then((res) => {
-      const response = new CommonResponse(res)
-      if(response.status === 200) {
-        notify(response.message ?? '', 'success')
-        router.push('/user/login')
-      }
-    }).catch(error => handleError(error))
+    await userAPI
+      .updatePassword({
+        password: values.newPassword,
+        verifyCode: verifyToken
+      })
+      .then(res => {
+        const response = new CommonResponse(res)
+        if (response.status === 200) {
+          notify(response.message ?? '', 'success')
+          router.push('/user/login')
+        }
+      })
+      .catch(error => handleError(error))
   }
 
-   const handleError = (error: any) => {
-     const dataErr = (error as AxiosError)?.response
-     if (dataErr?.status === 401) {
-       notify('Login expired.', 'error')
-       router.push('/user/login')
-     } else if (dataErr?.status === 500) {
-       if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
-       else notify('Something error', 'error')
-     } else {
-       console.log(error)
-     }
-   }
+  const handleError = (error: any) => {
+    const dataErr = (error as AxiosError)?.response
+    if (dataErr?.status === 401) {
+      notify('Login expired.', 'error')
+      router.push('/user/login')
+    } else if (dataErr?.status === 500) {
+      if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
+      else notify('Something error', 'error')
+    } else {
+      console.log(error)
+    }
+  }
 
   return (
     <form>

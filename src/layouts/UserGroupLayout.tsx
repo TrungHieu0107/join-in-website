@@ -17,8 +17,6 @@ import VerticalAppBarContent from './components/vertical/AppBarGroupContent'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
-import { Box } from '@mui/material'
-import Link from 'next/link'
 import UpgradeToProImg from './components/UpgradeToProImg'
 
 interface Props {
@@ -38,8 +36,6 @@ const UserGroupLayout = ({ children }: Props) => {
    *  ! Do not change this value unless you know what you are doing. It can break the template.
    */
   const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
-
-
 
   return (
     <VerticalLayout

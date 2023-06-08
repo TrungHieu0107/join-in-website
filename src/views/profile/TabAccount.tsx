@@ -30,16 +30,7 @@ import Close from 'mdi-material-ui/Close'
 import { Autocomplete, FormControlLabel, FormLabel, InputAdornment, Radio, RadioGroup } from '@mui/material'
 import DatePicker from 'react-datepicker'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-import {
-  AccountOutline,
-  AlphaACircleOutline,
-  Calendar,
-  Contacts,
-  EmailOutline,
-  InformationVariant,
-  Phone,
-  Ufo
-} from 'mdi-material-ui'
+import { AccountOutline, AlphaACircleOutline, Calendar, Contacts, InformationVariant, Phone } from 'mdi-material-ui'
 import Editor from '../dialog/editor'
 import { Major, User } from 'src/models/class'
 import { majorAPI, userAPI } from 'src/api-client'
@@ -52,7 +43,6 @@ import { UserCompleteProfileModel } from 'src/models/query-models/UserCompletePr
 import { AxiosError, AxiosResponse } from 'axios'
 import { useToasts } from 'react-toast-notifications'
 import * as yup from 'yup'
-import user from 'src/pages/admin/user'
 import { userDBDexie } from 'src/models/db/UserDB'
 
 const ImgStyled = styled('img')(({ theme }) => ({
@@ -498,7 +488,7 @@ const TabAccount = (props: TabAccountProps) => {
                 aria-label='gender'
                 name='account-settings-info-radio'
                 onChange={e => {
-                  setGender('male')
+                  setGender(e.target.value)
                 }}
                 value={gender}
               >

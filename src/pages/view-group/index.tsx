@@ -1,27 +1,11 @@
-// ** MUI Imports
 import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
 import Button from '@mui/material/Button'
-import Avatar from '@mui/material/Avatar'
-import CardMedia from '@mui/material/CardMedia'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
-import { Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid } from '@mui/material'
-import {
-  AccountGroup,
-  AccountTieHat,
-  AlphaACircleOutline,
-  Book,
-  Close,
-  InformationVariant,
-  School,
-  TownHall
-} from 'mdi-material-ui'
+import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material'
+import { Close } from 'mdi-material-ui'
 import ApplicationForm from 'src/views/group/application/ApplicationForm'
 import { useEffect, useState } from 'react'
 import { Group, GroupMajor } from 'src/models/class'
 import { CommonResponse } from 'src/models/common/CommonResponse'
-import { groupDBDexie } from 'src/models/db/GroupDB'
 import { groupAPI } from 'src/api-client'
 import GroupDetail from 'src/views/group/group-detail/GroupDetial'
 import { AxiosError } from 'axios'
@@ -50,6 +34,7 @@ const GroupView = () => {
   const [skills, setSkills] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [listRecruiting, setListRecruiting] = useState<GroupMajor[]>([])
+  const [open, setOpen] = useState<boolean>(false)
   const addToast = useToasts()
   const router = useRouter()
   const query = router.query
@@ -82,14 +67,14 @@ const GroupView = () => {
 
   const getInformation = async () => {
     try {
-      if (!query.groupId) {
+      if (!query.group) {
         router.push('/finding-groups')
 
         return
       }
 
       await groupAPI
-        .getById(query.groupId as string)
+        .getById(query.group as string)
         .then(res => {
           const data = new CommonResponse(res)
 
@@ -129,63 +114,41 @@ const GroupView = () => {
   }
 
   return (
-    <GroupDetail
-      values={values}
-      description={description}
-      imgBackground={imgBackgroud}
-      imgSrc={imgSrc}
-      skills={skills}
-      listRecruiting={listRecruiting}
-      actionGroup={
-        <Button variant='contained' sx={{ marginRight: 5 }} onClick={() => {}}>
-          Apply
-        </Button>
-      }
-    />
+    <>
+      <GroupDetail
+        values={values}
+        description={description}
+        imgBackground={imgBackgroud}
+        imgSrc={imgSrc}
+        skills={skills}
+        listRecruiting={listRecruiting}
+        actionGroup={
+          <Button
+            variant='contained'
+            sx={{ marginRight: 5 }}
+            onClick={() => {
+              setOpen(true)
+            }}
+          >
+            Apply
+          </Button>
+        }
+      />
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <DialogTitle>Application</DialogTitle>
+          <DialogActions>
+            <Button onClick={() => setOpen(false)}>
+              <Close sx={{ color: 'red' }} />
+            </Button>
+          </DialogActions>
+        </Box>
+        <DialogContent>
+          <ApplicationForm onButtonClick={() => setOpen(false)} />
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
 export default withAuth(GroupView)
-
-{
-  /* <Card>
-            <CardContent>
-              <Typography variant='h6' sx={{ marginBottom: 3.5 }}>
-                Invitation
-              </Typography>
-              <Divider sx={{ marginY: '20px' }} />
-              <Typography align='center' variant='h6'>
-                {' '}
-                Group {values.groupName} has sent you an invitation to join the group.
-                <br /> Would you like to join with them?{' '}
-              </Typography>
-              <Box sx={{ mt: 2, mb: 1, display: 'flex', justifyContent: 'center' }}>
-                <Button variant='outlined' size='small' color='error' sx={{ marginRight: 5 }}>
-                  Reject
-                </Button>
-                <Button variant='contained' size='small' color='success'>
-                  Accept
-                </Button>
-              </Box>
-            </CardContent>
-          </Card> */
-}
-
-// ;<Button variant='contained' sx={{ marginRight: 5 }} onClick={handleClickOpen}>
-//   Apply
-// </Button>
-
-// ;<Dialog open={open} onClose={handleClose}>
-//   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-//     <DialogTitle>Application</DialogTitle>
-//     <DialogActions>
-//       <Button onClick={handleClose}>
-//         <Close sx={{ color: 'red' }} />
-//       </Button>
-//     </DialogActions>
-//   </Box>
-
-//   <DialogContent>
-//     <ApplicationForm onButtonClick={handleClose} />
-//   </DialogContent>
-// </Dialog>
