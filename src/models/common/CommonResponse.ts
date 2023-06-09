@@ -6,7 +6,7 @@ export class CommonResponse {
   private _status: number | undefined
   private _pagination: Pagination | undefined
 
-  constructor(value: Partial<CommonResponse>) {
+  constructor(value: Partial<CommonResponse> | any) {
     this.data = value.data
     this.message = value.message ?? ''
     this.status = value.status ?? 0

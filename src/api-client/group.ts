@@ -2,7 +2,6 @@ import { Group } from 'src/models/class'
 import axiosClient from './api-client'
 import { GroupRequest } from 'src/models/query-models/GroupRequest'
 import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel'
-import { groupDBDexie } from 'src/models/db/GroupDB'
 
 const URL = '/groups'
 
@@ -13,10 +12,8 @@ export const groupAPI = {
     })
   },
 
-  async getListRecruiting() {
-    const groupData = await groupDBDexie.getGroup()
-
-    return axiosClient.get(`${URL}/${groupData?.id}/recruiting-information`)
+  async getListRecruiting(groupId: string) {
+    return axiosClient.get(`${URL}/${groupId}/recruiting-information`)
   },
 
   getListFindingGroup(payload?: QueryGroupListModel) {

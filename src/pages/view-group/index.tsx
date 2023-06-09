@@ -50,8 +50,14 @@ const GroupView = () => {
 
   const getListRecruiting = async () => {
     try {
+      if (!query.group) {
+        router.push('/finding-groups')
+
+        return
+      }
+
       await groupAPI
-        .getListRecruiting()
+        .getListRecruiting(query.group as string)
         .then(res => {
           const data = new CommonResponse(res)
           const list: GroupMajor[] = data.data

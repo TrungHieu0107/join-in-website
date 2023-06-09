@@ -208,9 +208,8 @@ const ApplicationScreen = () => {
 
   const handleViewProfile = (row?: any) => {
     // Handle change status action
-    row && setSelectedRow(row)
+    row?.id && setSelectedRow(row)
     setModalProfileOpen(true)
-    handleOptionsClose()
   }
 
   const handleChangePage = (event: unknown, newPage: number) => {

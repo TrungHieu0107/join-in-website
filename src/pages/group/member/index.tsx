@@ -245,16 +245,16 @@ const MemberPage = () => {
 
   const handleKickOutGroup = () => {
     console.log(reason)
-    if (reason !== ''){
+    if (reason !== '') {
       kickOutGroup()
     }
   }
 
-  const kickOutGroup = async () =>{
+  const kickOutGroup = async () => {
     try {
       setIsLoading(true)
       const dataGroup = await groupDBDexie.getGroup()
-      const request :any = {
+      const request: any = {
         memberId: selectedRow?.id,
         description: reason,
         groupId: dataGroup?.id

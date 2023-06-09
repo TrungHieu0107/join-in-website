@@ -39,15 +39,17 @@ const RecruitmentForm = () => {
 
   const getListRecruiting = async () => {
     try {
-      await groupAPI.getListRecruiting().then(res => {
-        const data = new CommonResponse(res)
-        const list: any[] = data.data.map((value: GroupMajor) => ({
-          majorId: value.major?.id,
-          memberCount: value.memberCount,
-          name: value.major?.name
-        }))
-        console.log(list)
-        setListRecruiting(list)
+      await groupDBDexie.getGroup().then(async groupData => {
+        await groupAPI.getListRecruiting(groupData?.id ?? '').then(res => {
+          const data = new CommonResponse(res)
+          const list: any[] = data.data.map((value: GroupMajor) => ({
+            majorId: value.major?.id,
+            memberCount: value.memberCount,
+            name: value.major?.name
+          }))
+          console.log(list)
+          setListRecruiting(list)
+        })
       })
     } catch (err) {
       console.log(err)

@@ -49,16 +49,18 @@ const GroupView = () => {
 
   const getListRecruiting = async () => {
     try {
-      await groupAPI
-        .getListRecruiting()
-        .then(res => {
-          const data = new CommonResponse(res)
-          const list: GroupMajor[] = data.data
-          setListRecruiting(list)
-        })
-        .catch(err => {
-          handleError(err)
-        })
+      await groupDBDexie.getGroup().then(async groupData => {
+        await groupAPI
+          .getListRecruiting(groupData?.id ?? '')
+          .then(res => {
+            const data = new CommonResponse(res)
+            const list: GroupMajor[] = data.data
+            setListRecruiting(list)
+          })
+          .catch(err => {
+            handleError(err)
+          })
+      })
     } catch (err) {
       console.log(err)
     }

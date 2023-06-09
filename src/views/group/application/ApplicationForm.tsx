@@ -21,18 +21,20 @@ import { CommonResponse } from 'src/models/common/CommonResponse'
 import { groupDBDexie } from 'src/models/db/GroupDB'
 import { ApplicationRequest } from 'src/models/query-models/ApplicationRequest'
 import Editor from 'src/views/dialog/editor'
+import { useRouter } from 'next/router'
 
 // ** Icons Imports
 
 interface ChildComponentProps {
-  onButtonClick: () => void;
+  onButtonClick: () => void
 }
 
-const ApplicationForm : FC<ChildComponentProps> = ({ onButtonClick }) => {
+const ApplicationForm: FC<ChildComponentProps> = ({ onButtonClick }) => {
   // ** State
   const [description, setDescription] = useState<string>('')
   const [selectedValue, setSelectedValue] = useState('')
   const [listRecruiting, setListRecruiting] = useState<GroupMajor[]>([])
+  const router = useRouter()
 
   const addToast = useToasts()
 
@@ -40,15 +42,27 @@ const ApplicationForm : FC<ChildComponentProps> = ({ onButtonClick }) => {
     getListRecruiting()
   }, [])
 
-  const getListRecruiting = async () =>{
+  const getListRecruiting = async () => {
     try {
-      await groupAPI.getListRecruiting()
-      .then(res => {
-        const data = new CommonResponse(res);
-        const list : GroupMajor[] = data.data;
-        setListRecruiting(list)
+      await groupDBDexie.getGroup().then(async groupData => {
+        if (groupData?.id) {
+          await groupAPI.getListRecruiting(groupData?.id).then(res => {
+            const data = new CommonResponse(res)
+            const list: GroupMajor[] = data.data
+            setListRecruiting(list)
+          })
+        } else {
+          const query = router.query.group as string
+          if (query) {
+            await groupAPI.getListRecruiting(query).then(res => {
+              const data = new CommonResponse(res)
+              const list: GroupMajor[] = data.data
+              setListRecruiting(list)
+            })
+          }
+        }
       })
-    } catch (err){
+    } catch (err) {
       console.log(err)
     }
   }
@@ -58,7 +72,7 @@ const ApplicationForm : FC<ChildComponentProps> = ({ onButtonClick }) => {
   }
 
   const handleClickSend = async () => {
-    if (selectedValue !== ''){
+    if (selectedValue !== '') {
       await sendApplication()
       onButtonClick()
     }
@@ -66,12 +80,18 @@ const ApplicationForm : FC<ChildComponentProps> = ({ onButtonClick }) => {
 
   const sendApplication = async () => {
     try {
-
+      let groupId = ''
       const groupData = await groupDBDexie.getGroup()
+      const query = router.query.group as string
+      if (query) {
+        groupId = query
+      } else {
+        groupId = groupData?.id ?? ''
+      }
 
       const application: ApplicationRequest = {
         Description: description,
-        GroupId: groupData?.id,
+        GroupId: groupId,
         MajorIds: [selectedValue]
       }
 
@@ -88,7 +108,6 @@ const ApplicationForm : FC<ChildComponentProps> = ({ onButtonClick }) => {
       console.log('Application Form: ', e)
     }
   }
-
 
   return (
     <CardContent>
@@ -128,7 +147,7 @@ const ApplicationForm : FC<ChildComponentProps> = ({ onButtonClick }) => {
         </Grid>
       </form>
       <Divider sx={{ m: '20px' }}>Recruiting</Divider>
-      {listRecruiting.map((item: GroupMajor , index: number) => {
+      {listRecruiting.map((item: GroupMajor, index: number) => {
         return (
           <Box
             key={item.majorId}

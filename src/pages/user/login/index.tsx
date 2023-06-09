@@ -43,7 +43,7 @@ import { CommonResponse } from 'src/models/common/CommonResponse'
 import { userDBDexie } from 'src/models/db/UserDB'
 import { useRouter } from 'next/router'
 import { useToasts } from 'react-toast-notifications'
-import { useSession, signIn, getSession } from 'next-auth/react'
+import { useSession, signIn } from 'next-auth/react'
 import { Backdrop, CircularProgress } from '@mui/material'
 import jwt_decode from 'jwt-decode'
 import { JWTModel } from 'src/models/common/JWTModel'
@@ -160,27 +160,30 @@ const LoginPage = () => {
       })
       .catch(error => {
         console.log('authAPI', error)
-        if (error?.response?.data?.message) {
+        if (error?.response?.data?.message === 'Unverify user.') {
+          router.push(error?.response?.data?.data)
+        } else {
           setValues({ ...values, messageError: error?.response?.data?.message })
           notify(error?.response?.data?.message, 'error')
         }
       })
   }
 
-  const getUserInforToSaveDB = async (token:string) =>{
+  const getUserInforToSaveDB = async (token: string) => {
     try {
       console.log('hello I m running')
-      const value : User = await new Promise((resolve,reject)=>{
-        userAPI.getProfile()
-        .then(res =>{
-          const data = new CommonResponse(res)
-          const user : User = data.data
+      const value: User = await new Promise((resolve, reject) => {
+        userAPI
+          .getProfile()
+          .then(res => {
+            const data = new CommonResponse(res)
+            const user: User = data.data
 
-          resolve(user)
-        })
-        .catch(err =>{
-          reject(err)
-        })
+            resolve(user)
+          })
+          .catch(err => {
+            reject(err)
+          })
       })
 
       await userDBDexie.saveUser({
@@ -189,8 +192,7 @@ const LoginPage = () => {
         avatar: value.avatar,
         token: token
       })
-
-    } catch (err){
+    } catch (err) {
       console.log(err)
     }
   }
@@ -430,14 +432,3 @@ const LoginPage = () => {
 LoginPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 
 export default LoginPage
-
-export async function getServerSideProps(context: any) {
-  const session = await getSession(context)
-  if (session) {
-    console.log(session)
-  }
-
-  return {
-    props: {}
-  }
-}

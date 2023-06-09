@@ -120,7 +120,7 @@ const column: Column[] = [
   }
 ]
 
-export default function SubTaskPage() {
+const SubTaskPage = () => {
   const router = useRouter()
   const { id } = router.query
   const [searchValue, setSearchValue] = useState<string>('')
@@ -325,3 +325,5 @@ export default function SubTaskPage() {
 }
 
 SubTaskPage.getLayout = (page: ReactNode) => <UserGroupLayout>{page}</UserGroupLayout>
+
+export default SubTaskPage

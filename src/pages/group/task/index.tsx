@@ -26,6 +26,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import moment from 'moment'
 import { StorageKeys } from 'src/constants'
+import withAuth from 'src/pages/withAuth'
 
 const column: Column[] = [
   {
@@ -142,7 +143,7 @@ const style = {
   p: 4
 }
 
-export default function TaskListPage() {
+const TaskListPage = () => {
   const [queryTask, setQueryTask] = useState<QueryTaskListsModel>(new QueryTaskListsModel())
   const [addNewModal, setAddNewModal] = useState<boolean>(false)
   const [groupId, setGroupId] = useState<string>('')
@@ -291,3 +292,5 @@ export default function TaskListPage() {
 }
 
 TaskListPage.getLayout = (page: ReactNode) => <UserGroupLayout>{page}</UserGroupLayout>
+
+export default withAuth(TaskListPage)

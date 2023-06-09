@@ -68,7 +68,6 @@ const columns: readonly Column[] = [
   }
 ]
 
-
 export default function TabGroup({ renderType }: GroupRenderProps) {
   const addToast = useToasts()
 
@@ -93,7 +92,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   useEffect(() => {
     getUserInfor()
     getListGroup()
-  }, [storeSearchName, page, rowsPerPage,updateUI])
+  }, [storeSearchName, page, rowsPerPage, updateUI])
 
   const getUserInfor = async () =>{
     const userData = await userDBDexie.getUser()
@@ -104,7 +103,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
     try {
       const payload: QueryGroupListModel = {
         name: storeSearchName,
-        majorIdsString:'',
+        majorIdsString: '',
         orderBy: '',
         page: page + 1,
         pageSize: rowsPerPage,
@@ -147,7 +146,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      setStoreSearchName(searchName);
+      setStoreSearchName(searchName)
     }
   }
 
@@ -172,10 +171,9 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   }
 
   const handleMoveOutGroup = () => {
-    if (reason !== ''){
+    if (reason !== '') {
       moveOutGroup()
     }
-
   }
 
   const handleClickOpen = () => {
@@ -211,37 +209,39 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const handleDeleteGroup = async () => {
     try {
-      await groupAPI.delete(selectedRow?.Id)
-      .then(res =>{
-        const data = new CommonResponse(res)
-        setUpdateUI(!updateUI)
-        addToast.addToast(data.message,{appearance:'success'})
-      })
-      .catch(err =>{
-        console.log(err)
-      })
-    } catch (err){
+      await groupAPI
+        .delete(selectedRow?.Id)
+        .then(res => {
+          const data = new CommonResponse(res)
+          setUpdateUI(!updateUI)
+          addToast.addToast(data.message, { appearance: 'success' })
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    } catch (err) {
       console.log(err)
     }
   }
 
-  const moveOutGroup = async () =>{
+  const moveOutGroup = async () => {
     try {
-      const request :any = {
+      const request: any = {
         groupId: selectedRow?.id,
         description: reason
       }
-      await memberAPI.moveOut(request)
-      .then(res =>{
-        const data = new CommonResponse(res)
-        setUpdateUI(!updateUI)
-        addToast.addToast(data.message,{appearance:'success'})
-        setOpenAlert(false)
-      })
-      .catch(err =>{
-        console.log(err)
-      })
-    } catch (err){
+      await memberAPI
+        .moveOut(request)
+        .then(res => {
+          const data = new CommonResponse(res)
+          setUpdateUI(!updateUI)
+          addToast.addToast(data.message, { appearance: 'success' })
+          setOpenAlert(false)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    } catch (err) {
       console.log(err)
     }
   }
@@ -249,7 +249,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   const handleViewDetail = async (row?: any) => {
     // Handle view detail action
     row?.id && setSelectedRow(row)
-    await saveGroupInfor (row?.id ? row : selectedRow)
+    await saveGroupInfor(row?.id ? row : selectedRow)
     router.push('/group/task')
 
     // handleOptionsClose()
@@ -257,38 +257,52 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
 
   const saveGroupInfor = async (groupInfo: any) => {
     try {
-      const value : Group = await new Promise((resolve,reject)=>{
-        groupAPI.getById(groupInfo.id)
-        .then(res =>{
-          const data = new CommonResponse(res)
-          const group : Group = data.data
+      const value: Group = await new Promise((resolve, reject) => {
+        groupAPI
+          .getById(groupInfo.id)
+          .then(res => {
+            const data = new CommonResponse(res)
+            const group: Group = data.data
 
-          resolve(group)
-        })
-        .catch(err =>{
-          reject(err)
-        })
+            resolve(group)
+          })
+          .catch(err => {
+            reject(err)
+          })
       })
 
       await groupDBDexie.saveGroup({
-          id: value.id,
-          name: value.name,
-          avatarGroup: value.avatar,
-          createdBy: value.createdBy?.userId,
-          groupSize: value.groupSize,
-          memberCount: value.memberCount,
-          schoolName: value.schoolName,
-          className: value.className,
-          subject: value.subjectName,
-          theme: value.theme
-        })
+        id: value.id,
+        name: value.name,
+        avatarGroup: value.avatar,
+        createdBy: '',
+        groupSize: value.groupSize,
+        memberCount: value.memberCount,
+        schoolName: value.schoolName,
+        className: value.className,
+        subject: value.subjectName,
+        theme: value.theme
+      })
 
-    } catch(err){
+      await groupAPI
+        .getRoleInGroup(groupInfo?.id ?? '')
+        .then(role => {
+          const r = new CommonResponse(role).data
+          console.log(r === 'LEADER' || r === 'SUB_LEADER')
+
+          groupDBDexie.saveRole(r)
+        })
+        .catch(error => {
+          console.log(error)
+
+          //  handleError(error)
+        })
+    } catch (err) {
       console.log(err)
     }
   }
 
-  const handleChangeReason = (event:ChangeEvent<HTMLInputElement>) =>{
+  const handleChangeReason = (event: ChangeEvent<HTMLInputElement>) => {
     setReason(event.target.value)
   }
 
@@ -341,7 +355,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             </DialogActions>
           </Box>
           <DialogContent>
-            <GroupForm type='CREATE' onButtonClickClose={handleCloseUpdateUI}/>
+            <GroupForm type='CREATE' onButtonClickClose={handleCloseUpdateUI} />
           </DialogContent>
         </Dialog>
       </Box>
@@ -364,7 +378,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           <TableBody>
             {listGroup.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={()=>handleViewDetail(row)}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={() => handleViewDetail(row)}>
                   <TableCell align='center' sx={{ minWidth: '20px' }}>
                     {page * rowsPerPage + index + 1}
                   </TableCell>
@@ -437,16 +451,16 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
       >
         <DialogTitle id='alert-dialog-title'>{selectedRow?.name}</DialogTitle>
         <DialogContent>
-        <TextField
-             id="reason"
-            label="Reason"
+          <TextField
+            id='reason'
+            label='Reason'
             multiline
             value={reason}
             onChange={handleChangeReason}
             rows={4}
             placeholder='Reason'
             fullWidth
-            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' }, mt:2 }}
+            sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' }, mt: 2 }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position='start'>

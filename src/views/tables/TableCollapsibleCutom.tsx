@@ -31,7 +31,6 @@ import { statusObj } from 'src/constants/task-status'
 import { Group, Task } from 'src/models/class'
 import { taskAPI } from 'src/api-client/task'
 import { CommonResponse } from 'src/models/common/CommonResponse'
-import { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { StorageKeys } from 'src/constants'
 import moment from 'moment'
@@ -39,6 +38,7 @@ import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel
 import Link from 'next/link'
 import { GroupDBType, groupDBDexie } from 'src/models/db/GroupDB'
 import { groupAPI } from 'src/api-client'
+import RowLoading from './TableRowLoading'
 
 const Row = (props: { row: Task; column?: Column[]; columnSubTask: Column[] }) => {
   // ** State
@@ -128,10 +128,20 @@ const Row = (props: { row: Task; column?: Column[]; columnSubTask: Column[] }) =
   )
 }
 
-export default function ToDoTableCollapsible() {
-  const [rows, setRows] = useState<Task[]>([])
+interface ToDoTableProps {
+  queryModel: QueryTaskListsModel
+  changeQuery: (value: QueryTaskListsModel) => void
+  taskList: Task[]
+  isLoading: boolean
+}
+
+export default function ToDoTableCollapsible({ queryModel, changeQuery, taskList, isLoading }: ToDoTableProps) {
+  const [rows, setRows] = useState<Task[]>()
   const router = useRouter()
-  const [queryModel] = useState<QueryTaskListsModel>()
+
+  useEffect(() => {
+    setRows(taskList)
+  }, [taskList])
 
   const clickNameTodo = async (value: Task) => {
     const groupData : Group = await new Promise((resolve,reject)=>{
@@ -354,47 +364,24 @@ export default function ToDoTableCollapsible() {
     }
   ]
 
-  useEffect(() => {
-    getListTask()
-  }, [queryModel])
-
-  const getListTask = async () => {
-    try {
-      await taskAPI
-        .getList()
-        .then(res => {
-          const data = new CommonResponse(res)
-          console.log(data)
-          const newTaskList: Task[] = data.data
-          setRows(newTaskList)
-        })
-        .catch(error => {
-          if ((error as AxiosError)?.response?.status === 401) {
-            router.push('/user/login')
-          } else {
-            console.log(error)
-          }
-        })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const [page, setPage] = useState<number>(0)
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10)
-
   const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage)
+    const query = new QueryTaskListsModel(queryModel)
+    query.page = newPage + 1
+    changeQuery(query)
   }
 
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
+    const query = new QueryTaskListsModel(queryModel)
+    query.page = 1
+    query.pageSize = +event.target.value
+    console.log(query)
+
+    changeQuery(query)
   }
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
+      <TableContainer component={Paper} sx={{ height: 450 }}>
         <Table aria-label='collapsible table' stickyHeader>
           <TableHead>
             <TableRow>
@@ -408,18 +395,20 @@ export default function ToDoTableCollapsible() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => (
-              <Row key={row.id} row={row} column={column} columnSubTask={columnSubTask} />
-            ))}
+            {!isLoading ? (
+              rows?.map(row => <Row key={row.id} row={row} column={column} columnSubTask={columnSubTask} />)
+            ) : (
+              <RowLoading column={column.length + 1} rowNum={10} />
+            )}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
+        rowsPerPageOptions={[5, 10, 25, 50, 100]}
         component='div'
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
+        count={queryModel.total}
+        rowsPerPage={queryModel.pageSize}
+        page={queryModel.page - 1}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />

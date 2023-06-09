@@ -7,9 +7,10 @@ import CircularProgress from '@mui/material/CircularProgress'
 import jwt_decode from 'jwt-decode'
 import { JWTModel } from 'src/models/common/JWTModel'
 import { useToasts } from 'react-toast-notifications'
+import { NextPage } from 'next'
 
-const withAuth = (WrappedComponent: React.ComponentType<any>) => {
-  const AuthComponent = (props: any) => {
+const withAuth = (WrappedComponent: NextPage) => {
+  const AuthComponent: NextPage = (props: any) => {
     const [isLoading, setIsLoading] = useState(true)
     const router = useRouter()
     const addToast = useToasts()
@@ -65,6 +66,7 @@ const withAuth = (WrappedComponent: React.ComponentType<any>) => {
 
     return <WrappedComponent {...props} />
   }
+  AuthComponent.getLayout = WrappedComponent.getLayout
 
   return AuthComponent
 }

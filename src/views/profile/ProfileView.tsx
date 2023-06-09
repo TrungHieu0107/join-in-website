@@ -19,7 +19,7 @@ import {
 } from 'mdi-material-ui'
 import { ReactNode, useEffect, useState } from 'react'
 import { User } from 'src/models/class'
-import { majorAPI, userAPI } from 'src/api-client'
+import { userAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import moment from 'moment'
 import { StorageKeys } from 'src/constants'
@@ -45,13 +45,15 @@ const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) =
       .then(async res => {
         const commonResponse = new CommonResponse(res)
         const user = new User(commonResponse.data)
-        if (commonResponse.status === 200) {
-          await majorAPI.getAllMajorOfUser().then(majors => {
-            const commonMajorsResponse = new CommonResponse(majors)
-            user.majors = commonMajorsResponse.data
-            setData(user)
-          })
-        }
+
+        // if (commonResponse.status === 200) {
+        //   await majorAPI.getAllMajorOfUser().then(majors => {
+        //     const commonMajorsResponse = new CommonResponse(majors)
+        //     user.majors = commonMajorsResponse.data
+        //     setData(user)
+        //   })
+        // }
+        setData(user)
       })
       .catch(error => {
         handleError(error)
