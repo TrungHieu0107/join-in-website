@@ -7,6 +7,9 @@ import CardContent from '@mui/material/CardContent'
 import MuiDivider, { DividerProps } from '@mui/material/Divider'
 import { Avatar } from '@mui/material'
 import withAuth from '../withAuth'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { useToasts } from 'react-toast-notifications'
 
 // Styled Divider component
 const Divider = styled(MuiDivider)<DividerProps>(({ theme }) => ({
@@ -43,6 +46,26 @@ const SpaceBetweenText = (props: { title: string; content: string }) => {
 }
 
 const Payment = () => {
+  const router = useRouter()
+  const addToast = useToasts()
+  const [dataCode, setDataCode] = useState<string>('')
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
+
+  useEffect(() => {
+    const code = router.query.code as string
+
+    if (!code) {
+      notify('You are not able to access this page', 'error')
+      router.push('/user/login')
+      return
+    }
+
+    setDataCode(code)
+  }, [])
+
   return (
     <Card>
       <CardHeader title='Payment' />
@@ -65,15 +88,17 @@ const Payment = () => {
             sx={{ pt: 5.5, alignItems: 'center', '& .MuiCardHeader-action': { mt: 0.6 } }}
           />
           <CardContent sx={{ pb: theme => `${theme.spacing(5.5)} !important` }}>
-            <SpaceBetweenText title='Transaction Code' content='9201312' />
+            <SpaceBetweenText title='Transaction Code' content={dataCode} />
             <SpaceBetweenText title='Money' content='50.000VND' />
             <SpaceBetweenText title='Bank Account Number' content='0937627033' />
             <SpaceBetweenText title='Owner Bank' content='PHAM XUAN KIEN' />
-            <SpaceBetweenText title='Content' content='THANH TOAN 9201312' />
+            <SpaceBetweenText title='Content' content={`THANH TOAN ${dataCode}`} />
           </CardContent>
         </Box>
       </Box>
-      <Typography variant='body1' color='error' align='center' m={5}>*Your account will be updated daily at 11pm after payment</Typography>
+      <Typography variant='body1' color='error' align='center' m={5}>
+        *Your account will be updated daily at 11pm after payment
+      </Typography>
     </Card>
   )
 }
