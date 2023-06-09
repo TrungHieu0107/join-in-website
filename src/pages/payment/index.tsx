@@ -60,6 +60,7 @@ const Payment = () => {
     if (!code) {
       notify('You are not able to access this page', 'error')
       router.push('/user/login')
+
       return
     }
 
@@ -92,7 +93,7 @@ const Payment = () => {
             <SpaceBetweenText title='Money' content='50.000VND' />
             <SpaceBetweenText title='Bank Account Number' content='0937627033' />
             <SpaceBetweenText title='Owner Bank' content='PHAM XUAN KIEN' />
-            <SpaceBetweenText title='Content' content={`THANH TOAN ${dataCode}`} />
+            <SpaceBetweenText title='Content' content={`${dataCode}`} />
           </CardContent>
         </Box>
       </Box>

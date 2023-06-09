@@ -210,11 +210,13 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   const handleDeleteGroup = async () => {
     try {
       await groupAPI
-        .delete(selectedRow?.Id)
+        .delete(selectedRow?.id)
         .then(res => {
           const data = new CommonResponse(res)
           setUpdateUI(!updateUI)
           addToast.addToast(data.message, { appearance: 'success' })
+          setOpenAlertDeleteGroup(false)
+          handleOptionsClose()
         })
         .catch(err => {
           console.log(err)
@@ -237,6 +239,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           setUpdateUI(!updateUI)
           addToast.addToast(data.message, { appearance: 'success' })
           setOpenAlert(false)
+          handleOptionsClose()
         })
         .catch(err => {
           console.log(err)
@@ -275,7 +278,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         id: value.id,
         name: value.name,
         avatarGroup: value.avatar,
-        createdBy: '',
+        createdBy: value.createdBy?.userId,
         groupSize: value.groupSize,
         memberCount: value.memberCount,
         schoolName: value.schoolName,
