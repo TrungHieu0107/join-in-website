@@ -28,7 +28,7 @@ import ChevronDown from 'mdi-material-ui/ChevronDown'
 import { Column } from 'src/models/common/Column'
 import { importantLevel } from 'src/constants/important-level'
 import { statusObj } from 'src/constants/task-status'
-import { Task } from 'src/models/class'
+import { Group, Task } from 'src/models/class'
 import { taskAPI } from 'src/api-client/task'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { AxiosError } from 'axios'
@@ -38,6 +38,7 @@ import moment from 'moment'
 import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel'
 import Link from 'next/link'
 import { GroupDBType, groupDBDexie } from 'src/models/db/GroupDB'
+import { groupAPI } from 'src/api-client'
 
 const Row = (props: { row: Task; column?: Column[]; columnSubTask: Column[] }) => {
   // ** State
@@ -133,11 +134,30 @@ export default function ToDoTableCollapsible() {
   const [queryModel] = useState<QueryTaskListsModel>()
 
   const clickNameTodo = async (value: Task) => {
-    await groupDBDexie
-      .saveGroup({
-        id: value.group?.id,
-        name: value.group?.name,
-        avatar: value.group?.avatar
+    const groupData : Group = await new Promise((resolve,reject)=>{
+      groupAPI.getById(value.group?.id)
+      .then(res =>{
+        const data = new CommonResponse(res)
+        const group : Group = data.data
+
+        resolve(group)
+      })
+      .catch(err =>{
+        reject(err)
+      })
+    })
+
+    await groupDBDexie.saveGroup({
+        id: groupData.id,
+        name: groupData.name,
+        avatarGroup: groupData.avatar,
+        createdBy: groupData.createdBy?.userId,
+        groupSize: groupData.groupSize,
+        memberCount: groupData.memberCount,
+        schoolName: groupData.schoolName,
+        className: groupData.className,
+        subject: groupData.subjectName,
+        theme: groupData.theme
       } as GroupDBType)
       .then(() => {
         router.push(`/group/task/${value.id}`)

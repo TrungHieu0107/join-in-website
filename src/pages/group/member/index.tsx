@@ -31,7 +31,9 @@ import {
   InputLabel,
   Select,
   SelectChangeEvent,
-  Modal
+  Modal,
+  Backdrop,
+  CircularProgress
 } from '@mui/material'
 import { Account, Close, CommentQuote, DotsHorizontal, ExitToApp, InformationVariant, Magnify } from 'mdi-material-ui'
 import InviteForm from 'src/views/group/member/InviteForm'
@@ -39,11 +41,11 @@ import { StatusObj } from 'src/constants/task-status'
 import AvatarName from 'src/layouts/components/AvatarName'
 import { useRouter } from 'next/router'
 import withAuth from 'src/pages/withAuth'
-import { memberAPI } from 'src/api-client'
+import { groupAPI, memberAPI } from 'src/api-client'
 import { useToasts } from 'react-toast-notifications'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { Member } from 'src/models/class'
-import { groupDBDexie } from 'src/models/db/GroupDB'
+import { GroupDBType, groupDBDexie } from 'src/models/db/GroupDB'
 import FeedbackForm from 'src/views/feedback/FeedbackForm'
 import moment from 'moment'
 import { StorageKeys } from 'src/constants'
@@ -51,6 +53,7 @@ import { getMemberRoleValueNumber } from 'src/constants/member-role'
 import ProfileView from 'src/views/profile/ProfileView'
 import { AxiosError } from 'axios'
 import UserGroupLayout from 'src/layouts/UserGroupLayout'
+import { userDBDexie } from 'src/models/db/UserDB'
 
 interface Column {
   id: 'name' | 'role' | 'major' | 'joindate' | 'status'
@@ -97,6 +100,12 @@ const MemberPage = () => {
   const [searchName, setSearchName] = useState<string>('')
   const [storeSearchName, setStoreSearchName] = useState<string>('')
   const [reason, setReason] = useState<string>('')
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [userInfor,setUserInfor] = useState<any>({
+    id: '',
+    role: ''
+  })
+  const [groupInfor,setGroupInfor] = useState<GroupDBType>()
 
   const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
     addToast.addToast(message, { appearance: type })
@@ -141,8 +150,27 @@ const MemberPage = () => {
   ]
 
   useEffect(() => {
+    getUserInfor()
     getListMember()
   }, [updateUI, storeSearchName])
+
+  const getUserInfor = async () =>{
+    const userData = await userDBDexie.getUser()
+    const groupData = await groupDBDexie.getGroup()
+    groupData && setGroupInfor(groupData)
+    try {
+      await groupAPI.getRoleInGroup(groupData?.id ?? '')
+      .then(res => {
+        const data = new CommonResponse(res)
+        setUserInfor({
+          id: userData?.id,
+          role: data.data
+        })
+      })
+    }catch(err){
+      console.log(err)
+    }
+  }
 
   const handleChangeRole = (event: SelectChangeEvent<string>) => {
     setSelectedRole({
@@ -167,8 +195,6 @@ const MemberPage = () => {
         groupId: groupData?.id,
         memberId: selectedRow?.id
       }
-
-      console.log(member)
 
       await memberAPI
         .put(member)
@@ -226,23 +252,25 @@ const MemberPage = () => {
 
   const kickOutGroup = async () =>{
     try {
+      setIsLoading(true)
       const dataGroup = await groupDBDexie.getGroup()
       const request :any = {
         memberId: selectedRow?.id,
         description: reason,
         groupId: dataGroup?.id
       }
-      console.log(request)
       await memberAPI.kickOut(request)
       .then(res =>{
         const data = new CommonResponse(res)
         setUpdateUI(!updateUI)
         setOpenAlertDelete(false)
         addToast.addToast(data.message,{appearance:'success'})
+        handleOptionsClose()
       })
       .catch(err =>{
         console.log(err)
       })
+      setIsLoading(false)
     } catch (err){
       console.log(err)
     }
@@ -480,15 +508,31 @@ const MemberPage = () => {
           <MenuItem onClick={handleViewDetail}>
             <InformationVariant fontSize='small' sx={{ mr: 3 }} /> Detail
           </MenuItem>
+
+          {userInfor.role === 'LEADER' && userInfor.id !== selectedRow?.userId
+          ?
           <MenuItem onClick={handleChangeStatus}>
             <Account fontSize='small' sx={{ mr: 3 }} /> Change Role
           </MenuItem>
+          : null
+          }
+
+          {userInfor.id !== selectedRow?.userId && userInfor.role === 'LEADER' && selectedRow?.id !== groupInfor?.createdBy
+          ?
           <MenuItem onClick={handleDelete}>
-            <ExitToApp fontSize='small' sx={{ mr: 3 }} /> Move Out
+            <ExitToApp fontSize='small' sx={{ mr: 3 }} /> Kick Out
           </MenuItem>
+          : null
+          }
+
+          { (userInfor.id !== selectedRow?.userId && selectedRow?.role === 'LEADER' && userInfor.role !== 'LEADER')
+          ||  (userInfor.role === 'LEADER' && selectedRow?.role !== 'LEADER')
+          ?
           <MenuItem onClick={handleClickOpenFeedback}>
             <CommentQuote fontSize='small' sx={{ mr: 3 }} /> Feedback
           </MenuItem>
+          : null
+          }
         </Menu>
       </TableContainer>
       <TablePagination
@@ -616,6 +660,11 @@ const MemberPage = () => {
           <ProfileView handleError={handleError} userId={selectedRow?.userId} />
         </Box>
       </Modal>
+
+      <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color='inherit' />
+      </Backdrop>
+
     </Paper>
   )
 }

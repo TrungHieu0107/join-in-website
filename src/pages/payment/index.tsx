@@ -73,6 +73,7 @@ const Payment = () => {
           </CardContent>
         </Box>
       </Box>
+      <Typography variant='body1' color='error' align='center' m={5}>*Your account will be updated daily at 11pm after payment</Typography>
     </Card>
   )
 }

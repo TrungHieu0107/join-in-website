@@ -30,11 +30,12 @@ const RecruitmentForm = () => {
   const [quantity, setQuantity] = useState<number>(0)
   const [listRecruiting, setListRecruiting] = useState<any[]>([])
   const addToast = useToasts()
+  const [updateUI, setUpdateUI] = useState<boolean>(true)
 
   useEffect(() => {
     getListMajors()
     getListRecruiting()
-  }, [])
+  }, [updateUI])
 
   const getListRecruiting = async () => {
     try {
@@ -81,16 +82,17 @@ const RecruitmentForm = () => {
   }
 
   const handleAddMajor = () => {
-    const updateList = [...listRecruiting]
-    const majorIndex = updateList.findIndex(recr => recr.majorId === selectedValue)
-    if (majorIndex !== -1) {
-      updateList[majorIndex].memberCount = quantity
-    } else {
-      const dataMajor = listMajors.find(major => major.id === selectedValue)
-      updateList.push({ majorId: selectedValue, memberCount: quantity, name: dataMajor?.name })
+    if (selectedValue !== '' && quantity !== 0){
+      const updateList = [...listRecruiting]
+      const majorIndex = updateList.findIndex(recr => recr.majorId === selectedValue)
+      if (majorIndex !== -1) {
+        updateList[majorIndex].memberCount = quantity
+      } else {
+        const dataMajor = listMajors.find(major => major.id === selectedValue)
+        updateList.push({ majorId: selectedValue, memberCount: quantity, name: dataMajor?.name })
+      }
+      saveRecruitingList(updateList)
     }
-    saveRecruitingList(updateList)
-    setListRecruiting(updateList)
   }
 
   const handleClickDelete = (indexInput: number) => {
@@ -114,6 +116,7 @@ const RecruitmentForm = () => {
       await groupAPI.putRecruiting(request).then(res => {
         const data = new CommonResponse(res)
         addToast.addToast(data.message)
+        setUpdateUI(!updateUI)
       })
     } catch (err) {
       console.log(err)

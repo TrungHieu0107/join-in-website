@@ -1,7 +1,7 @@
 import Dexie, { Table } from 'dexie'
 
 export interface User {
-  id?: number
+  id?: string
   name?: string
   avatar?: string
   token?: string
@@ -21,7 +21,7 @@ export class UserDBDexie extends Dexie {
     super('user')
     this.version(1).stores({
       user: '++id, name, avatar, token', // Primary key and indexed props
-      googleToken: '++id, value'
+      googleToken: '++id, value',
     })
   }
 }
@@ -112,6 +112,48 @@ export const userDBDexie = {
       return data.length > 0 ? data[data.length - 1].token : ''
     } catch (error) {
       console.log('getToken \n', error)
+    } finally {
+      if (db.isOpen()) {
+        db.close()
+      }
+    }
+  },
+
+  async clearUser() {
+    const db = new UserDBDexie()
+    try {
+      return await db.user.clear()
+    } catch (error) {
+      console.log('clear User', error)
+    } finally {
+      db.close()
+    }
+  },
+
+  async saveUser(user: User) {
+    const db = new UserDBDexie()
+    try {
+      const data = await db.user.toArray()
+      if (data.length !== 0) {
+        await db.user.clear()
+      }
+
+      return await db.user.add(user)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      db.close()
+    }
+  },
+
+  async getUser() {
+    const db = new UserDBDexie()
+    try {
+      const data = await db.user.toArray()
+
+      return data.length > 0 ? data[data.length - 1] : null
+    } catch (error) {
+      console.log(error)
     } finally {
       if (db.isOpen()) {
         db.close()

@@ -35,6 +35,7 @@ import { useToasts } from 'react-toast-notifications'
 import { Group } from 'src/models/class'
 import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel'
 import { groupDBDexie } from 'src/models/db/GroupDB'
+import { userDBDexie } from 'src/models/db/UserDB'
 
 interface Column {
   id: 'name' | 'subject' | 'class' | 'member' | 'leader'
@@ -87,10 +88,17 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   const [storeSearchName, setStoreSearchName] = useState<string>('')
   const [updateUI, setUpdateUI] = useState<boolean>(true)
   const [reason, setReason]= useState<string>('')
+  const [userInforId,setUserInforId] = useState<string>('')
 
   useEffect(() => {
+    getUserInfor()
     getListGroup()
   }, [storeSearchName, page, rowsPerPage,updateUI])
+
+  const getUserInfor = async () =>{
+    const userData = await userDBDexie.getUser()
+    setUserInforId(userData?.id ?? '')
+  }
 
   const getListGroup = async () => {
     try {
@@ -119,6 +127,8 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             subject: group.subjectName,
             member: `${group.memberCount}/${group.groupSize}`,
             leader: group.members?.at(0)?.user?.fullName,
+            leaderId: group.members?.at(0)?.user?.id,
+            createdById: group.createdBy?.userId,
             avatarLeader: group.members?.at(0)?.user?.avatar
           }))
           setlistGroup(list)
@@ -264,7 +274,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           id: value.id,
           name: value.name,
           avatarGroup: value.avatar,
-          createdBy: '',
+          createdBy: value.createdBy?.userId,
           groupSize: value.groupSize,
           memberCount: value.memberCount,
           schoolName: value.schoolName,
@@ -398,15 +408,24 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             horizontal: 'center'
           }}
         >
-          <MenuItem onClick={handleViewDetail}>
+          <MenuItem onClick={handleViewDetail} >
             <InformationVariant fontSize='small' sx={{ mr: 3 }} /> Detail
           </MenuItem>
+
+          {userInforId !== selectedRow?.createdById && userInforId !== selectedRow?.leaderId && userInforId !== selectedRow?.createdById
+          ?
           <MenuItem onClick={handleDelete}>
             <ExitToApp fontSize='small' sx={{ mr: 3 }} /> Out Group
           </MenuItem>
-          <MenuItem onClick={handleClickOpenAlertDeleteGroup}>
+          : null
+        }
+
+          {userInforId === selectedRow?.createdById ?
+          <MenuItem onClick={handleClickOpenAlertDeleteGroup} >
             <Delete fontSize='small' sx={{ mr: 3 }} /> Delete Group
           </MenuItem>
+          :null
+        }
         </Menu>
       </TableContainer>
 

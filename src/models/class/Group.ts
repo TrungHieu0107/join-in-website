@@ -21,6 +21,7 @@ export class Group {
   private _groupMajors: GroupMajor[] | undefined
   private _applications: Application[] | undefined
   private _members: Member[] | undefined
+  private _createdBy: Member | undefined
 
   constructor(value: Partial<Group>) {
     this.id = value?.id
@@ -41,6 +42,7 @@ export class Group {
     this.groupMajors = value?.groupMajors
     this.applications = value?.applications
     this.members = value?.members
+    this.createdBy = value?.createdBy
     this.avatar = value?.avatar
     this.theme = value?.theme
   }
@@ -203,5 +205,13 @@ export class Group {
 
   set members(val: Member[] | undefined) {
     this._members = val
+  }
+
+  get createdBy() {
+    return this._createdBy
+  }
+
+  set createdBy(val: Member | undefined) {
+    this._createdBy = val
   }
 }

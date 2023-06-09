@@ -27,7 +27,7 @@ import FormHelperText from '@mui/material/FormHelperText'
 
 // ** Icons Imports
 import Close from 'mdi-material-ui/Close'
-import { Autocomplete, FormControlLabel, FormLabel, InputAdornment, Radio, RadioGroup } from '@mui/material'
+import { Autocomplete, Backdrop, CircularProgress, FormControlLabel, FormLabel, InputAdornment, Radio, RadioGroup } from '@mui/material'
 import DatePicker from 'react-datepicker'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import { AccountOutline, AlphaACircleOutline, Calendar, Contacts, InformationVariant, Phone } from 'mdi-material-ui'
@@ -126,6 +126,7 @@ const TabAccount = (props: TabAccountProps) => {
   const [fileAvatar, setFileAvatar] = useState<FileList>()
   const [fileBackGround, setFileBackGround] = useState<FileList>()
   const [isLogin, setIsLogin] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const router = useRouter()
   const addToast = useToasts()
@@ -271,7 +272,7 @@ const TabAccount = (props: TabAccountProps) => {
     if (isError) {
       return
     }
-
+    setIsLoading(true)
     await userAPI
       .uploadImage(fileAvatar ? fileAvatar[0] : undefined)
       .then(async res => {
@@ -333,9 +334,11 @@ const TabAccount = (props: TabAccountProps) => {
           console.log(error)
         }
       })
+      setIsLoading(false)
   }
 
   const submitProfile = (payload: UserCompleteProfileModel) => {
+    setIsLoading(true)
     if (isLogin) {
       return userAPI.put(payload).then(async rescompleteProfile => {
         const data = new CommonResponse(rescompleteProfile)
@@ -345,9 +348,40 @@ const TabAccount = (props: TabAccountProps) => {
       return userAPI.completeProfile(payload, props.code ?? '').then(async rescompleteProfile => {
         const token: string = new CommonResponse(rescompleteProfile).data
         if (await userDBDexie.saveToken(token)) {
+          await getUserInforToSaveDB(token)
           router.push('/my-groups')
         }
       })
+    }
+
+    setIsLoading(false)
+  }
+
+  const getUserInforToSaveDB = async (token: string) =>{
+    try {
+
+      const value : User = await new Promise((resolve,reject)=>{
+        userAPI.getProfile()
+        .then(res =>{
+          const data = new CommonResponse(res)
+          const user : User = data.data
+
+          resolve(user)
+        })
+        .catch(err =>{
+          reject(err)
+        })
+      })
+
+      await userDBDexie.saveUser({
+        id: value.id,
+        name: value.fullName,
+        avatar: value.avatar,
+      token: token
+      })
+
+    } catch (err){
+      console.log(err)
     }
   }
 
@@ -569,6 +603,9 @@ const TabAccount = (props: TabAccountProps) => {
           </Grid>
         </Grid>
       </form>
+      <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </CardContent>
   )
 }

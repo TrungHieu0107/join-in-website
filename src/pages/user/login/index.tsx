@@ -37,7 +37,7 @@ import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 
 import * as yup from 'yup'
 import { Message, QueryKeys } from 'src/constants'
-import { authAPI } from 'src/api-client'
+import { authAPI, userAPI } from 'src/api-client'
 import MyLogo from 'src/layouts/components/MyLogo'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { userDBDexie } from 'src/models/db/UserDB'
@@ -47,6 +47,7 @@ import { useSession, signIn, getSession } from 'next-auth/react'
 import { Backdrop, CircularProgress } from '@mui/material'
 import jwt_decode from 'jwt-decode'
 import { JWTModel } from 'src/models/common/JWTModel'
+import { User } from 'src/models/class'
 
 interface State {
   email: string
@@ -148,6 +149,7 @@ const LoginPage = () => {
         } else {
           if (await userDBDexie.saveToken(token)) {
             const tokenModel = new JWTModel(jwt_decode(token ?? ''))
+            await getUserInforToSaveDB(token)
             if (tokenModel.role === 'Admin') {
               router.push('/admin/dashboard/')
             } else {
@@ -163,6 +165,34 @@ const LoginPage = () => {
           notify(error?.response?.data?.message, 'error')
         }
       })
+  }
+
+  const getUserInforToSaveDB = async (token:string) =>{
+    try {
+      console.log('hello I m running')
+      const value : User = await new Promise((resolve,reject)=>{
+        userAPI.getProfile()
+        .then(res =>{
+          const data = new CommonResponse(res)
+          const user : User = data.data
+
+          resolve(user)
+        })
+        .catch(err =>{
+          reject(err)
+        })
+      })
+
+      await userDBDexie.saveUser({
+        id: value.id,
+        name: value.fullName,
+        avatar: value.avatar,
+        token: token
+      })
+
+    } catch (err){
+      console.log(err)
+    }
   }
 
   const emailValidate = yup.object().shape({
@@ -231,6 +261,7 @@ const LoginPage = () => {
           } else {
             if (await userDBDexie.saveToken(token)) {
               const tokenModel = new JWTModel(jwt_decode(token ?? ''))
+              await getUserInforToSaveDB(token)
               if (tokenModel.role === 'Admin') {
                 router.push('/admin/dashboard/')
               } else {
