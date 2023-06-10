@@ -516,7 +516,6 @@ const MemberPage = () => {
           </MenuItem>
           : null
           }
-
           {userInfor.id !== selectedRow?.userId && userInfor.role === 'LEADER' && selectedRow?.id !== groupInfor?.createdBy
           ?
           <MenuItem onClick={handleDelete}>

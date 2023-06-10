@@ -149,7 +149,6 @@ export default function ToDoTableCollapsible({ queryModel, changeQuery, taskList
       .then(res =>{
         const data = new CommonResponse(res)
         const group : Group = data.data
-
         resolve(group)
       })
       .catch(err =>{
@@ -161,7 +160,7 @@ export default function ToDoTableCollapsible({ queryModel, changeQuery, taskList
         id: groupData.id,
         name: groupData.name,
         avatarGroup: groupData.avatar,
-        createdBy: groupData.createdBy?.userId,
+        createdBy: groupData.createdBy?.id,
         groupSize: groupData.groupSize,
         memberCount: groupData.memberCount,
         schoolName: groupData.schoolName,

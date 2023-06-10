@@ -266,7 +266,6 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
           .then(res => {
             const data = new CommonResponse(res)
             const group: Group = data.data
-
             resolve(group)
           })
           .catch(err => {
@@ -278,7 +277,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         id: value.id,
         name: value.name,
         avatarGroup: value.avatar,
-        createdBy: value.createdBy?.userId,
+        createdBy: value.createdBy?.id,
         groupSize: value.groupSize,
         memberCount: value.memberCount,
         schoolName: value.schoolName,
