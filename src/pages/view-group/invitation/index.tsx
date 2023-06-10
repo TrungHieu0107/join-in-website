@@ -103,7 +103,7 @@ const InviteInfomationPage = () => {
     const dataErr = (error as AxiosError)?.response
     if (dataErr?.status === 401) {
       notify('Login expired.', 'error')
-      router.push('/user/login')
+      router.push('/user/login?back=1', '/user/login')
     } else if (dataErr?.status === 500) {
       if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
       else notify('Something error', 'error')

@@ -181,7 +181,7 @@ const RegisterPage = () => {
     authAPI
       .signUp(user)
       .then(() => {
-        router.push('/user/login')
+        router.push('/user/login?back=1', '/user/login')
       })
       .catch(error => {
         console.log(error)
@@ -337,13 +337,6 @@ const RegisterPage = () => {
               </Typography>
             </Box>
             <Divider sx={{ my: 5 }}>or</Divider>
-            {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Link href='/' passHref>
-                <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Google sx={{ color: '#db4437' }} />
-                </IconButton>
-              </Link>
-            </Box> */}
             <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }}>
               <Google sx={{ color: '#FFFFFF', marginRight: '10px' }} />
               <Typography fontWeight='bold' color='#FFFFFF'>

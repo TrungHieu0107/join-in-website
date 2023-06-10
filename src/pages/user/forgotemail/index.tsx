@@ -53,7 +53,6 @@ const LinkStyled = styled('a')(({ theme }) => ({
   color: theme.palette.primary.main
 }))
 
-
 const ForgotEmailPage = () => {
   // ** States
   const [values, setValues] = useState<State>({
@@ -77,7 +76,6 @@ const ForgotEmailPage = () => {
       .matches(QueryKeys.EMAIL_REGEX, Message.INVALID_EMAIL)
   })
 
-
   const handleSubmit = async () => {
     let isError = false
     console.log(values)
@@ -94,7 +92,6 @@ const ForgotEmailPage = () => {
     if (isError) {
       return
     }
-
   }
 
   return (
@@ -102,7 +99,7 @@ const ForgotEmailPage = () => {
       <Card sx={{ zIndex: 1 }}>
         <CardContent sx={{ padding: theme => `${theme.spacing(12, 9, 7)} !important` }}>
           <Box sx={{ mb: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <MyLogo width='50' height='50'/>
+            <MyLogo width='50' height='50' />
             <Typography
               variant='h6'
               sx={{
@@ -162,9 +159,11 @@ const ForgotEmailPage = () => {
               </Typography>
             </Box>
             <Divider sx={{ my: 5 }}>or</Divider>
-            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} >
-                <Google sx={{ color: '#FFFFFF', marginRight:'10px'}} />
-                <Typography fontWeight='bold' color='#FFFFFF'>Login with Google</Typography>
+            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }}>
+              <Google sx={{ color: '#FFFFFF', marginRight: '10px' }} />
+              <Typography fontWeight='bold' color='#FFFFFF'>
+                Login with Google
+              </Typography>
             </Button>
           </form>
         </CardContent>

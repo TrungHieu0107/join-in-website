@@ -82,7 +82,7 @@ const TabSecurity = () => {
         const response = new CommonResponse(res)
         if (response.status === 200) {
           notify(response.message ?? '', 'success')
-          router.push('/user/login')
+          router.push('/user/login?back=1', '/user/login')
         }
       })
       .catch(error => handleError(error))
@@ -92,7 +92,7 @@ const TabSecurity = () => {
     const dataErr = (error as AxiosError)?.response
     if (dataErr?.status === 401) {
       notify('Login expired.', 'error')
-      router.push('/user/login')
+      router.push('/user/login?back=1', '/user/login')
     } else if (dataErr?.status === 500) {
       if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
       else notify('Something error', 'error')

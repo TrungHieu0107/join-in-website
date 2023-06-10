@@ -80,7 +80,7 @@ const navUser: VerticalNavItemsType = [
   // {
   //   title: 'Login',
   //   icon: Login,
-  //   path: '/user/login',
+  //   path: '/user/login?back=1', '/user/login',
   //   openInNewTab: false
   // },
   // {

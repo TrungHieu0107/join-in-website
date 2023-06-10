@@ -19,7 +19,7 @@ import {
 } from 'mdi-material-ui'
 import { ReactNode, useEffect, useState } from 'react'
 import { User } from 'src/models/class'
-import { userAPI } from 'src/api-client'
+import { feedbackAPI, userAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import moment from 'moment'
 import { StorageKeys } from 'src/constants'
@@ -32,6 +32,7 @@ interface ProfileViewProps {
 
 const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) => {
   const [data, setData] = useState<User>(new User())
+  const [rating, setRating] = useState<number>(0)
 
   useEffect(() => {
     fetchData()
@@ -45,14 +46,12 @@ const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) =
       .then(async res => {
         const commonResponse = new CommonResponse(res)
         const user = new User(commonResponse.data)
-
-        // if (commonResponse.status === 200) {
-        //   await majorAPI.getAllMajorOfUser().then(majors => {
-        //     const commonMajorsResponse = new CommonResponse(majors)
-        //     user.majors = commonMajorsResponse.data
-        //     setData(user)
-        //   })
-        // }
+        await feedbackAPI.getRating(user.id ?? '').then(rating => {
+          const commonRating = new CommonResponse(rating)
+          if (commonRating.data) {
+            setRating(commonRating.data)
+          }
+        })
         setData(user)
       })
       .catch(error => {
@@ -102,7 +101,7 @@ const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) =
               >
                 <Box sx={{ mr: 2, mb: 1, display: 'flex', flexDirection: 'column' }}>
                   <Typography variant='h5'>{data.fullName}</Typography>
-                  <Rating readOnly value={1} name='read-only' sx={{ marginRight: 2 }} />
+                  <Rating readOnly value={rating} name='read-only' sx={{ marginRight: 2 }} />
                 </Box>
                 <Box sx={{ mr: 2, mb: 1, display: 'flex' }}>{actionProfile && actionProfile}</Box>
               </Box>

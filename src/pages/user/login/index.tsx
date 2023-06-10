@@ -171,7 +171,6 @@ const LoginPage = () => {
 
   const getUserInforToSaveDB = async (token: string) => {
     try {
-      console.log('hello I m running')
       const value: User = await new Promise((resolve, reject) => {
         userAPI
           .getProfile()

@@ -55,7 +55,7 @@ export default function AssignView(props: IAssignViewProps) {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/login')
+          router.push('/user/login?back=1', '/user/login')
         } else {
           console.log(error)
         }
@@ -93,7 +93,7 @@ export default function AssignView(props: IAssignViewProps) {
 
               if ((error as AxiosError)?.response?.status === 401) {
                 notify('Login expired.', 'error')
-                router.push('/user/login')
+                router.push('/user/login?back=1', '/user/login')
               } else if ((error as AxiosError)?.response?.status === 500) {
                 const commonResposne = new CommonResponse((error as AxiosError)?.response?.data as CommonResponse)
                 notify(commonResposne.message ?? 'Something error', 'error')

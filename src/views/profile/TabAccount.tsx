@@ -27,7 +27,16 @@ import FormHelperText from '@mui/material/FormHelperText'
 
 // ** Icons Imports
 import Close from 'mdi-material-ui/Close'
-import { Autocomplete, Backdrop, CircularProgress, FormControlLabel, FormLabel, InputAdornment, Radio, RadioGroup } from '@mui/material'
+import {
+  Autocomplete,
+  Backdrop,
+  CircularProgress,
+  FormControlLabel,
+  FormLabel,
+  InputAdornment,
+  Radio,
+  RadioGroup
+} from '@mui/material'
 import DatePicker from 'react-datepicker'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import { AccountOutline, AlphaACircleOutline, Calendar, Contacts, InformationVariant, Phone } from 'mdi-material-ui'
@@ -198,7 +207,7 @@ const TabAccount = (props: TabAccountProps) => {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/login')
+          router.push('/user/login?back=1', '/user/login')
         } else {
           console.log(error)
         }
@@ -311,7 +320,7 @@ const TabAccount = (props: TabAccountProps) => {
             await submitProfile(payload).catch(error => {
               if ((error as AxiosError)?.response?.status === 401) {
                 notify('Login expired.', 'error')
-                router.push('/user/login')
+                router.push('/user/login?back=1', '/user/login')
               } else {
                 console.log(error)
               }
@@ -320,7 +329,7 @@ const TabAccount = (props: TabAccountProps) => {
           .catch(error => {
             if ((error as AxiosError)?.response?.status === 401) {
               notify('Login expired.', 'error')
-              router.push('/user/login')
+              router.push('/user/login?back=1', '/user/login')
             } else {
               console.log(error)
             }
@@ -329,12 +338,12 @@ const TabAccount = (props: TabAccountProps) => {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/login')
+          router.push('/user/login?back=1', '/user/login')
         } else {
           console.log(error)
         }
       })
-      setIsLoading(false)
+    setIsLoading(false)
   }
 
   const submitProfile = (payload: UserCompleteProfileModel) => {
@@ -357,30 +366,29 @@ const TabAccount = (props: TabAccountProps) => {
     setIsLoading(false)
   }
 
-  const getUserInforToSaveDB = async (token: string) =>{
+  const getUserInforToSaveDB = async (token: string) => {
     try {
+      const value: User = await new Promise((resolve, reject) => {
+        userAPI
+          .getProfile()
+          .then(res => {
+            const data = new CommonResponse(res)
+            const user: User = data.data
 
-      const value : User = await new Promise((resolve,reject)=>{
-        userAPI.getProfile()
-        .then(res =>{
-          const data = new CommonResponse(res)
-          const user : User = data.data
-
-          resolve(user)
-        })
-        .catch(err =>{
-          reject(err)
-        })
+            resolve(user)
+          })
+          .catch(err => {
+            reject(err)
+          })
       })
 
       await userDBDexie.saveUser({
         id: value.id,
         name: value.fullName,
         avatar: value.avatar,
-      token: token
+        token: token
       })
-
-    } catch (err){
+    } catch (err) {
       console.log(err)
     }
   }

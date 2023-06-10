@@ -10,19 +10,18 @@ const VerifyEmailPage = () => {
   const { code } = router.query
   useEffect(() => {
     if (code?.length === 0) {
-      router.push('/user/login')
+      router.push('/user/login?back=1', '/user/login')
     } else {
       setTimeout(() => {
         setIsSuccess(true)
-      },3000)
+      }, 3000)
 
       setTimeout(() => {
         router.push('/profile/initialization?token=' + code, '/profile/initialization')
       }, 4000)
-
     }
   }, [code])
-  
+
   return (
     <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={true}>
       <Grid container direction={'column'} justifyContent={'center'} alignItems={'center'}>

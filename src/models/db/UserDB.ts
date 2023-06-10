@@ -1,6 +1,6 @@
 import Dexie, { Table } from 'dexie'
 
-export interface User {
+export interface UserDB {
   id?: string
   name?: string
   avatar?: string
@@ -14,14 +14,14 @@ export interface GoogleToken {
 export class UserDBDexie extends Dexie {
   // 'friends' is added by dexie when declaring the stores()
   // We just tell the typing system this is the case
-  user!: Table<User>
+  user!: Table<UserDB>
   googleToken!: Table<GoogleToken>
 
   constructor() {
     super('user')
     this.version(1).stores({
       user: '++id, name, avatar, token', // Primary key and indexed props
-      googleToken: '++id, value',
+      googleToken: '++id, value'
     })
   }
 }
@@ -130,7 +130,7 @@ export const userDBDexie = {
     }
   },
 
-  async saveUser(user: User) {
+  async saveUser(user: UserDB) {
     const db = new UserDBDexie()
     try {
       const data = await db.user.toArray()

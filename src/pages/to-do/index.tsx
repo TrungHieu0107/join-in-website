@@ -51,7 +51,7 @@ const ToDoPage = () => {
         })
         .catch(error => {
           if ((error as AxiosError)?.response?.status === 401) {
-            router.push('/user/login')
+            router.push('/user/login?back=1', '/user/login')
           } else {
             console.log(error)
           }

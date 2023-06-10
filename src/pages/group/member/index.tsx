@@ -101,11 +101,11 @@ const MemberPage = () => {
   const [storeSearchName, setStoreSearchName] = useState<string>('')
   const [reason, setReason] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [userInfor,setUserInfor] = useState<any>({
+  const [userInfor, setUserInfor] = useState<any>({
     id: '',
     role: ''
   })
-  const [groupInfor,setGroupInfor] = useState<GroupDBType>()
+  const [groupInfor, setGroupInfor] = useState<GroupDBType>()
 
   const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
     addToast.addToast(message, { appearance: type })
@@ -154,20 +154,19 @@ const MemberPage = () => {
     getListMember()
   }, [updateUI, storeSearchName])
 
-  const getUserInfor = async () =>{
+  const getUserInfor = async () => {
     const userData = await userDBDexie.getUser()
     const groupData = await groupDBDexie.getGroup()
     groupData && setGroupInfor(groupData)
     try {
-      await groupAPI.getRoleInGroup(groupData?.id ?? '')
-      .then(res => {
+      await groupAPI.getRoleInGroup(groupData?.id ?? '').then(res => {
         const data = new CommonResponse(res)
         setUserInfor({
           id: userData?.id,
           role: data.data
         })
       })
-    }catch(err){
+    } catch (err) {
       console.log(err)
     }
   }
@@ -259,19 +258,20 @@ const MemberPage = () => {
         description: reason,
         groupId: dataGroup?.id
       }
-      await memberAPI.kickOut(request)
-      .then(res =>{
-        const data = new CommonResponse(res)
-        setUpdateUI(!updateUI)
-        setOpenAlertDelete(false)
-        addToast.addToast(data.message,{appearance:'success'})
-        handleOptionsClose()
-      })
-      .catch(err =>{
-        console.log(err)
-      })
+      await memberAPI
+        .kickOut(request)
+        .then(res => {
+          const data = new CommonResponse(res)
+          setUpdateUI(!updateUI)
+          setOpenAlertDelete(false)
+          addToast.addToast(data.message, { appearance: 'success' })
+          handleOptionsClose()
+        })
+        .catch(err => {
+          console.log(err)
+        })
       setIsLoading(false)
-    } catch (err){
+    } catch (err) {
       console.log(err)
     }
   }
@@ -369,7 +369,7 @@ const MemberPage = () => {
     const dataErr = (error as AxiosError)?.response
     if (dataErr?.status === 401) {
       notify('Login expired.', 'error')
-      router.push('/user/login')
+      router.push('/user/login?back=1', '/user/login')
     } else if (dataErr?.status === 500) {
       if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
       else notify('Something error', 'error')
@@ -509,29 +509,25 @@ const MemberPage = () => {
             <InformationVariant fontSize='small' sx={{ mr: 3 }} /> Detail
           </MenuItem>
 
-          {userInfor.role === 'LEADER' && userInfor.id !== selectedRow?.userId
-          ?
-          <MenuItem onClick={handleChangeStatus}>
-            <Account fontSize='small' sx={{ mr: 3 }} /> Change Role
-          </MenuItem>
-          : null
-          }
-          {userInfor.id !== selectedRow?.userId && userInfor.role === 'LEADER' && selectedRow?.id !== groupInfor?.createdBy
-          ?
-          <MenuItem onClick={handleDelete}>
-            <ExitToApp fontSize='small' sx={{ mr: 3 }} /> Kick Out
-          </MenuItem>
-          : null
-          }
+          {userInfor.role === 'LEADER' && userInfor.id !== selectedRow?.userId ? (
+            <MenuItem onClick={handleChangeStatus}>
+              <Account fontSize='small' sx={{ mr: 3 }} /> Change Role
+            </MenuItem>
+          ) : null}
+          {userInfor.id !== selectedRow?.userId &&
+          userInfor.role === 'LEADER' &&
+          selectedRow?.id !== groupInfor?.createdBy ? (
+            <MenuItem onClick={handleDelete}>
+              <ExitToApp fontSize='small' sx={{ mr: 3 }} /> Kick Out
+            </MenuItem>
+          ) : null}
 
-          { (userInfor.id !== selectedRow?.userId && selectedRow?.role === 'LEADER' && userInfor.role !== 'LEADER')
-          ||  (userInfor.role === 'LEADER' && selectedRow?.role !== 'LEADER')
-          ?
-          <MenuItem onClick={handleClickOpenFeedback}>
-            <CommentQuote fontSize='small' sx={{ mr: 3 }} /> Feedback
-          </MenuItem>
-          : null
-          }
+          {(userInfor.id !== selectedRow?.userId && selectedRow?.role === 'LEADER' && userInfor.role !== 'LEADER') ||
+          (userInfor.role === 'LEADER' && selectedRow?.role !== 'LEADER') ? (
+            <MenuItem onClick={handleClickOpenFeedback}>
+              <CommentQuote fontSize='small' sx={{ mr: 3 }} /> Feedback
+            </MenuItem>
+          ) : null}
         </Menu>
       </TableContainer>
       <TablePagination
@@ -663,7 +659,6 @@ const MemberPage = () => {
       <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={isLoading}>
         <CircularProgress color='inherit' />
       </Backdrop>
-
     </Paper>
   )
 }
