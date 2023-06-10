@@ -9,14 +9,12 @@
 // import GoogleCirclesExtended from 'mdi-material-ui/GoogleCirclesExtended'
 
 import HomeOutline from 'mdi-material-ui/HomeOutline'
-import AccountCogOutline from 'mdi-material-ui/AccountCogOutline'
 
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
 import {
   Account,
   AccountGroup,
-  AccountGroupOutline,
   Application,
   ArrowLeftCircleOutline,
   Cog,
@@ -205,23 +203,24 @@ const navAdmin: VerticalNavItemsType = [
     icon: CashMultiple,
     path: '/admin/transaction'
   },
-  {
-    title: 'User Manage',
-    icon: AccountCogOutline,
-    path: '/admin/user'
-  },
-  {
-    title: 'Group Manage',
-    icon: AccountGroupOutline,
-    path: '/admin/group'
-  },
+
+  // {
+  //   title: 'User Manage',
+  //   icon: AccountCogOutline,
+  //   path: '/admin/user'
+  // },
+  // {
+  //   title: 'Group Manage',
+  //   icon: AccountGroupOutline,
+  //   path: '/admin/group'
+  // },
   {
     sectionTitle: 'Personal'
   },
   {
     title: 'Profile',
     icon: Account,
-    path: '/profile'
+    path: '/admin/profile'
   }
 ]
 

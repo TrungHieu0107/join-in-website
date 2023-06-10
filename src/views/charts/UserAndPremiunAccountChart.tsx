@@ -1,8 +1,6 @@
-import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 
 // ** Icons Imports
@@ -14,103 +12,110 @@ import { ApexOptions } from 'apexcharts'
 // ** Custom Components Imports
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
-const options: ApexOptions = {
-  series: [
-    {
-      name: 'User',
-      data: [55, 69, 45, 61, 43, 54, 37, 52, 44, 61, 43, 88],
-      type: 'column'
-    },
-    {
-      name: 'User with Premium',
-      data: [44, 55, 31, 47, 31, 43, 26, 41, 31, 47, 33, 88],
-      type: 'line'
-    }
-  ],
-  chart: {
-    height: 350
-  },
-  dataLabels: {
-    enabled: false
-  },
-  plotOptions: {
-    bar: {
-      borderRadius: 5,
-      columnWidth: '20%',
-      endingShape: 'rounded',
-      startingShape: 'rounded'
-    }
-  },
-  stroke: {
-    width: 2,
-    curve: 'smooth'
-  },
-  fill: {
-    type: 'solid',
-    opacity: [0.35, 1]
-  },
-  labels: [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ],
-  markers: {
-    size: 0
-  },
-  yaxis: [
-    {
-      title: {
-        text: 'User'
+interface UserAndPremiunAccountChartProps {
+  listUserCount: number[]
+  listTransactionCount: number[]
+}
+
+export default function UserAndPremiunAccountChart({
+  listUserCount,
+  listTransactionCount
+}: UserAndPremiunAccountChartProps) {
+  const options: ApexOptions = {
+    series: [
+      {
+        name: 'User',
+        data: listUserCount,
+        type: 'column'
       },
-      labels: {
-        offsetX: -17,
-        formatter: value => `${value > 999 ? `${(value / 1000).toFixed(0)}k` : value}`
+      {
+        name: 'User with Premium',
+        data: listTransactionCount,
+        type: 'line'
+      }
+    ],
+    chart: {
+      height: 350
+    },
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 5,
+        columnWidth: '20%',
+        endingShape: 'rounded',
+        startingShape: 'rounded'
       }
     },
-    {
-      opposite: true,
-      title: {
-        text: 'User with Premium'
-      },
-      labels: {
-        offsetX: -17,
-        formatter: value => `${value > 999 ? `${(value / 1000).toFixed(0)}k` : value}`
-      }
-    }
-  ],
-  states: {
-    hover: {
-      filter: { type: 'none' }
+    stroke: {
+      width: 2,
+      curve: 'smooth'
     },
-    active: {
-      filter: { type: 'none' }
-    }
-  },
-  tooltip: {
-    shared: true,
-    intersect: false,
-    y: {
-      formatter: function (y) {
-        if (typeof y !== 'undefined') {
-          return y.toFixed(0) + ' user(s)'
+    fill: {
+      type: 'solid',
+      opacity: [0.35, 1]
+    },
+    labels: [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ],
+    markers: {
+      size: 0
+    },
+    yaxis: [
+      {
+        title: {
+          text: 'User'
+        },
+        labels: {
+          offsetX: -17,
+          formatter: value => `${value > 999 ? `${(value / 1000).toFixed(0)}k` : value}`
         }
-        
-        return y
+      },
+      {
+        opposite: true,
+        title: {
+          text: 'User with Premium'
+        },
+        labels: {
+          offsetX: -17,
+          formatter: value => `${value > 999 ? `${(value / 1000).toFixed(0)}k` : value}`
+        }
+      }
+    ],
+    states: {
+      hover: {
+        filter: { type: 'none' }
+      },
+      active: {
+        filter: { type: 'none' }
+      }
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      y: {
+        formatter: function (y) {
+          if (typeof y !== 'undefined') {
+            return y.toFixed(0) + ' user(s)'
+          }
+
+          return y
+        }
       }
     }
   }
-}
-
-export default function UserAndPremiunAccountChart() {
 
   return (
     <Card>
@@ -126,17 +131,13 @@ export default function UserAndPremiunAccountChart() {
         }
       />
       <CardContent sx={{ '& .apexcharts-xcrosshairs.apexcharts-active': { opacity: 0 } }}>
-        <ReactApexcharts
-          height={300}
-          options={options}
-          series={options.series}
-        />
-        <Box sx={{ mb: 7, display: 'flex', alignItems: 'center' }}>
+        <ReactApexcharts height={300} options={options} series={options.series} />
+        {/* <Box sx={{ mb: 7, display: 'flex', alignItems: 'center' }}>
           <Typography variant='h5' sx={{ mr: 4 }}>
             45%
           </Typography>
           <Typography variant='body2'>Your sales performance is 45% 😎 better compared to last month</Typography>
-        </Box>
+        </Box> */}
       </CardContent>
     </Card>
   )

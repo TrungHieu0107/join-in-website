@@ -109,23 +109,34 @@ const TabSecurity = () => {
             <Grid container spacing={5}>
               <Grid item xs={12} container sx={{ marginTop: 6 }} spacing={3} alignItems={'center'}>
                 <Grid item sm={8}>
-                  <TextField
-                    fullWidth
-                    value={verifyToken}
-                    label='Verify Code'
-                    placeholder='Verify Code'
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <ShieldCheck />
-                        </InputAdornment>
-                      )
-                    }}
-                    onChange={e => setVerifyToken(e.target.value)}
-                  />
+                  <FormControl>
+                    <TextField
+                      name='verify-code'
+                      autoComplete='off'
+                      fullWidth
+                      value={verifyToken}
+                      label='Verify Code'
+                      placeholder='Verify Code'
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position='start'>
+                            <ShieldCheck />
+                          </InputAdornment>
+                        )
+                      }}
+                      onChange={e => setVerifyToken(e.target.value)}
+                    />
+                  </FormControl>
                 </Grid>
                 <Grid item sm={4}>
-                  <Button variant='outlined' onClick={() => userAPI.getVerifyCode()}>
+                  <Button
+                    variant='outlined'
+                    onClick={() =>
+                      userAPI.getVerifyCode().then(() => {
+                        notify('Send email scuccessfully.', 'success')
+                      })
+                    }
+                  >
                     Get verify code
                   </Button>
                 </Grid>
