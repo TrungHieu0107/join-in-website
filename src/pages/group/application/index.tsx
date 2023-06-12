@@ -437,7 +437,9 @@ const ApplicationScreen = () => {
           </form>
           <Typography mt={7}>Position: {selectedRow?.position}</Typography>
           <Typography mt={7}>Submission date: {selectedRow?.createddate}</Typography>
-          <Typography mt={7}>Description: {selectedRow?.description}</Typography>
+          <Typography mt={7}>Description:
+          <div className='editor' dangerouslySetInnerHTML={{ __html: selectedRow?.description }} />
+          </Typography>
           <Typography mt={7}>
             <b>{selectedRow?.name}</b> want to join group <b>EXE</b>. Do you want to?
           </Typography>
