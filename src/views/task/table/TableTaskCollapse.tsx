@@ -54,15 +54,12 @@ function Row(props: {
   }
 
   const handleViewDetail = () => {
-    console.log(selectedRow)
-
     if (selectedRow?.id) {
       clicktoDetail(selectedRow?.id)
     }
   }
 
   const handleDelete = async () => {
-    console.log('Delete ', selectedRow)
     selectedRow?.id &&
       (await taskAPI
         .delete(selectedRow?.id)
@@ -78,7 +75,7 @@ function Row(props: {
     const dataErr = (error as AxiosError)?.response
     if (dataErr?.status === 401) {
       notify('Login expired.', 'error')
-      router.push('/user/login?back=1', '/user/login')
+      router.push('/user/logout', '/user/login')
     } else if (dataErr?.status === 500) {
       if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
       else notify('Something error', 'error')
@@ -147,8 +144,6 @@ export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
 
   const handleClickToTaskDetail = (id: number) => {
     if (router.pathname != '/group/task') return
-
-    console.log('detail')
 
     router.push(`/group/task/${id}`)
   }

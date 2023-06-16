@@ -37,7 +37,6 @@ const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) =
   useEffect(() => {
     fetchData()
 
-    console.log(userId)
   }, [userId])
 
   const fetchData = async () => {

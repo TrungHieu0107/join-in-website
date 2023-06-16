@@ -10,7 +10,7 @@ const VerifyEmailPage = () => {
   const { code } = router.query
   useEffect(() => {
     if (code?.length === 0) {
-      router.push('/user/login?back=1', '/user/login')
+      router.push('/user/logout', '/user/login')
     } else {
       setTimeout(() => {
         setIsSuccess(true)

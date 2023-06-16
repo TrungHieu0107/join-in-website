@@ -115,7 +115,7 @@ const statusObj: StatusObj = {
 const DashboardTable = () => {
   return (
     <Card>
-      <TableContainer>
+      <TableContainer sx={{ height: 440 }}>
         <Table sx={{ minWidth: 800 }} aria-label='table in dashboard'>
           <TableHead>
             <TableRow>

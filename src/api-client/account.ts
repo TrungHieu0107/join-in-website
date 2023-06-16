@@ -14,8 +14,6 @@ export const authAPI = {
   },
 
   signUp(payload: any) {
-    console.log(payload)
-
     return axiosClient.post('/register', payload)
   },
   sendVerifyEmail(email: string) {

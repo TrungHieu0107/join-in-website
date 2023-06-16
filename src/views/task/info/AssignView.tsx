@@ -1,11 +1,23 @@
 import { useEffect, useState } from 'react'
 import { Member, Task } from 'src/models/class'
-import { Autocomplete, Avatar, Box, Chip, CircularProgress, TextField, Typography } from '@mui/material'
+import {
+  Autocomplete,
+  Avatar,
+  Box,
+  Chip,
+  CircularProgress,
+  TextField,
+  Typography,
+  Button,
+  Grid,
+  Tooltip
+} from '@mui/material'
 import { memberAPI, taskAPI } from 'src/api-client'
 import { useRouter } from 'next/router'
 import { CommonResponse } from 'src/models/common/CommonResponse'
 import { AxiosError } from 'axios'
 import { useToasts } from 'react-toast-notifications'
+import { Cancel, ContentSave } from 'mdi-material-ui'
 
 export interface IAssignViewProps {
   data: Task
@@ -17,6 +29,8 @@ export default function AssignView(props: IAssignViewProps) {
   const router = useRouter()
   const addToast = useToasts()
   const [selectedMember, setSelectedMember] = useState<Member[]>([])
+  const [oldValue, setOldValue] = useState<Member[]>([])
+  const [isEdit, setIsEdit] = useState(false)
 
   const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
     addToast.addToast(message, { appearance: type })
@@ -34,7 +48,6 @@ export default function AssignView(props: IAssignViewProps) {
       .getAllMember(props.data.group?.id ?? '')
       .then(res => {
         const list: Member[] = new CommonResponse(res).data
-        console.log(list)
 
         const listAssign: Member[] = []
         for (let index = 0; index < list.length; index++) {
@@ -46,8 +59,7 @@ export default function AssignView(props: IAssignViewProps) {
           })
         }
 
-        console.log('listAssign', props.data.assignedFor, listAssign)
-
+        setOldValue(listAssign)
         setSelectedMember(listAssign)
         setListMember(list)
         setLoading(false)
@@ -55,9 +67,46 @@ export default function AssignView(props: IAssignViewProps) {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/login?back=1', '/user/login')
+          router.push('/user/logout', '/user/login')
         } else {
           console.log(error)
+        }
+      })
+  }
+
+  const handleAssignTask = async () => {
+    setLoading(true)
+    setIsEdit(false)
+    await taskAPI
+      .assignTask({
+        taskId: props.data.id,
+        assignedForIds: selectedMember.map(item => item.id)
+      })
+      .then(res => {
+        setTimeout(() => {
+          const commonResposne = new CommonResponse(res)
+          if (commonResposne?.status === 500) {
+            notify(commonResposne.message ?? 'Something error', 'error')
+          }
+          setLoading(false)
+        }, 300)
+      })
+      .catch(error => {
+        setTimeout(() => {
+          setLoading(false)
+          setSelectedMember(oldValue)
+        }, 1000)
+
+        if ((error as AxiosError)?.response?.status === 401) {
+          notify('Login expired.', 'error')
+          router.push('/user/logout', '/user/login')
+        } else if ((error as AxiosError)?.response?.status === 500) {
+          const commonResposne = new CommonResponse((error as AxiosError)?.response?.data as CommonResponse)
+          notify(commonResposne.message ?? 'Something error', 'error')
+        } else {
+          console.log(error)
+
+          notify('Something error', 'error')
         }
       })
   }
@@ -69,40 +118,8 @@ export default function AssignView(props: IAssignViewProps) {
         disabled={loading}
         value={selectedMember}
         onChange={async (event, newValue) => {
-          setLoading(true)
-          const oldValue = selectedMember
+          setIsEdit(true)
           setSelectedMember(newValue)
-          const data = newValue?.map(item => item.id)
-
-          await taskAPI
-            .assignTask({
-              taskId: props.data.id,
-              assignedForIds: data
-            })
-            .then(res => {
-              console.log(res)
-              setTimeout(() => {
-                setLoading(false)
-              }, 1000)
-            })
-            .catch(error => {
-              setTimeout(() => {
-                setLoading(false)
-                setSelectedMember(oldValue)
-              }, 1000)
-
-              if ((error as AxiosError)?.response?.status === 401) {
-                notify('Login expired.', 'error')
-                router.push('/user/login?back=1', '/user/login')
-              } else if ((error as AxiosError)?.response?.status === 500) {
-                const commonResposne = new CommonResponse((error as AxiosError)?.response?.data as CommonResponse)
-                notify(commonResposne.message ?? 'Something error', 'error')
-              } else {
-                console.log(error)
-
-                notify('Something error', 'error')
-              }
-            })
         }}
         options={listMember.filter(item => selectedMember.indexOf(item) === -1)}
         getOptionLabel={option => (option?.user?.fullName ? option?.user.fullName : 'Không tên')}
@@ -131,7 +148,31 @@ export default function AssignView(props: IAssignViewProps) {
         style={{ width: 'auto' }}
         renderInput={params => (
           <>
-            <TextField {...params} placeholder='Assignee' size='medium' disabled={loading} />
+            <Grid container justifyContent={'center'} flexDirection={'column'} spacing={1}>
+              <TextField {...params} placeholder='Assignee' size='medium' disabled={loading} />
+
+              {isEdit && (
+                <>
+                  <Grid container justifyContent={'center'} spacing={2} mt={2}>
+                    <Tooltip title='Save'>
+                      <Button onClick={handleAssignTask}>
+                        <ContentSave />
+                      </Button>
+                    </Tooltip>
+                    <Tooltip title='Cancel'>
+                      <Button
+                        onClick={() => {
+                          setSelectedMember(oldValue)
+                          setIsEdit(false)
+                        }}
+                      >
+                        <Cancel />
+                      </Button>
+                    </Tooltip>
+                  </Grid>
+                </>
+              )}
+            </Grid>
             {loading && (
               <CircularProgress
                 size={24}

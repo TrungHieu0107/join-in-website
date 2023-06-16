@@ -21,6 +21,8 @@ import { CommonResponse } from 'src/models/common/CommonResponse'
 import { groupDBDexie } from 'src/models/db/GroupDB'
 import { Group } from 'src/models/class'
 import { AxiosResponse } from 'axios'
+import { groupValidation } from 'src/@core/utils/validation/group-validation'
+import { ObjValidation } from 'src/@core/utils/validation'
 
 interface State {
   id?: string
@@ -65,11 +67,11 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
 }))
 
 interface ChildComponentProps {
-  onButtonClickClose?: () => void;
+  onButtonClickClose?: () => void
   type: string
 }
 
-const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
+const GroupForm: FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
   // ** State
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
   const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
@@ -85,6 +87,7 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
   const [fileAvatar, setFileAvatar] = useState<FileList>()
   const [fileBackGround, setFileBackGround] = useState<FileList>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [error, setError] = useState<ObjValidation>({})
 
   const addToast = useToasts()
 
@@ -167,36 +170,42 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
       const urlAvatar = await uploadImage()
       const urlBackground = await uploadBackground()
 
-      const group: GroupRequest = {
+      const group: any = groupValidation({
         Id: values.id,
         Name: values.groupName,
-        SchoolName: values.schoolName,
-        ClassName: values.className,
-        SubjectName: values.subject,
-        Description: description,
-        Skill: skills,
-        Avatar: urlAvatar,
-        Theme: urlBackground
-      }
+        SchoolName: values.schoolName?.length === 0 ? null : values.schoolName,
+        ClassName: values.className?.length === 0 ? null : values.className,
+        SubjectName: values.subject?.length === 0 ? null : values.subject,
+        Description: description?.length === 0 ? null : description,
+        Skill: skills?.length === 0 ? null : skills,
+        Avatar: urlAvatar?.length === 0 ? null : urlAvatar,
+        Theme: urlBackground?.length === 0 ? null : urlBackground
+      } as GroupRequest)
 
+      if (group.isError) {
+        setIsLoading(false)
+        setError(group.result)
+
+        return
+      }
       if (type === 'CREATE') {
         await groupAPI
           .post(group)
           .then(async res => {
             const data = new CommonResponse(res)
             addToast.addToast(data.message, { appearance: 'success' })
+            onButtonClickClose && onButtonClickClose()
           })
           .catch(error => {
             console.log('Application Form: ', error)
           })
-          onButtonClickClose && onButtonClickClose()
-
       } else {
         await groupAPI
           .put(group)
           .then(async res => {
             const data = new CommonResponse(res)
             addToast.addToast(data.message, { appearance: 'success' })
+            onButtonClickClose && onButtonClickClose()
           })
           .catch(error => {
             console.log('Application Form: ', error)
@@ -209,7 +218,7 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
   }
 
   const handleReset = () => {
-    if (type === 'CREATE'){
+    if (type === 'CREATE') {
       setValues({
         id: '',
         groupName: '',
@@ -232,6 +241,7 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
         <Grid container spacing={7}>
           <Grid item xs={12}>
             <TextField
+              error={error.Name?.isError}
               fullWidth
               label='Group Name'
               placeholder='Group Name'
@@ -244,6 +254,7 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
                   </InputAdornment>
                 )
               }}
+              helperText={error.Name?.isError ? error.Name?.error : ''}
             />
           </Grid>
           <Grid item xs={12}>
@@ -264,6 +275,8 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
           </Grid>
           <Grid item xs={12}>
             <TextField
+              error={error.ClassName?.isError}
+              helperText={error.ClassName?.isError ? error.ClassName?.error : ''}
               fullWidth
               label='Class Name'
               value={values.className}
@@ -280,6 +293,8 @@ const GroupForm : FC<ChildComponentProps> = ({ onButtonClickClose, type }) => {
           </Grid>
           <Grid item xs={12}>
             <TextField
+              error={error.SubjectName?.isError}
+              helperText={error.SubjectName?.isError ? error.SubjectName?.error : ''}
               fullWidth
               label='Subject'
               placeholder='Subject'

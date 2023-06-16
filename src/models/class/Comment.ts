@@ -6,14 +6,16 @@ export class Comment {
   private _createdDate: Date | string | undefined
   private _status: 'ACTIVE' | 'INACTIVE' | undefined
   private _taskId: string | undefined
+  private _memberId: string | undefined
   private _task: Task | undefined
 
-  constructor(value?: Partial<Comment>) {
+  constructor(value?: Partial<Comment> | any) {
     this.id = value?.id
     this.content = value?.content
     this.createdDate = value?.createdDate
     this.status = value?.status
     this.taskId = value?.taskId
+    this.memberId = value?.memberId
     this.task = value?.task
   }
 
@@ -55,6 +57,14 @@ export class Comment {
 
   set taskId(val: string | undefined) {
     this._taskId = val
+  }
+
+  get memberId() {
+    return this._memberId
+  }
+
+  set memberId(val: string | undefined) {
+    this._memberId = val
   }
 
   get task() {

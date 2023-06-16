@@ -1,5 +1,5 @@
 // ** React Imports
-import { forwardRef, SetStateAction, useState } from 'react'
+import { SetStateAction, useState } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -9,13 +9,10 @@ import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
-import InputLabel from '@mui/material/InputLabel'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
 import FormControl from '@mui/material/FormControl'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import Select, { SelectChangeEvent } from '@mui/material/Select'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import Box from '@mui/material/Box'
 
@@ -35,44 +32,8 @@ import { useToasts } from 'react-toast-notifications'
 import { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { CommonResponse } from 'src/models/common/CommonResponse'
-
-const CustomInputFrom = forwardRef((props, ref) => {
-  return (
-    <TextField
-      fullWidth
-      {...props}
-      inputRef={ref}
-      label='From *'
-      autoComplete='off'
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position='start'>
-            <Calendar />
-          </InputAdornment>
-        )
-      }}
-    />
-  )
-})
-
-const CustomInputTo = forwardRef((props, ref) => {
-  return (
-    <TextField
-      fullWidth
-      {...props}
-      inputRef={ref}
-      label='To *'
-      autoComplete='off'
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position='start'>
-            <Calendar />
-          </InputAdornment>
-        )
-      }}
-    />
-  )
-})
+import { taskValidation } from 'src/@core/utils/validation/task-validation'
+import { ObjValidation } from 'src/@core/utils/validation'
 
 export interface DialogCreateNewTask {
   close: () => void
@@ -89,6 +50,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
   const [from, setFrom] = useState<Date | null | undefined>(null)
   const [description, setDescription] = useState<string>('')
   const [name, setName] = useState<string>('')
+  const [error, setError] = useState<ObjValidation>({})
 
   const { mainTask, close, groupId, onSuccess } = props
   const addToast = useToasts()
@@ -100,17 +62,25 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
 
   // const [selectedValues, setSelectedValues] = useState<Option[]>([])
   const handleButtonSubmitClick = async () => {
-    const newTask = new CreateTaskModel({
-      name: name,
-      startDateDeadline: from?.toISOString(),
-      endDateDeadline: to?.toISOString(),
-      impotantLevel: importantLevel[importantLv]?.valueNumber,
-      estimatedDays: estimatedDays,
-      description: description,
-      mainTaskId: mainTask?.id,
-      groupId: groupId ?? ''
-    })
-    console.log('Values:', newTask)
+    const newTask = taskValidation(
+      new CreateTaskModel({
+        name: name,
+        startDateDeadline: from?.toISOString(),
+        endDateDeadline: to?.toISOString(),
+        impotantLevel: importantLevel[importantLv]?.valueNumber,
+        estimatedDays: estimatedDays,
+        description: description,
+        mainTaskId: mainTask?.id,
+        groupId: groupId ?? ''
+      })
+    )
+
+    if (newTask?.isError) {
+      setError(newTask.result)
+
+      return
+    }
+
     await taskAPI
       .createTask(newTask)
       .then(res => {
@@ -122,7 +92,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/login?back=1', '/user/login')
+          router.push('/user/logout', '/user/login')
         } else if ((error as AxiosError)?.response?.status === 500) {
           const commonResposne = new CommonResponse((error as AxiosError)?.response?.data as CommonResponse)
           notify(commonResposne.message ?? 'Something error', 'error')
@@ -130,10 +100,6 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
           console.log(error)
         }
       })
-  }
-
-  const handleSelectChangeImportantLv = (event: SelectChangeEvent<string>) => {
-    setimportantLv(event.target.value)
   }
 
   return (
@@ -164,6 +130,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                       </Grid>
                       <Grid item xs={12} sm={12}>
                         <TextField
+                          size='small'
                           fullWidth
                           label='Title'
                           value={mainTask?.name}
@@ -179,6 +146,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                       </Grid>
                       <Grid item xs={12} sm={12}>
                         <TextField
+                          size='small'
                           fullWidth
                           label='From'
                           value={mainTask?.startDateDeadline}
@@ -194,6 +162,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                       </Grid>
                       <Grid item xs={12} sm={12}>
                         <TextField
+                          size='small'
                           fullWidth
                           label='End'
                           value={mainTask?.endDateDeadline}
@@ -209,6 +178,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                       </Grid>
                       <Grid item xs={12} sm={12}>
                         <TextField
+                          size='small'
                           fullWidth
                           label='Status'
                           value={mainTask?.status}
@@ -224,6 +194,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                       </Grid>
                       <Grid item xs={12} sm={12}>
                         <TextField
+                          size='small'
                           fullWidth
                           label='Important'
                           value={mainTask?.impotantLevel}
@@ -254,6 +225,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                     <Grid item container spacing={2} className='large-2'>
                       <Grid item xs={12} sm={12}>
                         <TextField
+                          size='small'
                           fullWidth
                           label='Title *'
                           placeholder='Title'
@@ -265,6 +237,8 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                               </InputAdornment>
                             )
                           }}
+                          error={error.name?.isError}
+                          helperText={error.name?.isError ? error.name?.error : ''}
                         />
                       </Grid>
                       <Grid item xs={12} sm={6}>
@@ -273,7 +247,23 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                           showYearDropdown
                           showMonthDropdown
                           placeholderText={StorageKeys.KEY_FORMAT_DATE}
-                          customInput={<CustomInputFrom />}
+                          customInput={
+                            <TextField
+                              size='small'
+                              fullWidth
+                              label='From *'
+                              autoComplete='off'
+                              InputProps={{
+                                startAdornment: (
+                                  <InputAdornment position='start'>
+                                    <Calendar />
+                                  </InputAdornment>
+                                )
+                              }}
+                              error={error.startDateDeadline?.isError}
+                              helperText={error.startDateDeadline?.isError ? error.startDateDeadline?.error : ''}
+                            />
+                          }
                           id='form-layouts-separator-date'
                           onChange={(date: Date) => setFrom(date)}
                           dateFormat={'yyyy-MM-dd'}
@@ -285,49 +275,54 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                           showYearDropdown
                           showMonthDropdown
                           placeholderText={StorageKeys.KEY_FORMAT_DATE}
-                          customInput={<CustomInputTo />}
+                          minDate={from}
+                          customInput={
+                            <TextField
+                              size='small'
+                              fullWidth
+                              label='To *'
+                              autoComplete='off'
+                              InputProps={{
+                                startAdornment: (
+                                  <InputAdornment position='start'>
+                                    <Calendar />
+                                  </InputAdornment>
+                                )
+                              }}
+                              error={error.endDateDeadline?.isError}
+                              helperText={error.endDateDeadline?.isError ? error.endDateDeadline?.error : ''}
+                            />
+                          }
                           id='form-layouts-separator-date'
                           onChange={(date: Date) => setTo(date)}
                           dateFormat={'yyyy-MM-dd'}
                         />
                       </Grid>
-                      {/* <Grid item xs={12} sm={6}>
-                        <FormControl fullWidth>
-                          <InputLabel id='form-layouts-separator-select-label'>Status *</InputLabel>
-                          <Select
-                            label='Country'
-                            defaultValue=''
-                            id='form-layouts-separator-select'
-                            labelId='form-layouts-separator-select-label'
-                          >
-                            {listTaskStatusSelect.map(item => (
-                              <MenuItem key={item.value} value={item.value}>
-                                {item.lable}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Grid> */}
                       <Grid item xs={12} sm={6}>
-                        <FormControl fullWidth>
-                          <InputLabel id='form-layouts-separator-multiple-select-label'>Important Level *</InputLabel>
-                          <Select
+                        <FormControl fullWidth size='small'>
+                          <TextField
+                            select
+                            size='small'
                             value={importantLv}
-                            onChange={handleSelectChangeImportantLv}
+                            label={'Important Level *'}
+                            onChange={event => {
+                              setimportantLv(event.target.value)
+                            }}
                             id='form-layouts-separator-multiple-select'
-                            labelId='form-layouts-separator-multiple-select-label'
-                            input={<OutlinedInput label='Language' id='select-multiple-language' />}
+                            error={error.impotantLevel?.isError}
+                            helperText={error.impotantLevel?.isError ? error.impotantLevel?.error : ''}
                           >
                             {importantLevelList.map(item => (
                               <MenuItem key={item.value} value={item.value}>
                                 {item.lable}
                               </MenuItem>
                             ))}
-                          </Select>
+                          </TextField>
                         </FormControl>
                       </Grid>
                       <Grid item xs={12} sm={6}>
                         <TextField
+                          size='small'
                           fullWidth
                           type='number'
                           onChange={e => setEstimatedDays(Number(e.target.value))}
@@ -339,33 +334,10 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                               </InputAdornment>
                             )
                           }}
+                          error={error.estimatedDays?.isError}
+                          helperText={error.estimatedDays?.isError ? error.estimatedDays?.error : ''}
                         />
                       </Grid>
-                      {/* <Grid item xs={12} sm={12}>
-                        <Autocomplete
-                          multiple
-                          options={options}
-                          getOptionLabel={option => option.label}
-                          onChange={(event, value) => setSelectedValues(value)}
-                          renderInput={params => <TextField {...params} label='Assign' variant='outlined' />}
-                          renderOption={(props, option) => (
-                            <li {...props}>
-                              <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <img
-                                  src={option.image}
-                                  alt={option.name}
-                                  style={{ marginRight: 10, width: 30, height: 30 }}
-                                />
-                                <div>
-                                  <p>{option.name}</p>
-                                  <p>{option.major}</p>
-                                </div>
-                              </div>
-                            </li>
-                          )}
-                        />
-                      </Grid> */}
-
                       <Grid item xs={12} sm={12}>
                         <Box sx={{ mt: 5, mb: 2, display: 'flex', alignItems: 'center' }}>
                           <InformationVariant sx={{ marginRight: 1 }} />
@@ -376,7 +348,6 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
                           name='description'
                           onChange={(data: SetStateAction<string>) => {
                             setDescription(data)
-                            console.log(data)
                           }}
                         />
                       </Grid>

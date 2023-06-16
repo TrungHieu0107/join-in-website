@@ -58,7 +58,6 @@ const Row = (props: { row: Task; column?: Column[]; columnSubTask: Column[] }) =
       setLoading(true)
       await taskAPI.getById(data.id ?? '').then(res => {
         const response = new CommonResponse(res)
-        console.log(response)
 
         const newData = new Task(response.data)
         setData(newData)
@@ -373,7 +372,6 @@ export default function ToDoTableCollapsible({ queryModel, changeQuery, taskList
     const query = new QueryTaskListsModel(queryModel)
     query.page = 1
     query.pageSize = +event.target.value
-    console.log(query)
 
     changeQuery(query)
   }

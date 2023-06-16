@@ -1,8 +1,10 @@
 import TransactionChartView from 'src/views/charts/TransactionChart'
-import { ChangeEvent, useEffect, useState,KeyboardEvent } from 'react'
+import { ChangeEvent, useEffect, useState, KeyboardEvent } from 'react'
 import { Transaction } from 'src/models/class'
 import {
-  CardHeader, Chip, Paper,
+  CardHeader,
+  Chip,
+  Paper,
   Box,
   Card,
   Grid,
@@ -62,19 +64,21 @@ const columns: Column[] = [
     label: 'Status',
     align: 'left',
     format: (value: Transaction) => {
-      const status  = value.status ?? 'WAITING';
+      const status = value.status ?? 'WAITING'
 
-      return <Chip
-        label={status}
-        color={statusObj[status as string].color}
-        sx={{
-          height: 24,
-          fontSize: '0.75rem',
-          textTransform: 'capitalize',
-          '& .MuiChip-label': { fontWeight: 500 }
-        }}
-      />
-      }
+      return (
+        <Chip
+          label={status}
+          color={statusObj[status as string].color}
+          sx={{
+            height: 24,
+            fontSize: '0.75rem',
+            textTransform: 'capitalize',
+            '& .MuiChip-label': { fontWeight: 500 }
+          }}
+        />
+      )
+    }
   }
 ]
 
@@ -85,23 +89,23 @@ const statusObj: StatusObj = {
   WAITING: { color: 'warning' }
 }
 
- const TransactionPage = () => {
+const TransactionPage = () => {
   const [searchValue, setSearchValue] = useState<string>('')
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
-  const [totalItems, setTotalItems] = useState<number>(0);
+  const [totalItems, setTotalItems] = useState<number>(0)
   const [currentData, setCurrentData] = useState<Transaction[]>([])
   const [isOpenDialogCheckTransaction, setIsOpenDialogCheckTransaction] = useState<boolean>(true)
   const [transactionCode, setTransactionCode] = useState<string>('')
   const [storeSearchValue, setStoreSearchName] = useState<string>('')
-  const [updateUI,setUpdateUI] = useState<boolean>(true)
+  const [updateUI, setUpdateUI] = useState<boolean>(true)
 
   const addToast = useToasts()
 
   useEffect(() => {
     // setCurrentData(transactionList?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage))
     getListTransaction()
-  }, [storeSearchValue, page, rowsPerPage,updateUI])
+  }, [storeSearchValue, page, rowsPerPage, updateUI])
 
   const getListTransaction = async () => {
     try {
@@ -112,7 +116,7 @@ const statusObj: StatusObj = {
         startDate: undefined,
         userId: undefined,
         transactionStatus: undefined,
-        code: storeSearchValue ==='' ? undefined : storeSearchValue,
+        code: storeSearchValue === '' ? undefined : storeSearchValue,
         id: undefined
       }
 
@@ -123,7 +127,7 @@ const statusObj: StatusObj = {
           addToast.addToast(data.message, { appearance: 'success' })
 
           setTotalItems(data.pagination?.total ?? 0)
-          const transactions: Transaction[] = data.data.map((transation : Transaction) => new Transaction(transation))
+          const transactions: Transaction[] = data.data.map((transation: Transaction) => new Transaction(transation))
 
           setCurrentData(transactions)
         })
@@ -136,11 +140,11 @@ const statusObj: StatusObj = {
   }
 
   const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
-
-    if (event.key === 'Enter') { console.log(event.currentTarget.value)
-      setStoreSearchName(searchValue);
+    if (event.key === 'Enter') {
+      console.log(event.currentTarget.value)
+      setStoreSearchName(searchValue)
     }
-  };
+  }
 
   const changeSearchValue = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setSearchValue(event?.target.value)
@@ -159,23 +163,24 @@ const statusObj: StatusObj = {
     setIsOpenDialogCheckTransaction(false)
   }
 
-  const updateTransaction = async () =>{
+  const updateTransaction = async () => {
     try {
-      const data : any = {
+      const data: any = {
         code: transactionCode,
         status: 1
       }
-      await transactionAPI.put(data)
-      .then(res =>{
-        const data = new CommonResponse(res)
-        addToast.addToast(data.message,{appearance: 'success'})
+      await transactionAPI
+        .put(data)
+        .then(res => {
+          const data = new CommonResponse(res)
+          addToast.addToast(data.message, { appearance: 'success' })
 
-        setUpdateUI(false)
-      })
-      .catch(err=>{
-        console.log(err)
-      })
-    } catch(err){
+          setUpdateUI(false)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    } catch (err) {
       console.log(err)
     }
   }
@@ -183,7 +188,6 @@ const statusObj: StatusObj = {
   const handleCheckTransaction = () => {
     updateTransaction()
     handleCloseDialogCheckTransaction()
-
   }
 
   return (
@@ -225,7 +229,7 @@ const statusObj: StatusObj = {
           }
         />
         <CardContent>
-          <TableContainer sx={{ maxHeight: 500 }}>
+          <TableContainer sx={{ height: 440 }}>
             <Table stickyHeader aria-label='sticky table'>
               <TableHead>
                 <TableRow>

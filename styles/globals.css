@@ -37,7 +37,6 @@ code[class*='language-'] {
 }
 .modal-size {
   position: absolute;
-  width: 1200px !important;
   border-radius: 15px;
 }
 

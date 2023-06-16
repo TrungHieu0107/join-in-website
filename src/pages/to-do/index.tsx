@@ -26,7 +26,7 @@ const ToDoPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    getListTask()
+    getListTask(queryModel)
   }, [])
 
   const getListTask = async (query?: QueryTaskListsModel) => {
@@ -35,7 +35,6 @@ const ToDoPage = () => {
         .getList(query)
         .then(res => {
           const data = new CommonResponse(res)
-          console.log(data)
           const newTaskList: Task[] = data.data
           const query = new QueryTaskListsModel({
             ...queryModel,
@@ -47,11 +46,11 @@ const ToDoPage = () => {
           setTaskList(newTaskList)
           setTimeout(() => {
             setIsLoading(false)
-          }, 500)
+          }, 300)
         })
         .catch(error => {
           if ((error as AxiosError)?.response?.status === 401) {
-            router.push('/user/login?back=1', '/user/login')
+            router.push('/user/logout', '/user/login')
           } else {
             console.log(error)
           }
@@ -68,13 +67,12 @@ const ToDoPage = () => {
       {
         pathname: '/to-do',
         query: {
-          ...queryModel
+          ...value
         }
       },
       undefined,
       { shallow: true }
     )
-    getListTask(value)
   }
 
   return (
@@ -84,6 +82,7 @@ const ToDoPage = () => {
           <Grid item xs={12} sm={6} lg={4}>
             <TextField
               fullWidth
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
               value={queryModel.name}
               label='Task name'
               placeholder='Task name'
@@ -97,24 +96,7 @@ const ToDoPage = () => {
                   changeQuery(queryModel)
                 }
               }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} lg={4}>
-            <TextField
-              fullWidth
-              value={queryModel.name}
-              label='Task name'
-              placeholder='Task name'
-              onChange={e => {
-                const query = new QueryTaskListsModel(queryModel)
-                query.name = e.target.value
-                setQueryModel(query)
-              }}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  changeQuery(queryModel)
-                }
-              }}
+              size='small'
             />
           </Grid>
         </Grid>

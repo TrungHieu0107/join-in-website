@@ -369,7 +369,7 @@ const MemberPage = () => {
     const dataErr = (error as AxiosError)?.response
     if (dataErr?.status === 401) {
       notify('Login expired.', 'error')
-      router.push('/user/login?back=1', '/user/login')
+      router.push('/user/logout', '/user/login')
     } else if (dataErr?.status === 500) {
       if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
       else notify('Something error', 'error')
@@ -438,7 +438,7 @@ const MemberPage = () => {
         </DialogContent>
       </Dialog>
 
-      <TableContainer sx={{ maxHeight: 440 }}>
+      <TableContainer sx={{ height: 440 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>

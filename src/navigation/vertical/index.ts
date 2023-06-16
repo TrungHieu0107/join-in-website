@@ -21,7 +21,9 @@ import {
   CommentAlert,
   FileOutline,
   FileTree,
-  CashMultiple
+  CashMultiple,
+  AccountCogOutline,
+  AccountGroupOutline
 } from 'mdi-material-ui'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
@@ -156,7 +158,7 @@ const navLeader: VerticalNavItemsType = [
     sectionTitle: 'Others'
   },
   {
-    title: 'Return Home',
+    title: 'Back to Home',
     icon: ArrowLeftCircleOutline,
     path: '/my-groups'
   }
@@ -186,7 +188,7 @@ const navMember: VerticalNavItemsType = [
     sectionTitle: 'Others'
   },
   {
-    title: 'Return Home',
+    title: 'Back to Home',
     icon: ArrowLeftCircleOutline,
     path: '/my-groups'
   }
@@ -204,16 +206,16 @@ const navAdmin: VerticalNavItemsType = [
     path: '/admin/transaction'
   },
 
-  // {
-  //   title: 'User Manage',
-  //   icon: AccountCogOutline,
-  //   path: '/admin/user'
-  // },
-  // {
-  //   title: 'Group Manage',
-  //   icon: AccountGroupOutline,
-  //   path: '/admin/group'
-  // },
+  {
+    title: 'User Manage',
+    icon: AccountCogOutline,
+    path: '/admin/user'
+  },
+  {
+    title: 'Group Manage',
+    icon: AccountGroupOutline,
+    path: '/admin/group'
+  },
   {
     sectionTitle: 'Personal'
   },
