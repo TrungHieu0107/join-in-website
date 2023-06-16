@@ -1,10 +1,8 @@
 // ** MUI Imports
-import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import { useTheme } from '@mui/material/styles'
 import CardHeader from '@mui/material/CardHeader'
 import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 
 // ** Icons Imports
@@ -16,7 +14,7 @@ import { ApexOptions } from 'apexcharts'
 // ** Custom Components Imports
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
-const RevenueOverview = () => {
+const RevenueOverview = (props: { listPreUser: number[]; listFreeUser: number[]}) => {
   // ** Hook
   const theme = useTheme()
 
@@ -50,11 +48,11 @@ const RevenueOverview = () => {
     },
     dataLabels: { enabled: false },
     colors: [
-      theme.palette.background.default,
-      theme.palette.background.default,
-      theme.palette.background.default,
       theme.palette.primary.main,
-      theme.palette.background.default,
+      theme.palette.primary.main,
+      theme.palette.primary.main,
+      theme.palette.primary.main,
+      theme.palette.primary.main,
     ],
     states: {
       hover: {
@@ -101,20 +99,14 @@ const RevenueOverview = () => {
           series={[
             {
                name: "Free User",
-               data: [12, 15, 22, 18, 0]
+               data: props.listFreeUser
             },
             {
               name: "Pre User",
-              data: [ 3, 4, 7, 5, 0]
+              data: props.listPreUser
             }
           ]}
         />
-        <Box sx={{ mb: 7, display: 'flex', alignItems: 'center' }}>
-          <Typography variant='h5' sx={{ mr: 4 }}>
-            45%
-          </Typography>
-          <Typography variant='body2'>Your sales performance is 45% 😎 better compared to last month</Typography>
-        </Box>
       </CardContent>
     </Card>
   )

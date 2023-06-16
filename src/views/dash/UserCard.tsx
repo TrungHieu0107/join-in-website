@@ -1,5 +1,4 @@
-// ** React Imports
-import { ReactElement } from 'react'
+
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -18,70 +17,8 @@ import DotsVertical from 'mdi-material-ui/DotsVertical'
 import CellphoneLink from 'mdi-material-ui/CellphoneLink'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 
-// ** Types
-import { ThemeColor } from 'src/@core/layouts/types'
 
-interface DataType {
-  stats: string
-  title: string
-  color: ThemeColor
-  icon: ReactElement
-}
-
-const salesData: DataType[] = [
-  {
-    stats: '245k',
-    title: 'Total Users',
-    color: 'primary',
-    icon: <TrendingUp sx={{ fontSize: '1.75rem' }} />
-  },
-  {
-    stats: '12.5k',
-    title: 'Free Users',
-    color: 'success',
-    icon: <AccountOutline sx={{ fontSize: '1.75rem' }} />
-  },
-  {
-    stats: '1.54k',
-    color: 'warning',
-    title: 'Pre Users',
-    icon: <CellphoneLink sx={{ fontSize: '1.75rem' }} />
-  },
-  {
-    stats: '30%',
-    color: 'info',
-    title: 'Conversion Rate',
-    icon: <CurrencyUsd sx={{ fontSize: '1.75rem' }} />
-  }
-]
-
-const renderStats = () => {
-  return salesData.map((item: DataType, index: number) => (
-    <Grid item xs={12} sm={3} key={index}>
-      <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar
-          variant='rounded'
-          sx={{
-            mr: 3,
-            width: 44,
-            height: 44,
-            boxShadow: 3,
-            color: 'common.white',
-            backgroundColor: `${item.color}.main`
-          }}
-        >
-          {item.icon}
-        </Avatar>
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography variant='caption'>{item.title}</Typography>
-          <Typography variant='h6'>{item.stats}</Typography>
-        </Box>
-      </Box>
-    </Grid>
-  ))
-}
-
-const UserCard = () => {
+const UserCard = (props: { totalUser: number; freeUser: number; preUser: number; growthRate: number }) => {
   return (
     <Card>
       <CardHeader
@@ -94,7 +31,7 @@ const UserCard = () => {
         subheader={
           <Typography variant='body2'>
             <Box component='span' sx={{ fontWeight: 600, color: 'text.primary' }}>
-              Total 48.5% growth
+              Total {props.growthRate}% growth
             </Box>{' '}
             😎 this week
           </Typography>
@@ -109,7 +46,93 @@ const UserCard = () => {
       />
       <CardContent sx={{ pt: theme => `${theme.spacing(3)} !important` }}>
         <Grid container spacing={[5, 0]}>
-          {renderStats()}
+          <Grid item xs={12} sm={3} >
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar
+                variant='rounded'
+                sx={{
+                  mr: 3,
+                  width: 44,
+                  height: 44,
+                  boxShadow: 3,
+                  color: 'common.white',
+                  backgroundColor: `primary.main`
+                }}
+              >
+                <TrendingUp sx={{ fontSize: '1.75rem' }} />
+              </Avatar>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant='caption'>Total Users</Typography>
+                <Typography variant='h6'>{props.totalUser}</Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={3} >
+            <Box  sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar
+                variant='rounded'
+                sx={{
+                  mr: 3,
+                  width: 44,
+                  height: 44,
+                  boxShadow: 3,
+                  color: 'common.white',
+                  backgroundColor: `success.main`
+                }}
+              >
+                <AccountOutline sx={{ fontSize: '1.75rem' }} />
+              </Avatar>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant='caption'>Free Users</Typography>
+                <Typography variant='h6'>{props.freeUser}</Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={3} >
+            <Box  sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar
+                variant='rounded'
+                sx={{
+                  mr: 3,
+                  width: 44,
+                  height: 44,
+                  boxShadow: 3,
+                  color: 'common.white',
+                  backgroundColor: `warning.main`
+                }}
+              >
+               <CellphoneLink sx={{ fontSize: '1.75rem' }} />
+              </Avatar>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant='caption'>Pre Users</Typography>
+                <Typography variant='h6'>{props.preUser}</Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={3}>
+            <Box  sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar
+                variant='rounded'
+                sx={{
+                  mr: 3,
+                  width: 44,
+                  height: 44,
+                  boxShadow: 3,
+                  color: 'common.white',
+                  backgroundColor: `info.main`
+                }}
+              >
+                <CurrencyUsd sx={{ fontSize: '1.75rem' }} />
+              </Avatar>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant='caption'>Conversion Rate</Typography>
+                <Typography variant='h6'>{props.preUser / props.totalUser * 100}%</Typography>
+              </Box>
+            </Box>
+          </Grid>
         </Grid>
       </CardContent>
     </Card>

@@ -1,9 +1,7 @@
 // ** MUI Imports
-import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import { useTheme } from '@mui/material/styles'
 import CardHeader from '@mui/material/CardHeader'
-import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 
 // ** Third Party Imports
@@ -12,7 +10,7 @@ import { ApexOptions } from 'apexcharts'
 // ** Custom Components Imports
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
-const UserOverview = () => {
+const UserOverview = (props: { listActivity : number[]}) => {
   // ** Hook
   const theme = useTheme()
 
@@ -46,12 +44,11 @@ const UserOverview = () => {
     },
     dataLabels: { enabled: false },
     colors: [
-      theme.palette.background.default,
-      theme.palette.background.default,
-      theme.palette.background.default,
       theme.palette.primary.main,
-      theme.palette.background.default,
-      theme.palette.background.default
+      theme.palette.primary.main,
+      theme.palette.primary.main,
+      theme.palette.primary.main,
+      theme.palette.primary.main,
     ],
     states: {
       hover: {
@@ -73,7 +70,6 @@ const UserOverview = () => {
       tickAmount: 4,
       labels: {
         offsetX: -17,
-        formatter: value => `${value > 999 ? `${(value / 1000).toFixed(0)}` : value}k`
       }
     }
   }
@@ -93,15 +89,9 @@ const UserOverview = () => {
           options={options}
           series={[{
             name: 'User',
-             data: [37, 57, 45, 75, 57]
+             data: props.listActivity
             }]}
         />
-        <Box sx={{ mb: 7, display: 'flex', alignItems: 'center' }}>
-          <Typography variant='h5' sx={{ mr: 4 }}>
-            45%
-          </Typography>
-          <Typography variant='body2'>Your sales performance is 45% 😎 better compared to last week</Typography>
-        </Box>
       </CardContent>
     </Card>
   )

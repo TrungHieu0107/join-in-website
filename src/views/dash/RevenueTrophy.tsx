@@ -21,7 +21,7 @@ const TrophyImg = styled('img')({
   position: 'absolute'
 })
 
-const RevenueTrophy = () => {
+const RevenueTrophy = (props: { revenue: number}) => {
   // ** Hook
   const theme = useTheme()
 
@@ -35,7 +35,7 @@ const RevenueTrophy = () => {
           VND
         </Typography>
         <Typography variant='h5' sx={{ my: 4, color: 'primary.main' }}>
-          100k
+          {props.revenue}
         </Typography>
         <Button size='small' variant='contained'>
           View Transaction
