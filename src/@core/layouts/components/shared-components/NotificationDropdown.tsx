@@ -1,23 +1,33 @@
 // ** React Imports
-import { useState, SyntheticEvent, Fragment, ReactNode } from 'react'
+import { useState, SyntheticEvent, Fragment, useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
-import { styled, Theme } from '@mui/material/styles'
-import useMediaQuery from '@mui/material/useMediaQuery'
+import { styled } from '@mui/material/styles'
 import MuiMenu, { MenuProps } from '@mui/material/Menu'
 import MuiAvatar, { AvatarProps } from '@mui/material/Avatar'
 import MuiMenuItem, { MenuItemProps } from '@mui/material/MenuItem'
 import Typography, { TypographyProps } from '@mui/material/Typography'
+import Badge from '@mui/material/Badge'
 
 // ** Icons Imports
 import BellOutline from 'mdi-material-ui/BellOutline'
 
 // ** Third Party Components
 import PerfectScrollbarComponent from 'react-perfect-scrollbar'
+import { HubConnectionBuilder } from '@microsoft/signalr'
+import { userDBDexie } from 'src/models/db/UserDB'
+import { notificationAPI } from 'src/api-client/notification'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { Notification } from 'src/models/class'
+import { notificationStatus } from 'src/constants/notification-status'
+import moment from 'moment'
+import { StorageKeys } from 'src/constants'
+import { useRouter } from 'next/router'
+import { CircularProgress } from '@mui/material'
 
 // ** Styled Menu component
 const Menu = styled(MuiMenu)<MenuProps>(({ theme }) => ({
@@ -83,8 +93,41 @@ const NotificationDropdown = () => {
   // ** States
   const [anchorEl, setAnchorEl] = useState<(EventTarget & Element) | null>(null)
 
-  // ** Hook
-  const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
+  const [notifications, setNotificaitons] = useState<Notification[]>([])
+  const [newNotification, setNewNotificaiton] = useState<Notification>()
+  const [messgaeUnseenCount, setMessgaeUnseenCount] = useState<number>(0)
+  const [numOfNotification, setNumOfNotification] = useState(10)
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    const connection = new HubConnectionBuilder()
+      .withUrl('http://localhost:5282/notificationHub')
+      .withAutomaticReconnect()
+      .build()
+    userDBDexie.getUser().then(async userDB => {
+      await getNotification(numOfNotification)
+      await connection
+        .start()
+        .then(() => {
+          console.log('SignalR Connected', userDB?.id)
+        })
+        .catch(error => console.log('SignalR Connection Error: ', error))
+
+      connection.on(userDB?.id || 'Notification', message => {
+        console.log(message)
+        setNewNotificaiton(new Notification(JSON.parse(message)))
+      })
+    })
+
+    return () => {
+      connection.stop()
+    }
+  }, [])
+
+  useEffect(() => {
+    newNotification && handleGetNewNotification(newNotification)
+  }, [newNotification])
 
   const handleDropdownOpen = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget)
@@ -94,21 +137,46 @@ const NotificationDropdown = () => {
     setAnchorEl(null)
   }
 
-  const ScrollWrapper = ({ children }: { children: ReactNode }) => {
-    if (hidden) {
-      return <Box sx={{ ...styles, overflowY: 'auto', overflowX: 'hidden' }}>{children}</Box>
-    } else {
-      return (
-        <PerfectScrollbar options={{ wheelPropagation: false, suppressScrollX: true }}>{children}</PerfectScrollbar>
-      )
-    }
+  const handleNotificationClick = (notification: Notification) => {
+    notification.link && router.push(notification.link)
+    handleDropdownClose()
+  }
+
+  const getNotification = async (num: number) => {
+    const notificationList = await notificationAPI.getNotification(num)
+
+    const commonReponse = new CommonResponse(notificationList)
+
+    const data: Notification[] = typeof commonReponse.data === 'string' ? [] : commonReponse.data
+
+    let count = 0
+    data.map(item => {
+      if (item.notificationStatus === 0) {
+        count++
+      }
+    })
+    setMessgaeUnseenCount(count)
+    setNotificaitons(data)
+    setIsLoading(false)
+
+    return Promise.resolve(data)
+  }
+
+  const handleGetNewNotification = (newNoti: Notification) => {
+    const list = notifications
+    list.push(newNoti)
+    setNotificaitons(list)
+    setMessgaeUnseenCount(messgaeUnseenCount + 1)
   }
 
   return (
     <Fragment>
       <IconButton color='inherit' aria-haspopup='true' onClick={handleDropdownOpen} aria-controls='customized-menu'>
-        <BellOutline />
+        <Badge badgeContent={messgaeUnseenCount} color='success'>
+          <BellOutline />
+        </Badge>
       </IconButton>
+
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -118,89 +186,79 @@ const NotificationDropdown = () => {
       >
         <MenuItem disableRipple>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <Typography sx={{ fontWeight: 600 }}>Notifications</Typography>
+            <Typography sx={{ fontWeight: 600 }}>Notification</Typography>
             <Chip
               size='small'
-              label='8 New'
+              label={messgaeUnseenCount}
               color='primary'
               sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500, borderRadius: '10px' }}
             />
           </Box>
         </MenuItem>
-        <ScrollWrapper>
-          <MenuItem onClick={handleDropdownClose}>
-            <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-              <Avatar alt='Flora' src='/images/avatars/4.png' />
-              <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                <MenuItemTitle>Congratulation Flora! 🎉</MenuItemTitle>
-                <MenuItemSubtitle variant='body2'>Won the monthly best seller badge</MenuItemSubtitle>
-              </Box>
-              <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                Today
-              </Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleDropdownClose}>
-            <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-              <Avatar sx={{ color: 'common.white', backgroundColor: 'primary.main' }}>VU</Avatar>
-              <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                <MenuItemTitle>New user registered.</MenuItemTitle>
-                <MenuItemSubtitle variant='body2'>5 hours ago</MenuItemSubtitle>
-              </Box>
-              <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                Yesterday
-              </Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleDropdownClose}>
-            <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-              <Avatar alt='message' src='/images/avatars/5.png' />
-              <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                <MenuItemTitle>New message received 👋🏻</MenuItemTitle>
-                <MenuItemSubtitle variant='body2'>You have 10 unread messages</MenuItemSubtitle>
-              </Box>
-              <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                11 Aug
-              </Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleDropdownClose}>
-            <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-              <img width={38} height={38} alt='paypal' src='/images/misc/paypal.png' />
-              <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                <MenuItemTitle>Paypal</MenuItemTitle>
-                <MenuItemSubtitle variant='body2'>Received Payment</MenuItemSubtitle>
-              </Box>
-              <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                25 May
-              </Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleDropdownClose}>
-            <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-              <Avatar alt='order' src='/images/avatars/3.png' />
-              <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                <MenuItemTitle>Revised Order 📦</MenuItemTitle>
-                <MenuItemSubtitle variant='body2'>New order revised from john</MenuItemSubtitle>
-              </Box>
-              <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                19 Mar
-              </Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleDropdownClose}>
-            <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-              <img width={38} height={38} alt='chart' src='/images/misc/chart.png' />
-              <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                <MenuItemTitle>Finance report has been generated</MenuItemTitle>
-                <MenuItemSubtitle variant='body2'>25 hrs ago</MenuItemSubtitle>
-              </Box>
-              <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                27 Dec
-              </Typography>
-            </Box>
-          </MenuItem>
-        </ScrollWrapper>
+        <PerfectScrollbar
+          options={{ suppressScrollX: true }}
+          onYReachEnd={() => {
+            setTimeout(() => {
+              if (isLoading) return
+              setIsLoading(true)
+
+              const num = numOfNotification + 5
+              if (numOfNotification > notifications.length) {
+                setIsLoading(false)
+
+                return
+              }
+
+              setNumOfNotification(num)
+              getNotification(num)
+            }, 10)
+          }}
+        >
+          {notifications?.map((item, index) => {
+            let messageTime = ''
+
+            const a = moment()
+            const b = moment(item.createdDate)
+            const diff = a.diff(b, 'days')
+
+            if (diff === 0) {
+              messageTime = 'Today'
+            } else if (diff === 1) {
+              messageTime = `a day ago`
+            } else if (diff > 0 && diff < 7) {
+              messageTime = `${diff} days ago`
+            } else {
+              messageTime = b.format(StorageKeys.KEY_FORMAT_DATE)
+            }
+
+            return (
+              <MenuItem key={index} onClick={() => handleNotificationClick(item)}>
+                <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
+                  <Avatar alt='Notification' src={item.logo} />
+                  <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
+                    <MenuItemTitle color={item.notificationStatus === 0 ? 'black' : '#b7b7b7'}>
+                      {notificationStatus.at(item.notificationType)?.lable}
+                    </MenuItemTitle>
+                    <MenuItemSubtitle variant='body2'>{item.message}</MenuItemSubtitle>
+                  </Box>
+                  <Typography variant='caption' sx={{ color: 'text.disabled' }}>
+                    {messageTime}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            )
+          })}
+          {isLoading && (
+            <MenuItem
+              sx={{
+                display: 'flex',
+                justifyContent: 'center'
+              }}
+            >
+              <CircularProgress />
+            </MenuItem>
+          )}
+        </PerfectScrollbar>
         <MenuItem
           disableRipple
           sx={{ py: 3.5, borderBottom: 0, borderTop: theme => `1px solid ${theme.palette.divider}` }}

@@ -1,5 +1,5 @@
 import Chip from '@mui/material/Chip'
-import { Task } from 'src/models/class'
+import { Comment, Task } from 'src/models/class'
 import { Column } from 'src/models/common/Column'
 import TableTaskCollapse from 'src/views/task/table/TableTaskCollapse'
 import Grid from '@mui/material/Grid'
@@ -36,6 +36,7 @@ import { useToasts } from 'react-toast-notifications'
 import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel'
 import TaskCommentView from 'src/views/task/info/TaskCommentView'
 import Editor from 'src/views/dialog/editor'
+import { commentAPI } from 'src/api-client/comment'
 
 export interface ISubTaskPageProps {
   id: string
@@ -125,6 +126,7 @@ const SubTaskPage = () => {
   const { id } = router.query
   const [searchValue, setSearchValue] = useState<string>('')
   const [comment, setComment] = useState<string>('')
+  const [comments, setComments] = useState<Comment[]>([])
   const [data, setData] = useState<Task>()
   const [queryTask, setQueryTask] = useState<QueryTaskListsModel>(new QueryTaskListsModel())
   const [addNewModal, setAddNewModal] = useState<boolean>(false)
@@ -158,14 +160,30 @@ const SubTaskPage = () => {
 
   const fetchDataTask = async () => {
     typeof id === 'string' &&
-      taskAPI.getById(id).then(res => {
+      taskAPI
+        .getById(id)
+        .then(res => {
+          const commonResponse = new CommonResponse(res)
+          console.log(commonResponse)
+
+          const newData = new Task(commonResponse.data)
+          newData.id && getCommentOfTask(newData.id)
+          setData(newData)
+        })
+        .catch(error => {
+          handleError(error)
+        })
+  }
+
+  const getCommentOfTask = (taskId: string) => {
+    commentAPI
+      .getCommentsByTaskId(taskId)
+      .then(res => {
         const commonResponse = new CommonResponse(res)
-        console.log(commonResponse)
-        console.log(queryTask)
-
-        const newData = new Task(commonResponse.data)
-
-        setData(newData)
+        setComments(commonResponse.data)
+      })
+      .catch(error => {
+        handleError(error)
       })
   }
 
@@ -173,7 +191,7 @@ const SubTaskPage = () => {
     const dataErr = (error as AxiosError)?.response
     if (dataErr?.status === 401) {
       notify('Login expired.', 'error')
-      router.push('/user/login?back=1', '/user/login')
+      router.push('/user/logout', '/user/login')
     } else if (dataErr?.status === 500) {
       if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
       else notify('Something error', 'error')
@@ -181,27 +199,6 @@ const SubTaskPage = () => {
       console.log(error)
     }
   }
-
-  // const updateGroup = async (newData: Task) => {
-  //   await groupDBDexie.saveGroup({
-  //     avatar: newData.group?.avatar ?? '',
-  //     name: newData.group?.name,
-  //     id: newData.group?.id
-  //   })
-  //   // .update(1)
-  //   // .then(async function (updated) {
-  //   //   if (updated) console.log('Friend number 2 was renamed to Number 2')
-  //   //   else {
-  //   //     console.log('Nothing was updated - there were no friend with primary key: 2')
-  //   //     await groupDBDexie.groups.add({
-  //   //       avatar: newData.group?.avatar ?? '',
-  //   //       name: newData.group?.name ?? ''
-  //   //     })
-  //   //   }
-  //   // })
-
-  //   // console.log('group 123', await groupDBDexie.groups.get({ id: 1 }))
-  // }
 
   const handleClose = () => {
     setAddNewModal(false)
@@ -240,23 +237,6 @@ const SubTaskPage = () => {
                     placeholder='Search'
                   />
                 </Grid>
-                {/* <Grid item xs={6} md={4}>
-                  <AvatarGroup total={24}>
-                    <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
-                    <Avatar
-                      alt='Remy Sharp'
-                      src=''
-                      sizes='small'
-                    />
-                    <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
-                    <Avatar
-                      alt='Remy Sharp'
-                      src=''
-                      sizes='small'
-                    />
-                    <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
-                  </AvatarGroup>
-                </Grid> */}
               </Grid>
               <Grid container xs={6} md={4} justifyContent={'flex-end'}>
                 <Button
@@ -271,7 +251,12 @@ const SubTaskPage = () => {
                 </Button>
               </Grid>
             </Grid>
-            <TableTaskCollapse column={column} row={data?.subTasks} setQuery={setQueryTask}></TableTaskCollapse>
+            <TableTaskCollapse
+              column={column}
+              row={data?.subTasks}
+              setQuery={setQueryTask}
+              query={queryTask}
+            ></TableTaskCollapse>
           </CardContent>
         </Card>
       ) : (
@@ -284,7 +269,7 @@ const SubTaskPage = () => {
               Comment
             </Typography>
             <Grid>
-              <TaskCommentView data={data?.comments !== undefined ? data?.comments : []} />
+              <TaskCommentView data={comments} />
             </Grid>
             <div>
               <Editor
@@ -297,7 +282,22 @@ const SubTaskPage = () => {
             </div>
             <Grid item container justifyContent={'center'}>
               <Grid mt={3}>
-                <Button size='small' variant='outlined' endIcon={<Send />}>
+                <Button
+                  size='small'
+                  variant='outlined'
+                  endIcon={<Send />}
+                  onClick={() => {
+                    commentAPI
+                      .createComment({
+                        content: comment,
+                        taskId: data.id || ''
+                      })
+                      .then(() => {
+                        notify('Comment successfully.', 'success')
+                        getCommentOfTask(data.id || '')
+                      })
+                  }}
+                >
                   Send
                 </Button>
               </Grid>
@@ -313,7 +313,7 @@ const SubTaskPage = () => {
         aria-describedby='transition-modal-descripti'
       >
         <Fade in={addNewModal}>
-          <Box sx={style} className='modal-size'>
+          <Box sx={{ ...style, width: 850 }} className='modal-size'>
             <DialogCreateNewTask close={handleClose} groupId={groupId} mainTask={data} onSuccess={fetchDataTask} />
           </Box>
         </Fade>

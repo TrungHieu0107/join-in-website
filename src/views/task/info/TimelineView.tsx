@@ -36,7 +36,6 @@ export default function TimeLineView(props: ITimeLineViewProps) {
   const [inProgress, setInProgress] = useState(true)
 
   useEffect(() => {
-    console.log('change', props.data);
     
     if (moment(present).isAfter(moment(props.data.endDateDeadline).format('yyyy-MM-DD'))) {
       setInProgress(false)

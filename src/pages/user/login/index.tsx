@@ -120,8 +120,6 @@ const LoginPage = () => {
         }
       } else {
         userDBDexie.getGoogleToken().then(res => {
-          console.log(res)
-
           if (res?.length !== 0) {
             getToken(res ?? '')
           } else if (!router.query.back) {

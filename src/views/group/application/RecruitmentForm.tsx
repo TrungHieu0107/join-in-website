@@ -47,7 +47,6 @@ const RecruitmentForm = () => {
             memberCount: value.memberCount,
             name: value.major?.name
           }))
-          console.log(list)
           setListRecruiting(list)
         })
       })

@@ -13,7 +13,6 @@ export const taskAPI = {
     const params = {
       params: { ...payload }
     }
-    console.log('params', params)
 
     return axiosClient.get(`${URL}`, params)
   },
@@ -35,7 +34,6 @@ export const taskAPI = {
   },
 
   assignTask(data: any) {
-    console.log(data)
 
     return axiosClient.put(`/assigned-tasks`, data)
   },

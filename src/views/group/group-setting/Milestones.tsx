@@ -42,14 +42,12 @@ export default function MilestoneScreen() {
         .then(res => {
           const data = new CommonResponse(res)
           const milestones: Milestone[] = data.data.milestones
-          console.log(milestones)
           const list = milestones.map(milestone => ({
             Id: milestone.id,
             Order: milestone.order,
             Name: milestone.name,
             Description: milestone.description
           }))
-          console.log(list)
           setListMilestones(list)
           const currentOrder = data.data.currentMilestoneOrder - 1
           setActiveStep(currentOrder)
@@ -89,7 +87,6 @@ export default function MilestoneScreen() {
   const changeCurrentMilestoneDown = async () => {
     try {
       const groupData = await groupDBDexie.getGroup()
-      console.log(groupData?.id)
       await milestoneAPI
         .putCurrent({ groupId: groupData?.id, wishType: 1 })
         .then(res => {

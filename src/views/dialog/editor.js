@@ -46,7 +46,6 @@ function Editor({ onChange, name, value }) {
           onChange={(event, editor) => {
             const data = editor.getData()
 
-            // console.log({ event, editor, data })
             onChange(data)
           }}
         />

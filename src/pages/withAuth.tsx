@@ -29,7 +29,7 @@ const withAuth = (WrappedComponent: NextPage) => {
         const pathName = router.pathname
 
         if (value?.length === 0) {
-          router.push('/user/login?back=1', '/user/login')
+          router.push('/user/logout', '/user/login')
           notify()
 
           return
@@ -38,14 +38,14 @@ const withAuth = (WrappedComponent: NextPage) => {
 
         if (pathName.startsWith('/admin')) {
           if (tokenModel.role !== 'Admin') {
-            router.push('/user/login?back=1', '/user/login')
+            router.push('/user/logout', '/user/login')
             notify()
 
             return
           }
         } else {
           if (tokenModel.role !== 'User') {
-            router.push('/user/login?back=1', '/user/login')
+            router.push('/user/logout', '/user/login')
             notify()
 
             return
