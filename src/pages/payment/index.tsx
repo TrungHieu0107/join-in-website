@@ -59,7 +59,7 @@ const Payment = () => {
 
     if (!code) {
       notify('You are not able to access this page', 'error')
-      router.push('/user/login?back=1', '/user/login')
+      router.push('/user/logout', '/user/login')
 
       return
     }

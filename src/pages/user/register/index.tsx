@@ -132,7 +132,6 @@ const RegisterPage = () => {
 
   const handleSubmit = async () => {
     let isError = false
-    console.log(values)
     await emailValidate
       .validate({ email: values.email })
       .then(() => {
@@ -168,8 +167,6 @@ const RegisterPage = () => {
         setPasswordConfirmError('')
       })
 
-    console.log(isError, passwordConfirmError)
-
     if (isError) {
       return
     }
@@ -181,7 +178,7 @@ const RegisterPage = () => {
     authAPI
       .signUp(user)
       .then(() => {
-        router.push('/user/login?back=1', '/user/login')
+        router.push('/user/logout', '/user/login')
       })
       .catch(error => {
         console.log(error)

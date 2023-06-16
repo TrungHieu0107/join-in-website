@@ -36,8 +36,6 @@ const UserDropdown = () => {
 
   useEffect(() => {
     userDBDexie.getUser().then(userDB => {
-      console.log(userDB)
-
       userDB?.name && setUserLogin(userDB)
     })
   }, [])
@@ -57,7 +55,7 @@ const UserDropdown = () => {
   }
 
   const handleLogout = async () => {
-    await userDBDexie.clearToken().then(() => router.push('/user/login?back=1', '/user/login'))
+    await userDBDexie.clearToken().then(() => router.push('/user/logout?back=1', '/user/login'))
   }
 
   const styles = {

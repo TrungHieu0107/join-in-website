@@ -290,7 +290,6 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         .getRoleInGroup(groupInfo?.id ?? '')
         .then(role => {
           const r = new CommonResponse(role).data
-          console.log(r === 'LEADER' || r === 'SUB_LEADER')
 
           groupDBDexie.saveRole(r)
         })
@@ -362,7 +361,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         </Dialog>
       </Box>
 
-      <TableContainer sx={{ maxHeight: 440 }}>
+      <TableContainer sx={{ height: 440 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>
@@ -424,24 +423,23 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
             horizontal: 'center'
           }}
         >
-          <MenuItem onClick={handleViewDetail} >
+          <MenuItem onClick={handleViewDetail}>
             <InformationVariant fontSize='small' sx={{ mr: 3 }} /> Detail
           </MenuItem>
 
-          {userInforId !== selectedRow?.createdById && userInforId !== selectedRow?.leaderId && userInforId !== selectedRow?.createdById
-          ?
-          <MenuItem onClick={handleDelete}>
-            <ExitToApp fontSize='small' sx={{ mr: 3 }} /> Out Group
-          </MenuItem>
-          : null
-        }
+          {userInforId !== selectedRow?.createdById &&
+          userInforId !== selectedRow?.leaderId &&
+          userInforId !== selectedRow?.createdById ? (
+            <MenuItem onClick={handleDelete}>
+              <ExitToApp fontSize='small' sx={{ mr: 3 }} /> Out Group
+            </MenuItem>
+          ) : null}
 
-          {userInforId === selectedRow?.createdById ?
-          <MenuItem onClick={handleClickOpenAlertDeleteGroup} >
-            <Delete fontSize='small' sx={{ mr: 3 }} /> Delete Group
-          </MenuItem>
-          :null
-        }
+          {userInforId === selectedRow?.createdById ? (
+            <MenuItem onClick={handleClickOpenAlertDeleteGroup}>
+              <Delete fontSize='small' sx={{ mr: 3 }} /> Delete Group
+            </MenuItem>
+          ) : null}
         </Menu>
       </TableContainer>
 

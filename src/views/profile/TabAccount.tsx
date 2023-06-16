@@ -1,32 +1,18 @@
 // ** React Imports
-import {
-  useState,
-  ElementType,
-  ChangeEvent,
-  SyntheticEvent,
-  forwardRef,
-  SetStateAction,
-  useEffect,
-  ReactNode
-} from 'react'
+import { useState, ElementType, ChangeEvent, SetStateAction, useEffect, ReactNode } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
-import Link from '@mui/material/Link'
-import Alert from '@mui/material/Alert'
 import { styled } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import AlertTitle from '@mui/material/AlertTitle'
-import IconButton from '@mui/material/IconButton'
 import CardContent from '@mui/material/CardContent'
 import FormControl from '@mui/material/FormControl'
 import Button, { ButtonProps } from '@mui/material/Button'
 import FormHelperText from '@mui/material/FormHelperText'
 
 // ** Icons Imports
-import Close from 'mdi-material-ui/Close'
 import {
   Autocomplete,
   Backdrop,
@@ -53,6 +39,8 @@ import { AxiosError, AxiosResponse } from 'axios'
 import { useToasts } from 'react-toast-notifications'
 import * as yup from 'yup'
 import { userDBDexie } from 'src/models/db/UserDB'
+import { validateProfile } from 'src/@core/utils/validation/profile-validation'
+import { ObjValidation } from 'src/@core/utils/validation'
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 150,
@@ -86,24 +74,6 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   }
 }))
 
-const CustomInput = forwardRef((props, ref) => {
-  return (
-    <TextField
-      inputRef={ref}
-      label='Birth Date'
-      fullWidth
-      {...props}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position='start'>
-            <Calendar />
-          </InputAdornment>
-        )
-      }}
-    />
-  )
-})
-
 interface ObjectValidate {
   value?: any | any[]
   error?: string
@@ -117,7 +87,6 @@ interface TabAccountProps {
 
 const TabAccount = (props: TabAccountProps) => {
   // ** State
-  const [openAlert, setOpenAlert] = useState<boolean>(true)
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
   const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
   const [date, setDate] = useState<Date | null | undefined>(null)
@@ -126,7 +95,7 @@ const TabAccount = (props: TabAccountProps) => {
   const [contacts, setContacts] = useState('')
   const [skills, setSkills] = useState('')
   const [majorOptions, setMajorOptions] = useState<Major[]>([])
-  const [fullName, setFullName] = useState<string>()
+  const [fullName, setFullName] = useState<string>('')
   const [phone, setPhone] = useState<string>()
   const [email, setEmail] = useState<ObjectValidate>({
     value: '123@gmail.com'
@@ -136,12 +105,12 @@ const TabAccount = (props: TabAccountProps) => {
   const [fileBackGround, setFileBackGround] = useState<FileList>()
   const [isLogin, setIsLogin] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [error, setError] = useState<ObjValidation>({})
 
   const router = useRouter()
   const addToast = useToasts()
 
   useEffect(() => {
-    console.log(props)
     fetchData()
   }, [props])
 
@@ -159,7 +128,7 @@ const TabAccount = (props: TabAccountProps) => {
               await getAllMajor(listMajor)
             })
             if (commonResponse.status === 200) {
-              setFullName(data.fullName)
+              setFullName(data.fullName ?? '')
               setDate(new Date(data.birthDay?.toString() ?? new Date().toString()))
               setImgSrc(data.avatar ?? '')
               setImgBackground(data.theme ?? '')
@@ -190,14 +159,12 @@ const TabAccount = (props: TabAccountProps) => {
     await majorAPI
       .getList()
       .then(res => {
-        console.log(res)
         const data = new CommonResponse(res).data as Major[]
         const list: Major[] = []
         majorsOfUser.map(item => {
           const tmp = data.filter(val => val.id === item.id).at(0)
           tmp && list.push(tmp)
         })
-        console.log(majorsOfUser, '2123', list)
 
         setSelectedMajor({
           value: list
@@ -207,7 +174,7 @@ const TabAccount = (props: TabAccountProps) => {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/login?back=1', '/user/login')
+          router.push('/user/logout', '/user/login')
         } else {
           console.log(error)
         }
@@ -281,7 +248,29 @@ const TabAccount = (props: TabAccountProps) => {
     if (isError) {
       return
     }
+
     setIsLoading(true)
+
+    const payload = validateProfile(
+      new UserCompleteProfileModel({
+        birthDay: moment(date?.toString()).format(StorageKeys.KEY_FORMAT_DATE),
+        description: description,
+        fullName: fullName,
+        gender: gender === 'male',
+        majorIdList: (selectedMajor?.value as Major[]).map(item => item.id ?? ''),
+        skill: skills,
+        otherContact: contacts,
+        phoneNumber: phone
+      })
+    )
+
+    if (payload.isError) {
+      console.log(payload)
+      setError(payload.result)
+      setIsLoading(false)
+
+      return
+    }
     await userAPI
       .uploadImage(fileAvatar ? fileAvatar[0] : undefined)
       .then(async res => {
@@ -291,7 +280,6 @@ const TabAccount = (props: TabAccountProps) => {
         } else {
           urlAvatar = imgSrc
         }
-        console.log('url avatar ', urlAvatar)
 
         await userAPI
           .uploadImage(fileBackGround ? fileBackGround[0] : undefined)
@@ -302,25 +290,15 @@ const TabAccount = (props: TabAccountProps) => {
             } else {
               urlBackground = imgBackgroud
             }
-            console.log('url urlBackground ', urlBackground)
-            const payload = new UserCompleteProfileModel({
-              avatar: urlAvatar,
-              birthDay: moment(date?.toString()).format(StorageKeys.KEY_FORMAT_DATE),
-              description: description,
-              fullName: fullName,
-              gender: gender === 'male',
-              majorIdList: (selectedMajor?.value as Major[]).map(item => item.id ?? ''),
-              skill: skills,
-              otherContact: contacts,
-              phoneNumber: phone,
-              theme: urlBackground
-            })
 
-            console.log(payload)
-            await submitProfile(payload).catch(error => {
+            const newProfile = new UserCompleteProfileModel(payload)
+            newProfile.avatar = urlAvatar
+            newProfile.theme = urlBackground
+
+            await submitProfile(newProfile).catch(error => {
               if ((error as AxiosError)?.response?.status === 401) {
                 notify('Login expired.', 'error')
-                router.push('/user/login?back=1', '/user/login')
+                router.push('/user/logout', '/user/login')
               } else {
                 console.log(error)
               }
@@ -329,7 +307,7 @@ const TabAccount = (props: TabAccountProps) => {
           .catch(error => {
             if ((error as AxiosError)?.response?.status === 401) {
               notify('Login expired.', 'error')
-              router.push('/user/login?back=1', '/user/login')
+              router.push('/user/logout', '/user/login')
             } else {
               console.log(error)
             }
@@ -338,7 +316,7 @@ const TabAccount = (props: TabAccountProps) => {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/login?back=1', '/user/login')
+          router.push('/user/logout', '/user/login')
         } else {
           console.log(error)
         }
@@ -362,8 +340,6 @@ const TabAccount = (props: TabAccountProps) => {
         }
       })
     }
-
-    setIsLoading(false)
   }
 
   const getUserInforToSaveDB = async (token: string) => {
@@ -463,6 +439,8 @@ const TabAccount = (props: TabAccountProps) => {
                   </InputAdornment>
                 )
               }}
+              error={error.fullName?.isError}
+              helperText={error.fullName?.isError ? error.fullName?.error : ''}
             />
           </Grid>
 
@@ -474,7 +452,21 @@ const TabAccount = (props: TabAccountProps) => {
                 showMonthDropdown
                 id='account-settings-date'
                 placeholderText='YYYY-MM-DD'
-                customInput={<CustomInput />}
+                customInput={
+                  <TextField
+                    error={error.birthDay?.isError}
+                    helperText={error.birthDay?.isError ? error.birthDay?.error : ''}
+                    label='Birth Date'
+                    fullWidth
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <Calendar />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                }
                 onChange={(date: Date) => setDate(date)}
                 dateFormat={'yyyy-MM-dd'}
               />
@@ -519,6 +511,8 @@ const TabAccount = (props: TabAccountProps) => {
                 )
               }}
               value={phone}
+              error={error.phoneNumber?.isError}
+              helperText={error.phoneNumber?.isError ? error.phoneNumber?.error : ''}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -544,6 +538,16 @@ const TabAccount = (props: TabAccountProps) => {
               <Contacts sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Other Contacts</Typography>
             </Box>
+            {error.otherContact?.isError ? (
+              <p
+                className='MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1sxd8vz-MuiFormHelperText-root'
+                id='mui-17-helper-text'
+              >
+                {error.otherContact?.error}
+              </p>
+            ) : (
+              ''
+            )}
             <Editor
               name='contacts'
               value={contacts}
@@ -557,6 +561,16 @@ const TabAccount = (props: TabAccountProps) => {
               <AlphaACircleOutline sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Your skills</Typography>
             </Box>
+            {error.skill?.isError ? (
+              <p
+                className='MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1sxd8vz-MuiFormHelperText-root'
+                id='mui-17-helper-text'
+              >
+                {error.skill?.error}
+              </p>
+            ) : (
+              ''
+            )}
             <Editor
               name='skills'
               value={skills}
@@ -570,6 +584,16 @@ const TabAccount = (props: TabAccountProps) => {
               <InformationVariant sx={{ marginRight: 1 }} />
               <Typography variant='body1'>Description</Typography>
             </Box>
+            {error.description?.isError ? (
+              <p
+                className='MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1sxd8vz-MuiFormHelperText-root'
+                id='mui-17-helper-text'
+              >
+                {error.description?.error}
+              </p>
+            ) : (
+              ''
+            )}
             <Editor
               name='description'
               value={description}
@@ -578,25 +602,6 @@ const TabAccount = (props: TabAccountProps) => {
               }}
             />
           </Grid>
-
-          {openAlert ? (
-            <Grid item xs={12} sx={{ mb: 3 }}>
-              <Alert
-                severity='warning'
-                sx={{ '& a': { fontWeight: 400 } }}
-                action={
-                  <IconButton size='small' color='inherit' aria-label='close' onClick={() => setOpenAlert(false)}>
-                    <Close fontSize='inherit' />
-                  </IconButton>
-                }
-              >
-                <AlertTitle>Your email is not confirmed. Please check your inbox.</AlertTitle>
-                <Link href='/' onClick={(e: SyntheticEvent) => e.preventDefault()}>
-                  Resend Confirmation
-                </Link>
-              </Alert>
-            </Grid>
-          ) : null}
 
           <Grid item xs={12}>
             <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={onSaveProfile}>

@@ -7,7 +7,6 @@ const useIndexedDBData = () => {
 
   // Implement logic to fetch data from IndexDB
   useEffect(() => {
-    console.log('group', group ? group?.name : '')
     createLogoGroup()
   }, [])
 

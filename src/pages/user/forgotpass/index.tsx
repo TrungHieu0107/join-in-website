@@ -97,7 +97,6 @@ const ForgotPassPage = () => {
 
   const handleSubmit = async () => {
     let isError = false
-    console.log(values)
 
     await passwordValidate
       .validate({ password: values.password })

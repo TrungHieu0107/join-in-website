@@ -78,7 +78,6 @@ const ForgotEmailPage = () => {
 
   const handleSubmit = async () => {
     let isError = false
-    console.log(values)
     await emailValidate
       .validate({ email: values.email })
       .then(() => {

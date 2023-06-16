@@ -154,7 +154,7 @@ const GroupManagePage = () => {
         }
       />
       <CardContent>
-        <TableContainer sx={{ maxHeight: 500 }}>
+        <TableContainer sx={{ height: 440 }}>
           <Table stickyHeader aria-label='sticky table'>
             <TableHead>
               <TableRow>

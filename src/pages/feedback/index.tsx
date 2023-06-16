@@ -1,5 +1,17 @@
-
-import { Box, Card, InputAdornment, Rating, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material'
+import {
+  Box,
+  Card,
+  InputAdornment,
+  Rating,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TextField
+} from '@mui/material'
 import { Magnify } from 'mdi-material-ui'
 import * as React from 'react'
 import { ChangeEvent, ReactNode, useEffect, useState } from 'react'
@@ -26,9 +38,7 @@ const columns: Column[] = [
     label: 'Rating',
     minWidth: 100,
     align: 'center',
-    format: (value: number) => (
-      <Rating name="read-only" value={value} readOnly precision={0.5} />
-    )
+    format: (value: number) => <Rating name='read-only' value={value} readOnly precision={0.5} />
   },
   {
     id: 'createdDate',
@@ -41,30 +51,25 @@ const columns: Column[] = [
     id: 'content',
     label: 'Content',
     minWidth: 300,
-    format: (value: string) =>(
-      <div className='editor' dangerouslySetInnerHTML={{ __html: value }}/>
-    )
-  },
+    format: (value: string) => <div className='editor' dangerouslySetInnerHTML={{ __html: value }} />
+  }
 ]
 
 const FeedbackList = () => {
-
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
-  const [totalItems, setTotalItems] = useState<number>(0);
+  const [totalItems, setTotalItems] = useState<number>(0)
   const [listFeedback, setListFeedback] = useState<Feedback[]>([])
 
+  const addToast = useToasts()
 
-  const addToast = useToasts();
-
-  useEffect(()=>{
+  useEffect(() => {
     getListFeedback()
-  },[page,rowsPerPage])
+  }, [page, rowsPerPage])
 
   const getListFeedback = async () => {
     try {
-
-      const payload : QueryFeedbackListModel = {
+      const payload: QueryFeedbackListModel = {
         orderBy: '',
         page: page + 1,
         pageSize: rowsPerPage,
@@ -89,10 +94,6 @@ const FeedbackList = () => {
     }
   }
 
-
-
-
-
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
@@ -102,8 +103,7 @@ const FeedbackList = () => {
     setPage(0)
   }
 
-
-  return  (
+  return (
     <Card>
       <Box
         sx={{
@@ -128,8 +128,7 @@ const FeedbackList = () => {
         />
       </Box>
 
-
-      <TableContainer sx={{ maxHeight: 440 }}>
+      <TableContainer sx={{ height: 440 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>
@@ -178,7 +177,6 @@ const FeedbackList = () => {
       />
     </Card>
   )
-
 }
 
 export default withAuth(FeedbackList)

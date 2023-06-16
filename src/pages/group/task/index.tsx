@@ -136,7 +136,6 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -197,7 +196,7 @@ const TaskListPage = () => {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/login?back=1', '/user/login')
+          router.push('/user/logout', '/user/login')
         } else {
           console.log(error)
         }
@@ -218,7 +217,7 @@ const TaskListPage = () => {
 
   return (
     <div>
-      <Grid container spacing={4}>
+      <Grid container spacing={4} mb={2}>
         <Grid item xs={6} sm={8} container spacing={2}>
           <Grid item xs={6} md={5}>
             <TextField
@@ -247,19 +246,8 @@ const TaskListPage = () => {
               placeholder='Search'
             />
           </Grid>
-          <Grid item xs={6} md={4}>
-            <AvatarGroup total={24}>
-              <Tooltip title='Add' placement='bottom'>
-                <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
-              </Tooltip>
-              <Avatar alt='Remy Sharp' src='' sizes='small' />
-              <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
-              <Avatar alt='Remy Sharp' src='' sizes='small' />
-              <Avatar alt='Remy Sharp' src='/images/avatars/7.png' sizes='small' />
-            </AvatarGroup>
-          </Grid>
         </Grid>
-        <Grid item xs={6} md={4} container justifyContent={'flex-end'}>
+        <Grid item xs={6} sm={4} container justifyContent={'flex-end'}>
           <Button
             color='primary'
             variant='outlined'
@@ -278,10 +266,10 @@ const TaskListPage = () => {
         onClose={handleClose}
         closeAfterTransition
         aria-labelledby='transition-modal-title'
-        aria-describedby='transition-modal-descripti'
+        aria-describedby='transition-modal-description'
       >
         <Fade in={addNewModal}>
-          <Box sx={style} className='modal-size'>
+          <Box sx={{ ...style, width: 600 }} className='modal-size'>
             <DialogCreateNewTask close={handleClose} groupId={groupId} onSuccess={fetchdata} />
           </Box>
         </Fade>

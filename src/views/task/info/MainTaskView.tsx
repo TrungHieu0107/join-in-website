@@ -44,7 +44,6 @@ const FONT_SIZE = 9
 export default function MainTaskView({ data, handleError, notify, onSuccess }: IMainTaskViewProps) {
   const [value, setValues] = useState<Task>(new Task(data))
   const [editable, setEditable] = useState<boolean>(false)
-  const [isEdit, setIsEdit] = useState(false)
   const [inputWidth, setInputWidth] = useState(DEFAULT_INPUT_WIDTH)
   const [description, setDescription] = useState(value.description)
   const [taskName, setTaskName] = useState<string>(data.name !== undefined ? data.name : '')
@@ -52,8 +51,6 @@ export default function MainTaskView({ data, handleError, notify, onSuccess }: I
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    console.log(data)
-
     if (taskName) {
       if (taskName.length * FONT_SIZE > DEFAULT_INPUT_WIDTH) {
         setInputWidth(
@@ -87,14 +84,12 @@ export default function MainTaskView({ data, handleError, notify, onSuccess }: I
         .getRoleInGroup(data.group?.id)
         .then(role => {
           const r = new CommonResponse(role).data
-          console.log(r === 'LEADER' || r === 'SUB_LEADER')
 
           setIsLeader(r === 'LEADER' || r === 'SUB_LEADER')
           setTimeout(() => {
             setIsLoading(false)
           }, 1000)
           setEditable(true)
-          setIsEdit(true)
         })
         .catch(error => {
           handleError(error)
@@ -126,14 +121,9 @@ export default function MainTaskView({ data, handleError, notify, onSuccess }: I
     }
 
     setValues(val)
-    setIsEdit(true)
   }
 
   const clickCancelEdit = () => {
-    if (isEdit) {
-      console.log('Data edit')
-    }
-    setIsEdit(false)
     setDescription(data.description)
     setEditable(false)
     setValues(new Task(data))
@@ -154,7 +144,6 @@ export default function MainTaskView({ data, handleError, notify, onSuccess }: I
       impotantLevel: importantLevel[val.impotantLevel ?? ''].valueNumber ?? 1,
       status: statusObj[val.status ?? ''].valueNumber ?? 0
     })
-    console.log(data)
 
     setIsLoading(true)
     taskAPI
@@ -439,7 +428,6 @@ export default function MainTaskView({ data, handleError, notify, onSuccess }: I
                   name='description'
                   onChange={(dataChange: SetStateAction<string>) => {
                     setDescription(dataChange.toString())
-                    setIsEdit(true)
                   }}
                 />
               </div>

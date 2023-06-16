@@ -21,27 +21,22 @@ const MyTable = () => {
   };
 
   const handleDetailClick = () => {
-    console.log('Detail clicked for row:', selectedRow);
     handleOptionClose();
   };
 
   const handleChangeClick = () => {
-    console.log('Change clicked for row:', selectedRow);
     handleOptionClose();
   };
 
   const handleAdminClick = () => {
-    console.log('Admin clicked for row:', selectedRow);
     handleOptionClose();
   };
 
   const handleUserClick = () => {
-    console.log('User clicked for row:', selectedRow);
     handleOptionClose();
   };
 
   const handleDeleteClick = () => {
-    console.log('Delete clicked for row:', selectedRow);
     handleOptionClose();
   };
 

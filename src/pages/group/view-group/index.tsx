@@ -103,7 +103,6 @@ const GroupView = () => {
           .getRoleInGroup(groupData.id ?? '')
           .then(role => {
             const r = new CommonResponse(role).data
-            console.log(r === 'LEADER' || r === 'SUB_LEADER')
 
             if (r === 'LEADER' || r === 'SUB_LEADER') {
               setIsLeader(true)
@@ -121,7 +120,7 @@ const GroupView = () => {
     const dataErr = (error as AxiosError)?.response
     if (dataErr?.status === 401) {
       notify('Login expired.', 'error')
-      router.push('/user/login?back=1', '/user/login')
+      router.push('/user/logout', '/user/login')
     } else if (dataErr?.status === 500) {
       if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
       else notify('Something error', 'error')
