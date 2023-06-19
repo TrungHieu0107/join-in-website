@@ -192,7 +192,7 @@ const TransactionPage = () => {
 
   return (
     <Paper>
-      <TransactionChartView />
+      {/* <TransactionChartView /> */}
       <Card>
         <CardHeader
           title={
