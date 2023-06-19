@@ -24,75 +24,116 @@ import { User, UserMajor } from 'src/models/class'
 import { Column } from 'src/models/common/Column'
 import moment from 'moment'
 import withAuth from 'src/pages/withAuth'
-
-const columns: Column[] = [
-  {
-    id: 'fullName',
-    label: 'Name',
-    align: 'left'
-  },
-  {
-    id: 'email',
-    label: 'Email',
-    align: 'left'
-  },
-  {
-    id: 'avatar',
-    label: 'Avatar',
-    align: 'left',
-    format: (value: any) => <Avatar alt='Test' src={value?.avatar} sizes='small' />
-  },
-  {
-    id: 'gender',
-    label: 'Gender',
-    align: 'left',
-    format: (value: boolean) => {
-      return value ? 'Male' : 'Female'
-    }
-  },
-  {
-    id: 'phone',
-    label: 'Phone',
-    align: 'left'
-  },
-  {
-    id: 'birthDay',
-    label: 'BirthDay',
-    align: 'left',
-    format: (value: Date | string) => {
-      return moment(value.toString()).format('YYYY-MM-DD')
-    }
-  },
-  {
-    id: 'userMajors',
-    label: 'Major',
-    align: 'left',
-    format: (value: UserMajor[]) => {
-      return value?.map(val => val?.major?.name)
-    }
-  },
-  {
-    id: 'status',
-    label: 'Status',
-    align: 'center',
-    format: (value: string) => {
-      return value === 'ACTIVE' ? <Switch checked /> : <Switch checked={false} />
-    }
-  }
-]
+import { QueryUsersModel } from 'src/models/query-models/QueryUsersModel'
+import { CommonResponse } from 'src/models/common/CommonResponse'
+import { useToasts } from 'react-toast-notifications'
+import { useRouter } from 'next/router'
+import { AxiosError } from 'axios'
 
 const UserManagemePage = () => {
   const [searchValue, setSearchValue] = useState('')
-  const [page, setPage] = useState<number>(0)
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10)
-  const [data, setData] = useState<User[]>(userAPI.Admin.getListUser())
+  const [data, setData] = useState<User[]>([])
   const [rowsSelected, setRowsSelected] = useState<string[]>([])
-  const [currentData, setCurrentData] = useState<User[]>()
+  const [queryUsers, setQueryUsers] = useState<QueryUsersModel>(new QueryUsersModel())
+  const addToast = useToasts()
+  const router = useRouter()
+
+  const columns: Column[] = [
+    {
+      id: 'fullName',
+      label: 'Name',
+      align: 'left'
+    },
+    {
+      id: 'email',
+      label: 'Email',
+      align: 'left'
+    },
+    {
+      id: 'avatar',
+      label: 'Avatar',
+      align: 'left',
+      format: (value: any) => <Avatar alt='Test' src={value?.avatar} sizes='small' />
+    },
+    {
+      id: 'gender',
+      label: 'Gender',
+      align: 'left',
+      format: (value: boolean) => {
+        return value ? 'Male' : 'Female'
+      }
+    },
+    {
+      id: 'phone',
+      label: 'Phone',
+      align: 'left'
+    },
+    {
+      id: 'birthDay',
+      label: 'BirthDay',
+      align: 'left',
+      format: (value: Date | string) => {
+        return moment(value.toString()).format('YYYY-MM-DD')
+      }
+    },
+    {
+      id: 'userMajors',
+      label: 'Major',
+      align: 'left',
+      format: (value: UserMajor[]) => {
+        return value?.map(val => val?.major?.name)
+      }
+    },
+    {
+      id: 'status',
+      label: 'Status',
+      align: 'center',
+      format: (value: number) => {
+        return value === 0 ? <Switch checked /> : <Switch checked={false} />
+      }
+    }
+  ]
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
 
   useEffect(() => {
-    setData(userAPI.Admin.getListUser())
-    setCurrentData(data?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage))
-  }, [searchValue, page, rowsPerPage])
+    fetchUsers()
+  }, [])
+
+  const fetchUsers = async (query?: QueryUsersModel) => {
+    const queryFetch = query ?? queryUsers
+
+    await userAPI.Admin.getListUser(queryFetch)
+      .then(commonUsers => {
+        const common = new CommonResponse(commonUsers)
+        setQueryUsers({
+          currentPage: common.pagination?.currentPage,
+          pageSize: common.pagination?.pageSize,
+          total: common.pagination?.total
+        } as QueryUsersModel)
+        console.log(common.data as User[])
+
+        setData(common.data as User[])
+      })
+      .catch(error => {
+        handleError(error)
+      })
+  }
+
+  const handleError = (error: any) => {
+    const dataErr = (error as AxiosError)?.response
+    if (dataErr?.status === 401) {
+      notify('Login expired.', 'error')
+      router.push('/user/login')
+    } else if (dataErr?.status === 500) {
+      if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
+      else notify('Something error', 'error')
+    } else {
+      console.log(error)
+    }
+  }
 
   const handleCheckRowIndex = (event: any, id: string) => {
     const selectedRows = [...rowsSelected]
@@ -108,7 +149,7 @@ const UserManagemePage = () => {
   const handleCheckAllRow = (event: any) => {
     if (event.target.checked) {
       const list: any[] = []
-      currentData?.map(value => list.push(value.id ?? -1))
+      data?.map(value => list.push(value.id ?? -1))
       setRowsSelected(list)
     } else {
       setRowsSelected([])
@@ -116,18 +157,54 @@ const UserManagemePage = () => {
   }
 
   const changeSearchValue = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setSearchValue(event?.target.value)
+    event.target.value &&
+      setQueryUsers(
+        new QueryUsersModel({
+          ...queryUsers,
+          email: event.target.value
+        } as QueryUsersModel)
+      )
+
+    setSearchValue(event.target.value)
+
+    fetchUsers(
+      new QueryUsersModel({
+        ...queryUsers,
+        email: event.target.value
+      } as QueryUsersModel)
+    )
   }
 
   const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage)
+    setQueryUsers(
+      new QueryUsersModel({
+        ...queryUsers,
+        currentPage: newPage
+      } as QueryUsersModel)
+    )
     setRowsSelected([])
+    fetchUsers({
+      ...queryUsers,
+      currentPage: newPage
+    } as QueryUsersModel)
   }
 
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
+    setQueryUsers(
+      new QueryUsersModel({
+        ...queryUsers,
+        currentPage: 1,
+        pageSize: +event.target.value
+      } as QueryUsersModel)
+    )
     setRowsSelected([])
+    fetchUsers(
+      new QueryUsersModel({
+        ...queryUsers,
+        currentPage: 1,
+        pageSize: +event.target.value
+      } as QueryUsersModel)
+    )
   }
 
   return (
@@ -140,8 +217,8 @@ const UserManagemePage = () => {
                 <FormControl fullWidth>
                   <TextField
                     id='form-input-search-value'
-                    placeholder='Search'
-                    label={'Search'}
+                    placeholder='email123@gmail.com'
+                    label={'Search by email'}
                     value={searchValue}
                     onChange={e => changeSearchValue(e)}
                     size='small'
@@ -165,7 +242,7 @@ const UserManagemePage = () => {
             <TableHead>
               <TableRow>
                 <TableCell align='center' padding='none'>
-                  <Checkbox onChange={handleCheckAllRow} checked={rowsSelected.length === rowsPerPage} />
+                  <Checkbox onChange={handleCheckAllRow} checked={rowsSelected.length === data.length} />
                 </TableCell>
                 <TableCell align='center' sx={{ minWidth: '30px' }}>
                   Index
@@ -178,7 +255,7 @@ const UserManagemePage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {currentData?.map((row, index) => {
+              {data?.map((row, index) => {
                 const rowData: any = row
 
                 return (
@@ -189,7 +266,9 @@ const UserManagemePage = () => {
                         checked={rowsSelected.indexOf(row.id ?? '') !== -1}
                       />
                     </TableCell>
-                    <TableCell align='center'>{page * rowsPerPage + index + 1}</TableCell>
+                    <TableCell align='center'>
+                      {(queryUsers.currentPage - 1) * queryUsers.pageSize + index + 1}
+                    </TableCell>
                     {columns.map(column => {
                       const value = rowData[column.id]
 
@@ -206,11 +285,11 @@ const UserManagemePage = () => {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
+          rowsPerPageOptions={[1, 10, 25, 100]}
           component='div'
           count={data?.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
+          rowsPerPage={queryUsers.pageSize}
+          page={queryUsers.currentPage - 1}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />

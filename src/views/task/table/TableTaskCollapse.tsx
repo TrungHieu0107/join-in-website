@@ -184,8 +184,8 @@ export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
                 <Row
                   key={index}
                   row={row}
-                  page={queryTask.page}
-                  rowsPerPage={queryTask.pageSize}
+                  page={queryTask.page ?? 0}
+                  rowsPerPage={queryTask.pageSize ?? 10}
                   index={index}
                   column={values.column}
                   clicktoDetail={handleClickToTaskDetail}
@@ -196,7 +196,7 @@ export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
+        rowsPerPageOptions={[1, 10, 25, 100]}
         component='div'
         count={queryTask.total ?? 0}
         rowsPerPage={queryTask.pageSize}

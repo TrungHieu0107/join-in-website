@@ -33,11 +33,10 @@ import { CommonResponse } from 'src/models/common/CommonResponse'
 import { useRouter } from 'next/router'
 import 'react-datepicker/dist/react-datepicker.css'
 import moment from 'moment'
-import { Message, QueryKeys, StorageKeys } from 'src/constants'
+import { StorageKeys } from 'src/constants'
 import { UserCompleteProfileModel } from 'src/models/query-models/UserCompleteProfileModel'
 import { AxiosError, AxiosResponse } from 'axios'
 import { useToasts } from 'react-toast-notifications'
-import * as yup from 'yup'
 import { userDBDexie } from 'src/models/db/UserDB'
 import { validateProfile } from 'src/@core/utils/validation/profile-validation'
 import { ObjValidation } from 'src/@core/utils/validation'
@@ -74,11 +73,6 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   }
 }))
 
-interface ObjectValidate {
-  value?: any | any[]
-  error?: string
-}
-
 interface TabAccountProps {
   code?: string
   handleError?: (error: any) => void
@@ -90,16 +84,13 @@ const TabAccount = (props: TabAccountProps) => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
   const [imgBackgroud, setImgBackground] = useState<string>('/images/cards/background-user.png')
   const [date, setDate] = useState<Date | null | undefined>(null)
-  const [selectedMajor, setSelectedMajor] = useState<ObjectValidate>()
+  const [selectedMajor, setSelectedMajor] = useState<Major[]>([])
   const [description, setDescription] = useState('')
   const [contacts, setContacts] = useState('')
   const [skills, setSkills] = useState('')
   const [majorOptions, setMajorOptions] = useState<Major[]>([])
   const [fullName, setFullName] = useState<string>('')
   const [phone, setPhone] = useState<string>()
-  const [email, setEmail] = useState<ObjectValidate>({
-    value: '123@gmail.com'
-  })
   const [gender, setGender] = useState<string>()
   const [fileAvatar, setFileAvatar] = useState<FileList>()
   const [fileBackGround, setFileBackGround] = useState<FileList>()
@@ -135,7 +126,6 @@ const TabAccount = (props: TabAccountProps) => {
               setDescription(data.description ?? '')
               setContacts(data.otherContact ?? '')
               setSkills(data.skill ?? '')
-              setEmail({ value: data.email } as ObjectValidate)
               setGender(data.gender ? 'male' : 'female')
               setPhone(data.phone ?? '')
             }
@@ -143,17 +133,11 @@ const TabAccount = (props: TabAccountProps) => {
           .catch(error => {
             props.handleError && props.handleError(error)
           })
+      } else {
+        await getAllMajor([])
       }
     })
   }
-
-  const emailValidate = yup.object().shape({
-    email: yup
-      .string()
-      .email(Message.INVALID_EMAIL)
-      .required(Message.EMAIL_REQUIRED)
-      .matches(QueryKeys.EMAIL_REGEX, Message.INVALID_EMAIL)
-  })
 
   const getAllMajor = async (majorsOfUser: Major[]) => {
     await majorAPI
@@ -166,9 +150,7 @@ const TabAccount = (props: TabAccountProps) => {
           tmp && list.push(tmp)
         })
 
-        setSelectedMajor({
-          value: list
-        } as ObjectValidate)
+        setSelectedMajor(list)
         setMajorOptions(data)
       })
       .catch(error => {
@@ -209,55 +191,14 @@ const TabAccount = (props: TabAccountProps) => {
   }
 
   const onSaveProfile = async () => {
-    let isError = false
-    if (!router.pathname.includes('initialization')) {
-      await emailValidate
-        .validate({ email: email?.value ?? '' })
-        .then(() => {
-          const object = {
-            value: email?.value ?? ('' as string),
-            error: ''
-          } as ObjectValidate
-          setEmail(object)
-        })
-        .catch(err => {
-          isError = true
-          const object = {
-            value: email?.value ?? ('' as string),
-            error: err.errors
-          } as ObjectValidate
-          setEmail(object)
-        })
-    }
-
-    if ((selectedMajor?.value as any[])?.length === 0) {
-      isError = true
-      const object = {
-        value: selectedMajor?.value,
-        error: 'Choose at least 1 major'
-      } as ObjectValidate
-      setSelectedMajor(object)
-    } else {
-      const object = {
-        value: selectedMajor?.value,
-        error: ''
-      } as ObjectValidate
-      setSelectedMajor(object)
-    }
-
-    if (isError) {
-      return
-    }
-
     setIsLoading(true)
-
     const payload = validateProfile(
       new UserCompleteProfileModel({
         birthDay: moment(date?.toString()).format(StorageKeys.KEY_FORMAT_DATE),
         description: description,
         fullName: fullName,
         gender: gender === 'male',
-        majorIdList: (selectedMajor?.value as Major[]).map(item => item.id ?? ''),
+        majorIdList: (selectedMajor as Major[])?.map(item => item.id ?? ''),
         skill: skills,
         otherContact: contacts,
         phoneNumber: phone
@@ -467,6 +408,8 @@ const TabAccount = (props: TabAccountProps) => {
                     }}
                   />
                 }
+                maxDate={new Date(`${moment().year() - 15}-12-31`)}
+                minDate={new Date(`${moment().year() - 100}-12-31`)}
                 onChange={(date: Date) => setDate(date)}
                 dateFormat={'yyyy-MM-dd'}
               />
@@ -475,24 +418,15 @@ const TabAccount = (props: TabAccountProps) => {
           <Grid item xs={12} sm={6}>
             <Autocomplete
               multiple
-              value={majorOptions.filter(
-                option => !selectedMajor?.value || (selectedMajor?.value as Major[])?.indexOf(option) !== -1
-              )}
-              options={majorOptions.filter(
-                option => !selectedMajor?.value || (selectedMajor?.value as Major[])?.indexOf(option) === -1
-              )}
+              value={majorOptions.filter(option => selectedMajor?.indexOf(option) !== -1)}
+              options={majorOptions.filter(option => selectedMajor?.indexOf(option) === -1)}
               getOptionLabel={option => `${option.shortName} - ${option.name ?? 'No name'}`}
-              onChange={(event, value) =>
-                setSelectedMajor({
-                  value: value,
-                  error: ''
-                })
-              }
+              onChange={(event, value) => setSelectedMajor(value)}
               renderInput={params => <TextField {...params} label='Major *' variant='outlined' />}
             />
-            {(selectedMajor?.error ?? '')?.length > 0 && (
+            {error.majorIdList?.isError && (
               <FormHelperText error id='error'>
-                {selectedMajor?.error}
+                {error.majorIdList?.error}
               </FormHelperText>
             )}
           </Grid>

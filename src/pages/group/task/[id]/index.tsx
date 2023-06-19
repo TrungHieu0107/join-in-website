@@ -128,6 +128,7 @@ const SubTaskPage = () => {
   const [comment, setComment] = useState<string>('')
   const [comments, setComments] = useState<Comment[]>([])
   const [data, setData] = useState<Task>()
+  const [subTask, setSubTask] = useState<Task[]>([])
   const [queryTask, setQueryTask] = useState<QueryTaskListsModel>(new QueryTaskListsModel())
   const [addNewModal, setAddNewModal] = useState<boolean>(false)
   const [groupId, setGroupId] = useState<string>('')
@@ -168,6 +169,16 @@ const SubTaskPage = () => {
 
           const newData = new Task(commonResponse.data)
           newData.id && getCommentOfTask(newData.id)
+          if (newData?.subTasks?.length !== 0) {
+            const newQuery = new QueryTaskListsModel({
+              total: newData?.subTasks?.length,
+              page: 1,
+              pageSize: 10
+            } as QueryTaskListsModel)
+
+            setQueryTask(newQuery)
+            setSubTask(newData.subTasks || [])
+          }
           setData(newData)
         })
         .catch(error => {
@@ -204,6 +215,18 @@ const SubTaskPage = () => {
     setAddNewModal(false)
   }
 
+  const changeQuerySubtask = (query: QueryTaskListsModel) => {
+    const list = data?.subTasks && data.subTasks.filter(item => item.name?.indexOf(query.name) !== -1)
+    const newListSubTask = list?.slice((query.page - 1) * query.pageSize, query.page * query.pageSize) || []
+    setSubTask(newListSubTask)
+    setQueryTask(
+      new QueryTaskListsModel({
+        ...query,
+        total: newListSubTask.length
+      } as QueryTaskListsModel)
+    )
+  }
+
   return data ? (
     <div>
       <MainTaskView
@@ -233,6 +256,18 @@ const SubTaskPage = () => {
                         </InputAdornment>
                       )
                     }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        changeQuerySubtask(
+                          new QueryTaskListsModel({
+                            ...queryTask,
+                            page: 1,
+                            pageSize: 10,
+                            name: searchValue
+                          } as QueryTaskListsModel)
+                        )
+                      }
+                    }}
                     size='small'
                     placeholder='Search'
                   />
@@ -253,8 +288,8 @@ const SubTaskPage = () => {
             </Grid>
             <TableTaskCollapse
               column={column}
-              row={data?.subTasks}
-              setQuery={setQueryTask}
+              row={subTask}
+              setQuery={changeQuerySubtask}
               query={queryTask}
             ></TableTaskCollapse>
           </CardContent>

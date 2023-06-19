@@ -1,6 +1,6 @@
 import { QueryMajorListModel } from 'src/models/query-models/QueryMajorListModel'
 import axiosClient from './api-client'
-import { Major } from 'src/models'
+import { Major } from 'src/models/class'
 
 const URL = '/majors'
 
@@ -15,7 +15,7 @@ export const majorAPI = {
     return axiosClient.get(`${URL}/${id}`)
   },
 
-  post(data: Major) {
+  addNewMajor(data: Major) {
     return axiosClient.post(`${URL}`, data)
   },
 
@@ -23,7 +23,7 @@ export const majorAPI = {
     return axiosClient.delete(`${URL}/${id}`)
   },
 
-  put(data: Major) {
+  updateMajor(data: Major) {
     return axiosClient.put(`${URL}`, data)
   },
 

@@ -28,6 +28,8 @@ import moment from 'moment'
 import { StorageKeys } from 'src/constants'
 import { useRouter } from 'next/router'
 import { CircularProgress } from '@mui/material'
+import { AxiosError } from 'axios'
+import { useToasts } from 'react-toast-notifications'
 
 // ** Styled Menu component
 const Menu = styled(MuiMenu)<MenuProps>(({ theme }) => ({
@@ -99,6 +101,11 @@ const NotificationDropdown = () => {
   const [numOfNotification, setNumOfNotification] = useState(10)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const addToast = useToasts()
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
 
   useEffect(() => {
     const connection = new HubConnectionBuilder()
@@ -143,7 +150,16 @@ const NotificationDropdown = () => {
   }
 
   const getNotification = async (num: number) => {
-    const notificationList = await notificationAPI.getNotification(num)
+    const notificationList = await notificationAPI.getNotification(num).catch(error => {
+      console.log(error)
+
+      if ((error as AxiosError)?.response?.status === 400) {
+        const commonResposne = new CommonResponse((error as AxiosError)?.response?.data as CommonResponse)
+        notify(commonResposne.message ?? 'Error', 'error')
+      } else {
+        console.log(error)
+      }
+    })
 
     const commonReponse = new CommonResponse(notificationList)
 

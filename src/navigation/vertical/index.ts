@@ -217,6 +217,11 @@ const navAdmin: VerticalNavItemsType = [
     path: '/admin/group'
   },
   {
+    title: 'Majors Manage',
+    icon: AccountGroupOutline,
+    path: '/admin/major'
+  },
+  {
     sectionTitle: 'Personal'
   },
   {

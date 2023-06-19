@@ -66,7 +66,7 @@ export class ValueValidation {
   }
 
   required(): ValueValidation {
-    if (this.value === undefined || this.value === null) {
+    if (this.value === undefined || this.value === null || this.value.length === 0) {
       return new ValueValidation({
         key: this.key,
         value: this.value,
@@ -125,7 +125,7 @@ export class ValueValidation {
   }
 
   phone() {
-    if (/^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g.test(this.value)) {
+    if (/^(1\s|1|)?((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{4})$/.test(this.value)) {
       return new ValueValidation({
         key: this.key,
         value: this.value,

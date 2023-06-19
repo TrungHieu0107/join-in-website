@@ -82,3 +82,7 @@ code[class*='language-'] {
 .css-zyg32b {
   padding-bottom: 0 !important;
 }
+
+.css-ourwa9-MuiTableRow-root.MuiTableRow-hover:hover {
+  background-color: rgb(58 53 65 / 9%) !important;
+}

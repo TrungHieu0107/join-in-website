@@ -145,7 +145,10 @@ const LoginPage = () => {
           notify('Your account is not verify. Email verify is sent', 'warning')
           authAPI.sendVerifyEmail(values.email)
         } else {
-          if (await userDBDexie.saveToken(token)) {
+          const tmp: string = res as unknown as string
+          if (tmp.indexOf('/profile/initialization') > -1) {
+            router.push(tmp)
+          } else if (await userDBDexie.saveToken(token)) {
             const tokenModel = new JWTModel(jwt_decode(token ?? ''))
             await getUserInforToSaveDB(token)
             if (tokenModel.role === 'Admin') {
