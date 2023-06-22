@@ -205,17 +205,17 @@ const navAdmin: VerticalNavItemsType = [
     icon: CashMultiple,
     path: '/admin/transaction'
   },
-
   {
     title: 'User Manage',
     icon: AccountCogOutline,
     path: '/admin/user'
   },
-  {
-    title: 'Group Manage',
-    icon: AccountGroupOutline,
-    path: '/admin/group'
-  },
+
+  // {
+  //   title: 'Group Manage',
+  //   icon: AccountGroupOutline,
+  //   path: '/admin/group'
+  // },
   {
     title: 'Majors Manage',
     icon: AccountGroupOutline,

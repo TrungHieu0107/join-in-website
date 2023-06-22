@@ -78,7 +78,7 @@ export const userAPI = {
 
   Admin: {
     getListUser(query: QueryUsersModel) {
-      return axiosClient.get('/users', {
+      return axiosClient.get('/users/admin/user', {
         params: {
           ...query
         }
@@ -87,6 +87,14 @@ export const userAPI = {
 
     getDashboard() {
       return axiosClient.get('/users/dashboard')
+    },
+
+    banUser(userId: string) {
+      return axiosClient.put(`/users/admin/user/ban?userId=${userId}`)
+    },
+
+    unBanUser(userId: string) {
+      return axiosClient.put(`/users/admin/user/unban?userId=${userId}`)
     }
   }
 }

@@ -77,8 +77,8 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
 const LoginPage = () => {
   // ** State
   const [values, setValues] = useState<State>({
-    email: 'hiddenwory@gmail.com',
-    password: '1234567890a',
+    email: '',
+    password: '',
     showPassword: false,
     messageError: ''
   })

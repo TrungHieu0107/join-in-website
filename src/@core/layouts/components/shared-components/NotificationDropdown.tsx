@@ -25,11 +25,12 @@ import { CommonResponse } from 'src/models/common/CommonResponse'
 import { Notification } from 'src/models/class'
 import { notificationStatus } from 'src/constants/notification-status'
 import moment from 'moment'
-import { StorageKeys } from 'src/constants'
+import { QueryKeys, StorageKeys } from 'src/constants'
 import { useRouter } from 'next/router'
 import { CircularProgress } from '@mui/material'
 import { AxiosError } from 'axios'
 import { useToasts } from 'react-toast-notifications'
+import { NotificationDataResponse } from 'src/models/class/NotificationDataResponse'
 
 // ** Styled Menu component
 const Menu = styled(MuiMenu)<MenuProps>(({ theme }) => ({
@@ -109,7 +110,7 @@ const NotificationDropdown = () => {
 
   useEffect(() => {
     const connection = new HubConnectionBuilder()
-      .withUrl('http://localhost:5282/notificationHub')
+      .withUrl(`${QueryKeys.BASE_LOCAL}/notificationHub`)
       .withAutomaticReconnect()
       .build()
     userDBDexie.getUser().then(async userDB => {
@@ -122,7 +123,6 @@ const NotificationDropdown = () => {
         .catch(error => console.log('SignalR Connection Error: ', error))
 
       connection.on(userDB?.id || 'Notification', message => {
-        console.log(message)
         setNewNotificaiton(new Notification(JSON.parse(message)))
       })
     })
@@ -144,9 +144,16 @@ const NotificationDropdown = () => {
     setAnchorEl(null)
   }
 
-  const handleNotificationClick = (notification: Notification) => {
+  const handleNotificationClick = async (notification: Notification) => {
     notification.link && router.push(notification.link)
     handleDropdownClose()
+
+    if (notification.status === 0 && notification.id.length !== 0) {
+      await notificationAPI.readNotification([notification.id]).then(async () => {
+        setMessgaeUnseenCount(messgaeUnseenCount - 1)
+        await getNotification(numOfNotification)
+      })
+    }
   }
 
   const getNotification = async (num: number) => {
@@ -163,24 +170,15 @@ const NotificationDropdown = () => {
 
     const commonReponse = new CommonResponse(notificationList)
 
-    const data: Notification[] = typeof commonReponse.data === 'string' ? [] : commonReponse.data
+    const data = new NotificationDataResponse(commonReponse.data)
 
-    let count = 0
-    data.map(item => {
-      if (item.notificationStatus === 0) {
-        count++
-      }
-    })
-    setMessgaeUnseenCount(count)
-    setNotificaitons(data)
+    setMessgaeUnseenCount(data.hasUnreadNumber)
+    setNotificaitons(data.notificationDTOs)
     setIsLoading(false)
-
-    return Promise.resolve(data)
   }
 
   const handleGetNewNotification = (newNoti: Notification) => {
-    const list = notifications
-    list.push(newNoti)
+    const list = [newNoti, ...notifications]
     setNotificaitons(list)
     setMessgaeUnseenCount(messgaeUnseenCount + 1)
   }
@@ -233,15 +231,15 @@ const NotificationDropdown = () => {
           {notifications?.map((item, index) => {
             let messageTime = ''
 
-            const a = moment()
-            const b = moment(item.createdDate)
+            const a = moment(moment().format(StorageKeys.KEY_FORMAT_DATE))
+            const b = moment(moment(item.createdDate).format(StorageKeys.KEY_FORMAT_DATE))
             const diff = a.diff(b, 'days')
 
             if (diff === 0) {
               messageTime = 'Today'
             } else if (diff === 1) {
               messageTime = `a day ago`
-            } else if (diff > 0 && diff < 7) {
+            } else if (diff > 1 && diff < 7) {
               messageTime = `${diff} days ago`
             } else {
               messageTime = b.format(StorageKeys.KEY_FORMAT_DATE)
@@ -250,10 +248,10 @@ const NotificationDropdown = () => {
             return (
               <MenuItem key={index} onClick={() => handleNotificationClick(item)}>
                 <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-                  <Avatar alt='Notification' src={item.logo} />
+                  <Avatar alt='Notification' src={item.image} />
                   <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                    <MenuItemTitle color={item.notificationStatus === 0 ? 'black' : '#b7b7b7'}>
-                      {notificationStatus.at(item.notificationType)?.lable}
+                    <MenuItemTitle color={item.status === 0 ? 'black' : '#b7b7b7'}>
+                      {notificationStatus.at(item.type)?.lable}
                     </MenuItemTitle>
                     <MenuItemSubtitle variant='body2'>{item.message}</MenuItemSubtitle>
                   </Box>

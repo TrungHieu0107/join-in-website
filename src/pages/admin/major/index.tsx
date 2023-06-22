@@ -433,7 +433,7 @@ const MajorManagePage = () => {
         <TablePagination
           rowsPerPageOptions={[1, 10, 25, 100]}
           component='div'
-          count={data?.length}
+          count={queryMajors.total}
           rowsPerPage={queryMajors.pageSize}
           page={queryMajors.page - 1}
           onPageChange={handleChangePage}

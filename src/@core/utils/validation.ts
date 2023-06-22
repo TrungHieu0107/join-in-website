@@ -52,7 +52,7 @@ export class ValueValidation {
       return new ValueValidation({
         key: this.key,
         value: this.value,
-        error: message,
+        error: this.isError ? this.error : message,
         isError: true
       })
     }
@@ -70,7 +70,7 @@ export class ValueValidation {
       return new ValueValidation({
         key: this.key,
         value: this.value,
-        error: getMessageRequired(this.key),
+        error: this.isError ? this.error : getMessageRequired(this.key),
         isError: true
       })
     }
@@ -88,7 +88,7 @@ export class ValueValidation {
       return new ValueValidation({
         key: this.key,
         value: this.value,
-        error: 'Email is invalid.',
+        error: this.isError ? this.error : 'Email is invalid.',
         isError: true
       })
     }
@@ -111,7 +111,7 @@ export class ValueValidation {
       return new ValueValidation({
         key: this.key,
         value: this.value,
-        error: getMessageAgeError(minAge, maxAge),
+        error: this.isError ? this.error : getMessageAgeError(minAge, maxAge),
         isError: true
       })
     }
@@ -129,7 +129,7 @@ export class ValueValidation {
       return new ValueValidation({
         key: this.key,
         value: this.value,
-        error: this.isError ? this.error : '',
+        error: this.isError ? this.error : this.isError ? this.error : '',
         isError: this.isError
       })
     }
@@ -137,7 +137,7 @@ export class ValueValidation {
     return new ValueValidation({
       key: this.key,
       value: this.value,
-      error: 'Phone is invalid.',
+      error: this.isError ? this.error : 'Phone is invalid.',
       isError: true
     })
   }
@@ -147,7 +147,7 @@ export class ValueValidation {
       return new ValueValidation({
         key: this.key,
         value: this.value,
-        error: 'End date must after start date',
+        error: this.isError ? this.error : 'End date must after start date',
         isError: true
       })
     }
@@ -166,9 +166,11 @@ export class ValueValidation {
       return new ValueValidation({
         key: this.key,
         value: this.value,
-        error: `${this.key} must less than ${diff} (${moment(start).format(StorageKeys.KEY_FORMAT_DATE)} to ${moment(
-          end
-        ).format(StorageKeys.KEY_FORMAT_DATE)})`,
+        error: this.isError
+          ? this.error
+          : `${this.key} must less than ${diff} (${moment(start).format(StorageKeys.KEY_FORMAT_DATE)} to ${moment(
+              end
+            ).format(StorageKeys.KEY_FORMAT_DATE)})`,
         isError: true
       })
     }
@@ -178,6 +180,51 @@ export class ValueValidation {
       value: this.value,
       error: this.isError ? this.error : '',
       isError: this.isError
+    })
+  }
+
+  checkMatch(x: ValueValidation) {
+    if (this.value !== x.value) {
+      return new ValueValidation({
+        key: this.key,
+        value: this.value,
+        error: this.isError ? this.error : `${this.key} must match ${x.key.toLowerCase()}.`,
+        isError: true
+      })
+    }
+
+    return new ValueValidation({
+      key: this.key,
+      value: this.value,
+      error: this.isError ? this.error : '',
+      isError: this.isError
+    })
+  }
+
+  isPassword() {
+    if ((this.value as string)?.indexOf(' ') !== -1) {
+      return new ValueValidation({
+        key: this.key,
+        value: this.value,
+        error: this.isError ? this.error : `${this.key} must do not contain a whitespace.`,
+        isError: true
+      })
+    }
+
+    if ((/[a-z]/.test(this.value) || /[A-Z]/.test(this.value)) && /[0-9]/.test(this.value)) {
+      return new ValueValidation({
+        key: this.key,
+        value: this.value,
+        error: this.isError ? this.error : '',
+        isError: this.isError
+      })
+    }
+
+    return new ValueValidation({
+      key: this.key,
+      value: this.value,
+      error: this.isError ? this.error : `${this.key} must contain at least one letter and one number.`,
+      isError: true
     })
   }
 }

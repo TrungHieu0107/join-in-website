@@ -15,6 +15,9 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { FormatListGroup, Handshake, KeyVariant } from 'mdi-material-ui'
 import TabGroup from 'src/views/my-groups/TabGroup'
 import { GroupRenderType } from 'src/constants'
+import { useRouter } from 'next/router'
+import { useToasts } from 'react-toast-notifications'
+import { AxiosError } from 'axios'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -37,6 +40,25 @@ const TabName = styled('span')(({ theme }) => ({
 const HomeView = () => {
   // ** State
   const [value, setValue] = useState<string>('All')
+  const addToast = useToasts()
+  const router = useRouter()
+
+  const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+    addToast.addToast(message, { appearance: type })
+  }
+
+  const handleError = (error: any) => {
+    const dataErr = (error as AxiosError)?.response
+    if (dataErr?.status === 401) {
+      notify('Login expired.', 'error')
+      router.push('/user/login')
+    } else if (dataErr?.status === 500) {
+      if (error?.response?.data?.message) notify(error?.response?.data?.message, 'error')
+      else notify('Something error', 'error')
+    } else {
+      console.log(error)
+    }
+  }
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -80,13 +102,13 @@ const HomeView = () => {
         </TabList>
 
         <TabPanel sx={{ p: 0 }} value='All'>
-          <TabGroup renderType={GroupRenderType.All} />
+          <TabGroup renderType={GroupRenderType.All} handleError={handleError} />
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='Owner Group'>
-          <TabGroup renderType={GroupRenderType.Owner} />
+          <TabGroup renderType={GroupRenderType.Owner} handleError={handleError} />
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='Joined Group'>
-          <TabGroup renderType={GroupRenderType.Member} />
+          <TabGroup renderType={GroupRenderType.Member} handleError={handleError} />
         </TabPanel>
       </TabContext>
     </Card>
@@ -94,5 +116,3 @@ const HomeView = () => {
 }
 
 export default HomeView
-
-

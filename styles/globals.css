@@ -86,3 +86,8 @@ code[class*='language-'] {
 .css-ourwa9-MuiTableRow-root.MuiTableRow-hover:hover {
   background-color: rgb(58 53 65 / 9%) !important;
 }
+
+button:disabled {
+  cursor: not-allowed !important;
+  pointer-events: all !important;
+}

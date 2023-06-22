@@ -68,7 +68,7 @@ const columns: readonly Column[] = [
   }
 ]
 
-export default function TabGroup({ renderType }: GroupRenderProps) {
+export default function TabGroup({ renderType, handleError }: GroupRenderProps) {
   const addToast = useToasts()
 
   // ** States
@@ -86,15 +86,15 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
   const [searchName, setSearchName] = useState<string>('')
   const [storeSearchName, setStoreSearchName] = useState<string>('')
   const [updateUI, setUpdateUI] = useState<boolean>(true)
-  const [reason, setReason]= useState<string>('')
-  const [userInforId,setUserInforId] = useState<string>('')
+  const [reason, setReason] = useState<string>('')
+  const [userInforId, setUserInforId] = useState<string>('')
 
   useEffect(() => {
     getUserInfor()
     getListGroup()
   }, [storeSearchName, page, rowsPerPage, updateUI])
 
-  const getUserInfor = async () =>{
+  const getUserInfor = async () => {
     const userData = await userDBDexie.getUser()
     setUserInforId(userData?.id ?? '')
   }
@@ -115,7 +115,6 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         .getList(payload)
         .then(res => {
           const data = new CommonResponse(res)
-          addToast.addToast(data.message, { appearance: 'success' })
           setTotalItems(data.pagination?.total ?? 0)
           const groups: Group[] = data.data
           const list = groups.map(group => ({
@@ -134,6 +133,7 @@ export default function TabGroup({ renderType }: GroupRenderProps) {
         })
         .catch(err => {
           console.log(err)
+          handleError && handleError(err)
         })
     } catch (err) {
       console.log(err)

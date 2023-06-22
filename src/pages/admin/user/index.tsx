@@ -20,7 +20,7 @@ import {
 } from '@mui/material'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { userAPI } from 'src/api-client/user'
-import { User, UserMajor } from 'src/models/class'
+import { User } from 'src/models/class'
 import { Column } from 'src/models/common/Column'
 import moment from 'moment'
 import withAuth from 'src/pages/withAuth'
@@ -53,14 +53,14 @@ const UserManagemePage = () => {
       id: 'avatar',
       label: 'Avatar',
       align: 'left',
-      format: (value: any) => <Avatar alt='Test' src={value?.avatar} sizes='small' />
+      format: (value: User) => <Avatar alt='Test' src={value?.avatar} sizes='small' />
     },
     {
       id: 'gender',
       label: 'Gender',
       align: 'left',
-      format: (value: boolean) => {
-        return value ? 'Male' : 'Female'
+      format: (value: User) => {
+        return value.gender ? 'Male' : 'Female'
       }
     },
     {
@@ -72,24 +72,24 @@ const UserManagemePage = () => {
       id: 'birthDay',
       label: 'BirthDay',
       align: 'left',
-      format: (value: Date | string) => {
-        return moment(value.toString()).format('YYYY-MM-DD')
+      format: (value: User) => {
+        return moment(value.birthDay?.toString()).format('YYYY-MM-DD')
       }
     },
     {
-      id: 'userMajors',
+      id: 'majors',
       label: 'Major',
       align: 'left',
-      format: (value: UserMajor[]) => {
-        return value?.map(val => val?.major?.name)
+      format: (value: User) => {
+        return value.majors?.map(val => val?.shortName).join(', ')
       }
     },
     {
       id: 'status',
       label: 'Status',
       align: 'center',
-      format: (value: number) => {
-        return value === 0 ? <Switch checked /> : <Switch checked={false} />
+      format: (value: User) => {
+        return <Switch checked={value.status === 0 || value.status === 'ACTIVE'} onClick={() => toggleBanUser(value)} />
       }
     }
   ]
@@ -109,7 +109,7 @@ const UserManagemePage = () => {
       .then(commonUsers => {
         const common = new CommonResponse(commonUsers)
         setQueryUsers({
-          currentPage: common.pagination?.currentPage,
+          pageNumber: common.pagination?.currentPage,
           pageSize: common.pagination?.pageSize,
           total: common.pagination?.total
         } as QueryUsersModel)
@@ -179,13 +179,13 @@ const UserManagemePage = () => {
     setQueryUsers(
       new QueryUsersModel({
         ...queryUsers,
-        currentPage: newPage
+        pageNumber: newPage + 1
       } as QueryUsersModel)
     )
     setRowsSelected([])
     fetchUsers({
       ...queryUsers,
-      currentPage: newPage
+      pageNumber: newPage + 1
     } as QueryUsersModel)
   }
 
@@ -193,7 +193,7 @@ const UserManagemePage = () => {
     setQueryUsers(
       new QueryUsersModel({
         ...queryUsers,
-        currentPage: 1,
+        pageNumber: 1,
         pageSize: +event.target.value
       } as QueryUsersModel)
     )
@@ -201,10 +201,28 @@ const UserManagemePage = () => {
     fetchUsers(
       new QueryUsersModel({
         ...queryUsers,
-        currentPage: 1,
+        pageNumber: 1,
         pageSize: +event.target.value
       } as QueryUsersModel)
     )
+  }
+
+  const toggleBanUser = (user: User) => {
+    if (user.id) {
+      if (user.status === 0 || user.status === 'ACTIVE') {
+        userAPI.Admin.banUser(user.id).then(response => {
+          notify(new CommonResponse(response).message, 'success')
+          fetchUsers(queryUsers)
+        })
+      } else {
+        userAPI.Admin.unBanUser(user.id)
+          .then(response => {
+            notify(new CommonResponse(response).message, 'success')
+            fetchUsers(queryUsers)
+          })
+          .catch(error => handleError(error))
+      }
+    }
   }
 
   return (
@@ -267,14 +285,14 @@ const UserManagemePage = () => {
                       />
                     </TableCell>
                     <TableCell align='center'>
-                      {(queryUsers.currentPage - 1) * queryUsers.pageSize + index + 1}
+                      {(queryUsers.pageNumber - 1) * queryUsers.pageSize + index + 1}
                     </TableCell>
                     {columns.map(column => {
                       const value = rowData[column.id]
 
                       return (
                         <TableCell key={column.id} align={column.align}>
-                          {column.format ? column.format(value) : value}
+                          {column.format ? column.format(rowData) : value}
                         </TableCell>
                       )
                     })}
@@ -287,9 +305,9 @@ const UserManagemePage = () => {
         <TablePagination
           rowsPerPageOptions={[1, 10, 25, 100]}
           component='div'
-          count={data?.length}
+          count={queryUsers.total ?? 0}
           rowsPerPage={queryUsers.pageSize}
-          page={queryUsers.currentPage - 1}
+          page={queryUsers.pageNumber - 1}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
