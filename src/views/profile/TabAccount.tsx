@@ -156,7 +156,7 @@ const TabAccount = (props: TabAccountProps) => {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/logout', '/user/login')
+          router.push('/user/logout')
         } else {
           console.log(error)
         }
@@ -239,7 +239,7 @@ const TabAccount = (props: TabAccountProps) => {
             await submitProfile(newProfile).catch(error => {
               if ((error as AxiosError)?.response?.status === 401) {
                 notify('Login expired.', 'error')
-                router.push('/user/logout', '/user/login')
+                router.push('/user/logout')
               } else {
                 console.log(error)
               }
@@ -248,7 +248,7 @@ const TabAccount = (props: TabAccountProps) => {
           .catch(error => {
             if ((error as AxiosError)?.response?.status === 401) {
               notify('Login expired.', 'error')
-              router.push('/user/logout', '/user/login')
+              router.push('/user/logout')
             } else {
               console.log(error)
             }
@@ -257,7 +257,7 @@ const TabAccount = (props: TabAccountProps) => {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/logout', '/user/login')
+          router.push('/user/logout')
         } else {
           console.log(error)
         }

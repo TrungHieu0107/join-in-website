@@ -92,7 +92,7 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/logout', '/user/login')
+          router.push('/user/logout')
         } else if ((error as AxiosError)?.response?.status === 500) {
           const commonResposne = new CommonResponse((error as AxiosError)?.response?.data as CommonResponse)
           notify(commonResposne.message ?? 'Something error', 'error')

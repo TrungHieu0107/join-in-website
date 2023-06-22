@@ -196,7 +196,7 @@ const TaskListPage = () => {
       .catch(error => {
         if ((error as AxiosError)?.response?.status === 401) {
           notify('Login expired.', 'error')
-          router.push('/user/logout', '/user/login')
+          router.push('/user/logout')
         } else {
           console.log(error)
         }

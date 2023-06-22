@@ -33,7 +33,6 @@ import '../../styles/globals.css'
 import { ToastProvider } from 'react-toast-notifications'
 import { SessionProvider } from 'next-auth/react'
 
-
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
   Component: NextPage
