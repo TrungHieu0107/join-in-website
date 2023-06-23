@@ -119,6 +119,7 @@ const Profile = () => {
                   </Button>
                 </>
               }
+              exitEdit={setEditable}
             />
           )}
         </TabPanel>

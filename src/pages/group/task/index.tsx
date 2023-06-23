@@ -124,8 +124,8 @@ const column: Column[] = [
     minWidth: 100,
     align: 'center',
     format: (value: any) => (
-      <Tooltip title={value?.fullName} placement='bottom'>
-        <Avatar alt='Test' src={value?.avatar} sizes='small' />
+      <Tooltip title={value?.createdBy?.fullName} placement='bottom'>
+        <Avatar alt='Test' src={value?.createdBy?.avatar} sizes='small' />
       </Tooltip>
     )
   }

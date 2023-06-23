@@ -165,8 +165,6 @@ const SubTaskPage = () => {
         .getById(id)
         .then(res => {
           const commonResponse = new CommonResponse(res)
-          console.log(commonResponse)
-
           const newData = new Task(commonResponse.data)
           newData.id && getCommentOfTask(newData.id)
           if (newData?.subTasks?.length !== 0) {

@@ -101,7 +101,6 @@ export default function MainTaskView({ data, handleError, notify, onSuccess }: I
 
   const handleChange = (prop: string, event: any) => {
     const val = new Task(value)
-    console.log(event.target.value)
 
     switch (prop) {
       case 'name':

@@ -77,6 +77,7 @@ interface TabAccountProps {
   code?: string
   handleError?: (error: any) => void
   actionProfile?: ReactNode
+  exitEdit?: (value: boolean) => void
 }
 
 const TabAccount = (props: TabAccountProps) => {
@@ -134,6 +135,7 @@ const TabAccount = (props: TabAccountProps) => {
             props.handleError && props.handleError(error)
           })
       } else {
+        setIsLogin(false)
         await getAllMajor([])
       }
     })
@@ -270,7 +272,7 @@ const TabAccount = (props: TabAccountProps) => {
     if (isLogin) {
       return userAPI.put(payload).then(async rescompleteProfile => {
         const data = new CommonResponse(rescompleteProfile)
-        notify(data.message ?? '', 'success')
+        notify(data.message ?? '', 'success'), props.exitEdit && props.exitEdit(false)
       })
     } else {
       return userAPI.completeProfile(payload, props.code ?? '').then(async rescompleteProfile => {
@@ -454,7 +456,7 @@ const TabAccount = (props: TabAccountProps) => {
               <FormLabel sx={{ fontSize: '0.875rem' }}>Gender</FormLabel>
               <RadioGroup
                 row
-                defaultValue='male'
+                defaultValue={gender}
                 aria-label='gender'
                 name='account-settings-info-radio'
                 onChange={e => {
@@ -462,8 +464,12 @@ const TabAccount = (props: TabAccountProps) => {
                 }}
                 value={gender}
               >
-                <FormControlLabel value='male' label='Male' control={<Radio />} />
-                <FormControlLabel value='female' label='Female' control={<Radio />} />
+                <FormControlLabel
+                  value='male'
+                  label='Male'
+                  control={<Radio checked={gender === 'male' || gender?.length === 0 || !gender} />}
+                />
+                <FormControlLabel value='female' label='Female' control={<Radio checked={gender === 'female'} />} />
               </RadioGroup>
             </FormControl>
           </Grid>

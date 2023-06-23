@@ -69,7 +69,6 @@ const InviteInfomationPage = () => {
       .getInviteApplication(applicationId)
       .then(async application => {
         const applicationRes = new CommonResponse(application).data as ApplicationInfo
-        console.log(applicationRes)
 
         await groupAPI
           .getById(applicationRes.groupId)
