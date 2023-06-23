@@ -15,15 +15,19 @@ import { useEffect, useState } from 'react'
 import { DashboardType } from 'src/models/class'
 import { userAPI } from 'src/api-client'
 import { CommonResponse } from 'src/models/common/CommonResponse'
+import { Backdrop, CircularProgress } from '@mui/material'
 
 const Dashboard = () => {
   const [dataDashboard, setDataDashboard] = useState<DashboardType>();
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() =>{
+    setIsLoading(true);
     userAPI.Admin.getDashboard()
     .then(res =>{
       const data = new CommonResponse(res)
       setDataDashboard(data.data)
+      setIsLoading(false);
     })
     .catch(err =>{
       console.log(err)
@@ -48,6 +52,9 @@ const Dashboard = () => {
           <UserOverview listActivity={dataDashboard?.activeUserCount ??  [0,0,0,0,0]}/>
         </Grid>
       </Grid>
+      <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </ApexChartWrapper>
   )
 }

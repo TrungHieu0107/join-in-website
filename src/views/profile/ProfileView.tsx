@@ -5,7 +5,7 @@ import Avatar from '@mui/material/Avatar'
 import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
-import { Divider, Grid, Rating } from '@mui/material'
+import { Backdrop, CircularProgress, Divider, Grid, Rating } from '@mui/material'
 import {
   AccountOutline,
   AlphaACircleOutline,
@@ -33,8 +33,10 @@ interface ProfileViewProps {
 const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) => {
   const [data, setData] = useState<User>(new User())
   const [rating, setRating] = useState<number>(0)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
+    setIsLoading(true);
     fetchData()
 
   }, [userId])
@@ -52,6 +54,7 @@ const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) =
           }
         })
         setData(user)
+        setIsLoading(false)
       })
       .catch(error => {
         handleError(error)
@@ -188,6 +191,9 @@ const ProfileView = ({ handleError, userId, actionProfile }: ProfileViewProps) =
           </CardContent>
         </Card>
       </Grid>
+      <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </Grid>
   )
 }

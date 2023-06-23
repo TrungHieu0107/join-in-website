@@ -16,7 +16,9 @@ import {
   TablePagination,
   Switch,
   Avatar,
-  Checkbox
+  Checkbox,
+  Backdrop,
+  CircularProgress
 } from '@mui/material'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { userAPI } from 'src/api-client/user'
@@ -37,6 +39,7 @@ const UserManagemePage = () => {
   const [queryUsers, setQueryUsers] = useState<QueryUsersModel>(new QueryUsersModel())
   const addToast = useToasts()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const columns: Column[] = [
     {
@@ -99,6 +102,7 @@ const UserManagemePage = () => {
   }
 
   useEffect(() => {
+    setIsLoading(true);
     fetchUsers()
   }, [])
 
@@ -116,6 +120,7 @@ const UserManagemePage = () => {
         console.log(common.data as User[])
 
         setData(common.data as User[])
+        setIsLoading(false);
       })
       .catch(error => {
         handleError(error)
@@ -312,6 +317,9 @@ const UserManagemePage = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </CardContent>
+      <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </Card>
   )
 }

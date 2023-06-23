@@ -18,7 +18,9 @@ import {
   Fade,
   CardActions,
   Typography,
-  IconButton
+  IconButton,
+  Backdrop,
+  CircularProgress
 } from '@mui/material'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Column } from 'src/models/common/Column'
@@ -204,6 +206,7 @@ const MajorManagePage = () => {
   const [newMajor, setNewMajor] = useState<Major>()
   const addToast = useToasts()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const columns: Column[] = [
     {
@@ -223,6 +226,7 @@ const MajorManagePage = () => {
   }
 
   useEffect(() => {
+    setIsLoading(true);
     fetchMajors()
   }, [])
 
@@ -241,6 +245,7 @@ const MajorManagePage = () => {
         console.log(common.data as Major[])
 
         setData(common.data as Major[])
+        setIsLoading(false);
       })
       .catch(error => {
         handleError(error)
@@ -446,6 +451,10 @@ const MajorManagePage = () => {
         handleCloseModal={handleCloseModal}
         fetchMajors={fetchMajors}
       />
+
+      <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </Card>
   )
 }

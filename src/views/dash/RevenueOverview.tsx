@@ -36,7 +36,11 @@ const RevenueOverview = (props: { listPreUser: number[]; listFreeUser: number[]}
       width: 2,
       colors: [theme.palette.background.paper]
     },
-    legend: { show: false },
+    legend: {  position: 'top',
+    labels: {
+      colors: ['#FF4560', '#008FFB'], // Màu cho các ghi chú tương ứng
+    },
+  },
     grid: {
       strokeDashArray: 5,
       padding: {
@@ -81,7 +85,7 @@ const RevenueOverview = (props: { listPreUser: number[]; listFreeUser: number[]}
   return (
     <Card>
       <CardHeader
-        title='User Overview'
+        title='User Registration (per Week)'
         titleTypographyProps={{
           sx: { lineHeight: '2rem !important', letterSpacing: '0.15px !important' }
         }}
@@ -99,11 +103,11 @@ const RevenueOverview = (props: { listPreUser: number[]; listFreeUser: number[]}
           series={[
             {
                name: "Free User",
-               data: props.listFreeUser
+               data: props.listFreeUser,
             },
             {
               name: "Pre User",
-              data: props.listPreUser
+              data: props.listPreUser,
             }
           ]}
         />

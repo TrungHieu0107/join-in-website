@@ -77,7 +77,7 @@ const UserOverview = (props: { listActivity : number[]}) => {
   return (
     <Card>
       <CardHeader
-        title='User Activity Overview'
+        title='User Access (per Week)'
         titleTypographyProps={{
           sx: { lineHeight: '2rem !important', letterSpacing: '0.15px !important' }
         }}

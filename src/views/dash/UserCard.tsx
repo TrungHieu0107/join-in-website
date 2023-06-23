@@ -129,7 +129,7 @@ const UserCard = (props: { totalUser: number; freeUser: number; preUser: number;
               </Avatar>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography variant='caption'>Conversion Rate</Typography>
-                <Typography variant='h6'>{props.preUser / props.totalUser * 100}%</Typography>
+                <Typography variant='h6'>{(props.preUser / props.totalUser * 100).toFixed(2)} %</Typography>
               </Box>
             </Box>
           </Grid>
