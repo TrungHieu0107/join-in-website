@@ -9,9 +9,8 @@ const InitializationProfilePage = () => {
   const [code, setCode] = useState<string>('')
 
   useEffect(() => {
-
     setCode(router.query?.token as string)
-  }, [])
+  }, [router.query])
 
   return (
     <Box>
