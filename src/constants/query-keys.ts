@@ -1,5 +1,6 @@
 export const QueryKeys = {
   BASE_LOCAL: 'https://apijoinin20230623091433.azurewebsites.net',
+
   // BASE_LOCAL: 'https://localhost:44348',
   GET_WORK_LIST: 'GET_WORK_LIST',
   EMAIL_REGEX:
