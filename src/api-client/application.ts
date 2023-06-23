@@ -25,5 +25,14 @@ export const applicationAPI = {
 
   getInviteApplication(applicationId: any) {
     return axiosClient.get(`${URL}/${applicationId}`)
+  },
+
+  userConfirmInvite(applicationId: string, status: 4 | 5) {
+    return axiosClient.get('/applications/confirm-invitation', {
+      params: {
+        invitationId: applicationId,
+        status: status
+      }
+    })
   }
 }

@@ -49,6 +49,7 @@ const InviteInfomationPage = () => {
     imgBackgroud: '/images/cards/background-user.png',
     listRecruiting: []
   })
+  const [application, setApplication] = useState<string>()
   const addToast = useToasts()
 
   const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
@@ -65,6 +66,7 @@ const InviteInfomationPage = () => {
     const applicationId = router.query.application?.toString()
     if (!applicationId) return
 
+    setApplication(applicationId)
     await applicationAPI
       .getInviteApplication(applicationId)
       .then(async application => {
@@ -119,7 +121,7 @@ const InviteInfomationPage = () => {
       imgSrc={values.imgSrc ?? ''}
       skills={values.skills ?? ''}
       listRecruiting={values.listRecruiting ?? []}
-      invitation={<InvitationView values={values} />}
+      invitation={<InvitationView values={values} applicationId={application ?? ''} />}
     />
   )
 }
