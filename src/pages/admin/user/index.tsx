@@ -117,8 +117,6 @@ const UserManagemePage = () => {
           pageSize: common.pagination?.pageSize,
           total: common.pagination?.total
         } as QueryUsersModel)
-        console.log(common.data as User[])
-
         setData(common.data as User[])
         setIsLoading(false);
       })

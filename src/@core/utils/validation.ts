@@ -161,6 +161,15 @@ export class ValueValidation {
   }
 
   checkCountDaysBetween2Day(start: string, end: string) {
+    if (this.value <= 0) {
+      return new ValueValidation({
+        key: this.key,
+        value: this.value,
+        error: this.isError ? this.error : `${this.key} must greater than 0.`,
+        isError: true
+      })
+    }
+
     const diff = calculateNumOfDays(end, start)
     if (this.value > diff) {
       return new ValueValidation({
@@ -168,7 +177,7 @@ export class ValueValidation {
         value: this.value,
         error: this.isError
           ? this.error
-          : `${this.key} must less than ${diff} (${moment(start).format(StorageKeys.KEY_FORMAT_DATE)} to ${moment(
+          : `${this.key} must from ${diff} (${moment(start).format(StorageKeys.KEY_FORMAT_DATE)} to ${moment(
               end
             ).format(StorageKeys.KEY_FORMAT_DATE)})`,
         isError: true

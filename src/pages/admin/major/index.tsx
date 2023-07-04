@@ -226,7 +226,7 @@ const MajorManagePage = () => {
   }
 
   useEffect(() => {
-    setIsLoading(true);
+    setIsLoading(true)
     fetchMajors()
   }, [])
 
@@ -242,10 +242,8 @@ const MajorManagePage = () => {
           pageSize: common.pagination?.pageSize ?? 10,
           total: common.pagination?.total ?? 0
         } as QueryMajorListModel)
-        console.log(common.data as Major[])
-
         setData(common.data as Major[])
-        setIsLoading(false);
+        setIsLoading(false)
       })
       .catch(error => {
         handleError(error)

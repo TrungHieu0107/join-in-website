@@ -106,7 +106,7 @@ const TransactionPage = () => {
 
   useEffect(() => {
     // setCurrentData(transactionList?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage))
-    setIsLoading(true);
+    setIsLoading(true)
     getListTransaction()
   }, [storeSearchValue, page, rowsPerPage, updateUI])
 
@@ -133,7 +133,7 @@ const TransactionPage = () => {
           const transactions: Transaction[] = data.data.map((transation: Transaction) => new Transaction(transation))
 
           setCurrentData(transactions)
-          setIsLoading(false);
+          setIsLoading(false)
         })
         .catch(err => {
           console.log(err)
@@ -145,7 +145,6 @@ const TransactionPage = () => {
 
   const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      console.log(event.currentTarget.value)
       setStoreSearchName(searchValue)
     }
   }

@@ -87,6 +87,8 @@ export default function AssignView(props: IAssignViewProps) {
           const commonResposne = new CommonResponse(res)
           if (commonResposne?.status === 500) {
             notify(commonResposne.message ?? 'Something error', 'error')
+          } else {
+            commonResposne.message && notify(commonResposne.message, 'success')
           }
           setLoading(false)
         }, 300)

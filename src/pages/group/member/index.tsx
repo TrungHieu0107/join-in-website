@@ -216,7 +216,6 @@ const MemberPage = () => {
 
   const handleEnterSearch = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      console.log(event.currentTarget.value)
       setStoreSearchName(searchName)
     }
   }
