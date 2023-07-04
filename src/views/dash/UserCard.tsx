@@ -68,7 +68,7 @@ const UserCard = (props: { totalUser: number; freeUser: number; preUser: number;
             </Box>
           </Grid>
 
-          <Grid item xs={12} sm={4} >
+          <Grid item xs={12} sm={3} >
             <Box  sx={{ display: 'flex', alignItems: 'center' }}>
               <Avatar
                 variant='rounded'
@@ -90,7 +90,7 @@ const UserCard = (props: { totalUser: number; freeUser: number; preUser: number;
             </Box>
           </Grid>
 
-          <Grid item xs={12} sm={4} >
+          <Grid item xs={12} sm={3} >
             <Box  sx={{ display: 'flex', alignItems: 'center' }}>
               <Avatar
                 variant='rounded'
@@ -112,50 +112,7 @@ const UserCard = (props: { totalUser: number; freeUser: number; preUser: number;
             </Box>
           </Grid>
 
-          <Grid item xs={12} sm={4}>
-            <Box  sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar
-                variant='rounded'
-                sx={{
-                  mr: 3,
-                  width: 44,
-                  height: 44,
-                  boxShadow: 3,
-                  color: 'common.white',
-                  backgroundColor: `info.main`
-                }}
-              >
-                <CurrencyUsd sx={{ fontSize: '1.75rem' }} />
-              </Avatar>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography variant='caption'>Conversion Rate</Typography>
-                <Typography variant='h6'>{(props.preUser / props.totalUser * 100).toFixed(2)} %</Typography>
-              </Box>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Box  sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar
-                variant='rounded'
-                sx={{
-                  mr: 3,
-                  width: 44,
-                  height: 44,
-                  boxShadow: 3,
-                  color: 'common.white',
-                  backgroundColor: `info.main`
-                }}
-              >
-                <CurrencyUsd sx={{ fontSize: '1.75rem' }} />
-              </Avatar>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography variant='caption'>Conversion Rate</Typography>
-                <Typography variant='h6'>{(props.preUser / props.totalUser * 100).toFixed(2)} %</Typography>
-              </Box>
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={3}>
             <Box  sx={{ display: 'flex', alignItems: 'center' }}>
               <Avatar
                 variant='rounded'
