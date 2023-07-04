@@ -77,8 +77,8 @@ const RegisterPage = () => {
   const [values, setValues] = useState<State>({
     showPassword: false,
     showPasswordConfirm: false,
-    email: 'hieuntse151323@fpt.edu.vn',
-    password: '1234567890a',
+    email: '',
+    password: '',
     passwordConfirm: ''
   })
   const [emailError, setEmailError] = useState('')

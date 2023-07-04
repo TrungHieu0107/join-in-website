@@ -9,6 +9,10 @@ export class DashboardType {
   private _freeUserCount: number[] | undefined
   private _preUserCount: number[] | undefined
   private _activeUserCount: number[] | undefined
+  private _tiktokUser: number | undefined
+  private _facebookUser: number | undefined
+  private _unknowUser: number | undefined
+  private _groupCount: number[] | undefined
 
   constructor(value?: any) {
     this.totalRevenue = value?.totalRevenue
@@ -19,6 +23,10 @@ export class DashboardType {
     this.freeUserCount = value?.freeUserCount
     this.preUserCount = value?.preUserCount
     this.activeUserCount = value?.activeUserCount
+    this.unknowUser = value?.unknowUser
+    this.tiktokUser = value?.tiktokUser
+    this.facebookUser = value?.facebookUser
+    this.groupCount = value?.groupCount
   }
 
   get totalRevenue() {
@@ -83,6 +91,38 @@ export class DashboardType {
 
   set activeUserCount(val: number[] | undefined) {
     this._activeUserCount = val
+  }
+
+  get tiktokUser() {
+    return this._tiktokUser
+  }
+
+  set tiktokUser(val: number | undefined) {
+    this._tiktokUser = val
+  }
+
+  get facebookUser() {
+    return this._facebookUser
+  }
+
+  set facebookUser(val: number | undefined) {
+    this._facebookUser = val
+  }
+
+  get unknowUser() {
+    return this._unknowUser
+  }
+
+  set unknowUser(val: number | undefined) {
+    this._unknowUser = val
+  }
+
+  get groupCount() {
+    return this._groupCount
+  }
+
+  set groupCount(val: number[] | undefined) {
+    this._groupCount = val
   }
 
 }
