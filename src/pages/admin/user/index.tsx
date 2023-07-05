@@ -102,7 +102,7 @@ const UserManagemePage = () => {
   }
 
   useEffect(() => {
-    setIsLoading(true);
+    setIsLoading(true)
     fetchUsers()
   }, [])
 
@@ -118,7 +118,7 @@ const UserManagemePage = () => {
           total: common.pagination?.total
         } as QueryUsersModel)
         setData(common.data as User[])
-        setIsLoading(false);
+        setIsLoading(false)
       })
       .catch(error => {
         handleError(error)
@@ -163,7 +163,8 @@ const UserManagemePage = () => {
     event.target.value &&
       setQueryUsers(
         new QueryUsersModel({
-          ...queryUsers,
+          pageNumber: 1,
+          pageSize: queryUsers.pageSize,
           email: event.target.value
         } as QueryUsersModel)
       )
@@ -172,7 +173,8 @@ const UserManagemePage = () => {
 
     fetchUsers(
       new QueryUsersModel({
-        ...queryUsers,
+        pageNumber: 1,
+        pageSize: queryUsers.pageSize,
         email: event.target.value
       } as QueryUsersModel)
     )
