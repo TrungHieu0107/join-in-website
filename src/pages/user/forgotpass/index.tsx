@@ -1,7 +1,6 @@
 // ** React Imports
 import { useState, ChangeEvent, MouseEvent, ReactNode } from 'react'
 
-
 // ** MUI Components
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -49,7 +48,6 @@ const Card = styled(MuiCard)<CardProps>(({ theme }) => ({
   [theme.breakpoints.up('sm')]: { width: '28rem' }
 }))
 
-
 const ForgotPassPage = () => {
   // ** States
   const [values, setValues] = useState<State>({
@@ -77,7 +75,6 @@ const ForgotPassPage = () => {
   const handleMouseDownPassword = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
   }
-
 
   const passwordValidate = yup.object().shape({
     password: yup
@@ -123,7 +120,7 @@ const ForgotPassPage = () => {
         setPasswordConfirmError('')
       })
 
-      console.log(isError, passwordConfirmError)
+    console.log(isError, passwordConfirmError)
 
     if (isError) {
       return
@@ -133,7 +130,7 @@ const ForgotPassPage = () => {
       password: values.password
     })
     authAPI
-      .signUp(user)
+      .signUp(user, '')
       .then()
       .catch(() => {
         router.push('/')
@@ -145,7 +142,7 @@ const ForgotPassPage = () => {
       <Card sx={{ zIndex: 1 }}>
         <CardContent sx={{ padding: theme => `${theme.spacing(12, 9, 7)} !important` }}>
           <Box sx={{ mb: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <MyLogo width='50' height='50'/>
+            <MyLogo width='50' height='50' />
             <Typography
               variant='h6'
               sx={{
@@ -168,7 +165,7 @@ const ForgotPassPage = () => {
           <form noValidate autoComplete='on' onSubmit={e => e.preventDefault()}>
             <FormControl fullWidth sx={{ marginBottom: 4 }}>
               <InputLabel error={passwordError.length > 0} htmlFor='auth-register-password'>
-               New Password
+                New Password
               </InputLabel>
               <OutlinedInput
                 error={passwordError.length > 0}
@@ -202,7 +199,7 @@ const ForgotPassPage = () => {
               </InputLabel>
               <OutlinedInput
                 label='Confirm'
-                error= {passwordConfirmError.length > 0}
+                error={passwordConfirmError.length > 0}
                 value={values.passwordConfirm}
                 id='auth-register-password-confirm'
                 onChange={handleChange('passwordConfirm')}
@@ -240,7 +237,6 @@ const ForgotPassPage = () => {
             >
               Change
             </Button>
-
           </form>
         </CardContent>
       </Card>

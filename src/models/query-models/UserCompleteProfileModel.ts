@@ -9,6 +9,7 @@ export class UserCompleteProfileModel {
   theme: string | undefined
   majorIdList: string[] | undefined
   phoneNumber: string | undefined
+  platForm: 0 | 1 | 2
 
   constructor(value?: Partial<UserCompleteProfileModel>) {
     this.fullName = value?.fullName
@@ -21,5 +22,6 @@ export class UserCompleteProfileModel {
     this.theme = value?.theme
     this.majorIdList = value?.majorIdList
     this.phoneNumber = value?.phoneNumber
+    this.platForm = value?.platForm === undefined ? 2 : value?.platForm
   }
 }

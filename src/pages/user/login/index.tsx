@@ -85,6 +85,7 @@ const LoginPage = () => {
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const router = useRouter()
+  const source = router.query.utm_source
   const addToast = useToasts()
   const { data, status } = useSession()
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -143,11 +144,11 @@ const LoginPage = () => {
         const token: string = new CommonResponse(res).data
         if (token === 'Unverify') {
           notify('Your account is not verify. Email verify is sent', 'warning')
-          authAPI.sendVerifyEmail(values.email)
+          authAPI.sendVerifyEmail(values.email, source as unknown as string)
         } else {
           const tmp: string = JSON.stringify(res)
           if (tmp.indexOf('/profile/initialization') > -1) {
-            router.push(tmp)
+            router.push(`${tmp}&utm_source=${source}`)
           } else if (await userDBDexie.saveToken(token)) {
             const tokenModel = new JWTModel(jwt_decode(token ?? ''))
             await getUserInforToSaveDB(token)
@@ -226,6 +227,7 @@ const LoginPage = () => {
   }
 
   const handleSubmit = async () => {
+    setIsLoading(true)
     let isError = false
     console.log('email: ', values.email, 'password: ', values.password)
     await emailValidate
@@ -247,7 +249,10 @@ const LoginPage = () => {
         isError = true
         setPasswordError(err.errors)
       })
+
     if (isError) {
+      setIsLoading(false)
+
       return
     }
     const user: any = { userName: values.email, password: values.password }
@@ -259,7 +264,7 @@ const LoginPage = () => {
           const token: string = new CommonResponse(res).data
           if (token === 'Unverify') {
             notify('Your account is not verify. Email verify is sent', 'warning')
-            authAPI.sendVerifyEmail(values.email)
+            authAPI.sendVerifyEmail(values.email, source as unknown as string)
           } else {
             if (await userDBDexie.saveToken(token)) {
               const tokenModel = new JWTModel(jwt_decode(token ?? ''))
@@ -274,12 +279,15 @@ const LoginPage = () => {
         })
         .catch(error => {
           console.log('authAPI', error)
+          setIsLoading(false)
+
           if (error?.response?.data?.message) {
             setValues({ ...values, messageError: error?.response?.data?.message })
             notify(error?.response?.data?.message, 'error')
           }
         })
     } catch (error: any) {
+      setIsLoading(false)
       console.log('login page', error)
     }
   }
@@ -378,7 +386,7 @@ const LoginPage = () => {
                 New on our platform?
               </Typography>
               <Typography variant='body2'>
-                <Link passHref href='/user/register'>
+                <Link passHref href={`/user/register?utm_source=${source}`}>
                   <LinkStyled>Create an account</LinkStyled>
                 </Link>
               </Typography>

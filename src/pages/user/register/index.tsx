@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, Fragment, ChangeEvent, MouseEvent, ReactNode } from 'react'
+import { useState, Fragment, ChangeEvent, MouseEvent, ReactNode, useEffect } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -20,9 +20,10 @@ import MuiCard, { CardProps } from '@mui/material/Card'
 import InputAdornment from '@mui/material/InputAdornment'
 import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
 import FormHelperText from '@mui/material/FormHelperText'
+import { signIn, useSession } from 'next-auth/react'
+import { Backdrop, CircularProgress } from '@mui/material'
 
 // ** Icons Imports
-import Google from 'mdi-material-ui/Google'
 import EyeOutline from 'mdi-material-ui/EyeOutline'
 import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
 
@@ -37,12 +38,17 @@ import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 
 import * as yup from 'yup'
 import { Message, QueryKeys } from 'src/constants'
-import { authAPI } from 'src/api-client'
+import { authAPI, userAPI } from 'src/api-client'
 import { useRouter } from 'next/router'
 import MyLogo from 'src/layouts/components/MyLogo'
 import { AxiosError } from 'axios'
 import { useToasts } from 'react-toast-notifications'
 import { CommonResponse } from 'src/models/common/CommonResponse'
+import { ValueValidation } from 'src/@core/utils/validation'
+import { userDBDexie } from 'src/models/db/UserDB'
+import { JWTModel } from 'src/models/common/JWTModel'
+import { User } from 'src/models/class'
+import jwt_decode from 'jwt-decode'
 
 interface State {
   password: string
@@ -83,15 +89,16 @@ const RegisterPage = () => {
   })
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [passwordConfirmError, setPasswordConfirmError] = useState('')
+  const { data, status } = useSession()
   const addToast = useToasts()
+  const router = useRouter()
+  const source = router.query.utm_source
 
   const notify = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
     addToast.addToast(message, { appearance: type })
   }
-
-  // ** Hook
-  const router = useRouter()
 
   const handleChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value })
@@ -106,6 +113,72 @@ const RegisterPage = () => {
     event.preventDefault()
   }
 
+  useEffect(() => {
+    if (data?.user?.name && status === 'authenticated') {
+      getToken(data.user.name)
+    }
+  }, [data, status])
+
+  const getToken = (gooleToken: string) => {
+    authAPI
+      .getTokenLoginGoogle(gooleToken)
+      .then(async res => {
+        const token: string = new CommonResponse(res).data
+        if (token === 'Unverify') {
+          notify('Your account is not verify. Email verify is sent', 'warning')
+          authAPI.sendVerifyEmail(values.email, source as unknown as string)
+        } else {
+          const tmp: string = JSON.stringify(res)
+          if (tmp.indexOf('/profile/initialization') > -1) {
+            router.push(`${tmp}&utm_source=${source}`)
+          } else if (await userDBDexie.saveToken(token)) {
+            const tokenModel = new JWTModel(jwt_decode(token ?? ''))
+            await getUserInforToSaveDB(token)
+            if (tokenModel.role === 'Admin') {
+              router.push('/admin/dashboard/')
+            } else {
+              router.push('/my-groups')
+            }
+          }
+        }
+      })
+      .catch(error => {
+        console.log('authAPI', error)
+        if (error?.response?.data?.message === 'Unverify user.') {
+          router.push(error?.response?.data?.data)
+        } else {
+          notify(error?.response?.data?.message, 'error')
+        }
+      })
+  }
+
+  const getUserInforToSaveDB = async (token: string) => {
+    try {
+      const value: User = await new Promise((resolve, reject) => {
+        userAPI
+          .getProfile()
+          .then(res => {
+            const data = new CommonResponse(res)
+            const user: User = data.data
+
+            resolve(user)
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
+
+      await userDBDexie.saveUser({
+        id: value.id,
+        name: value.fullName,
+        avatar: value.avatar,
+        token: token
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   const emailValidate = yup.object().shape({
     email: yup
       .string()
@@ -114,23 +187,8 @@ const RegisterPage = () => {
       .matches(QueryKeys.EMAIL_REGEX, Message.INVALID_EMAIL)
   })
 
-  const passwordValidate = yup.object().shape({
-    password: yup
-      .string()
-      .min(8, Message.PASSWORD_LENGTH)
-      .max(30, Message.PASSWORD_LENGTH)
-      .required(Message.PASSWORD_REQUIRED)
-  })
-
-  const passwordConfirmValidate = yup.object().shape({
-    passwordConfirm: yup
-      .string()
-      .min(8, Message.CONFIRM_LENGTH)
-      .max(30, Message.CONFIRM_LENGTH)
-      .required(Message.CONFIRM_REQUIRED)
-  })
-
   const handleSubmit = async () => {
+    setIsLoading(true)
     let isError = false
     await emailValidate
       .validate({ email: values.email })
@@ -142,32 +200,27 @@ const RegisterPage = () => {
         setEmailError(err.errors)
       })
 
-    await passwordValidate
-      .validate({ password: values.password })
-      .then(async () => {
-        setPasswordError('')
-        await passwordConfirmValidate
-          .validate({ passwordConfirm: values.passwordConfirm })
-          .then(() => {
-            if (values.password != values.passwordConfirm) {
-              isError = true
-              setPasswordConfirmError(Message.CONFIRM_NOT_MATCH)
-            } else {
-              setPasswordConfirmError('')
-            }
-          })
-          .catch(err => {
-            isError = true
-            setPasswordConfirmError(err.errors)
-          })
-      })
-      .catch(err => {
+    const password: ValueValidation = new ValueValidation({
+      key: 'Password',
+      value: values.password
+    }).isPassword()
+
+    if (password.isError) {
+      isError = true
+      setPasswordError(password.error)
+    } else {
+      setPasswordError('')
+      if (values.password != values.passwordConfirm) {
         isError = true
-        setPasswordError(err.errors)
+        setPasswordConfirmError(Message.CONFIRM_NOT_MATCH)
+      } else {
         setPasswordConfirmError('')
-      })
+      }
+    }
 
     if (isError) {
+      setIsLoading(false)
+
       return
     }
     const user = {
@@ -176,9 +229,9 @@ const RegisterPage = () => {
     }
 
     authAPI
-      .signUp(user)
+      .signUp(user, router.query.utm_source as unknown as string)
       .then(() => {
-        router.push('/user/logout', '/user/login')
+        router.push(`/user/logout?utm_source=${source}`, `/user/login?utm_source=${source}`)
       })
       .catch(error => {
         console.log(error)
@@ -189,7 +242,14 @@ const RegisterPage = () => {
         } else {
           console.log(error)
         }
+        setIsLoading(false)
       })
+  }
+
+  const handleSignIn = () => {
+    setIsLoading(true)
+
+    signIn('google')
   }
 
   return (
@@ -328,15 +388,36 @@ const RegisterPage = () => {
                 Already have an account?
               </Typography>
               <Typography variant='body2'>
-                <Link passHref href='/user/login'>
+                <Link passHref href={`/user/login?utm_source=${source}&back=1`}>
                   <LinkStyled>Sign in instead</LinkStyled>
                 </Link>
               </Typography>
             </Box>
             <Divider sx={{ my: 5 }}>or</Divider>
-            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }}>
-              <Google sx={{ color: '#FFFFFF', marginRight: '10px' }} />
-              <Typography fontWeight='bold' color='#FFFFFF'>
+            <Button fullWidth size='large' variant='outlined' sx={{ marginBottom: 7 }} onClick={() => handleSignIn()}>
+              {/* <Google sx={{ marginRight: '10px' }} /> */}
+              <svg
+                width={30}
+                height={30}
+                xmlns='http://www.w3.org/2000/svg'
+                xmlnsXlink='http://www.w3.org/1999/xlink'
+                viewBox='0 0 48 48'
+              >
+                <defs>
+                  <path
+                    id='a'
+                    d='M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z'
+                  />
+                </defs>
+                <clipPath id='b'>
+                  <use xlinkHref='#a' overflow='visible' />
+                </clipPath>
+                <path clipPath='url(#b)' fill='#FBBC05' d='M0 37V11l17 13z' />
+                <path clipPath='url(#b)' fill='#EA4335' d='M0 11l17 13 7-6.1L48 14V0H0z' />
+                <path clipPath='url(#b)' fill='#34A853' d='M0 37l30-23 7.9 1L48 0v48H0z' />
+                <path clipPath='url(#b)' fill='#4285F4' d='M48 48L17 24l-4-3 35-10z' />
+              </svg>
+              <Typography fontWeight='bold' marginLeft={5}>
                 Login with Google
               </Typography>
             </Button>
@@ -344,6 +425,9 @@ const RegisterPage = () => {
         </CardContent>
       </Card>
       <FooterIllustrationsV1 />
+      <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </Box>
   )
 }

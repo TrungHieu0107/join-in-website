@@ -192,6 +192,19 @@ const TabAccount = (props: TabAccountProps) => {
     }
   }
 
+  const getSouceNumber = (): 0 | 1 | 2 => {
+    const source = router.query.utm_source
+    if ((source as unknown as string) === 'facebook') {
+      return 0
+    }
+
+    if ((source as unknown as string) === 'tiktok') {
+      return 1
+    }
+
+    return 2
+  }
+
   const onSaveProfile = async () => {
     setIsLoading(true)
     const payload = validateProfile(
@@ -203,7 +216,8 @@ const TabAccount = (props: TabAccountProps) => {
         majorIdList: (selectedMajor as Major[])?.map(item => item.id ?? ''),
         skill: skills,
         otherContact: contacts,
-        phoneNumber: phone
+        phoneNumber: phone,
+        platForm: getSouceNumber()
       })
     )
 
@@ -214,6 +228,9 @@ const TabAccount = (props: TabAccountProps) => {
 
       return
     }
+
+    console.log(router.query.utm_source, payload, getSouceNumber())
+
     await userAPI
       .uploadImage(fileAvatar ? fileAvatar[0] : undefined)
       .then(async res => {

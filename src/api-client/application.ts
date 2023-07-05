@@ -32,7 +32,7 @@ export const applicationAPI = {
       params: {
         invitationId: applicationId,
         status: status
-      }
+      } 
     })
   }
 }
