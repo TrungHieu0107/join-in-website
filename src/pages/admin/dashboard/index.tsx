@@ -58,7 +58,7 @@ const Dashboard = () => {
           <RevenueOverview listFreeUser={dataDashboard?.freeUserCount ?? [0,0,0,0,0]} listPreUser={dataDashboard?.preUserCount ?? [0,0,0,0,0]} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <GroupChart listDataGroup={[1,2,3,4]}/>
+          <GroupChart listDataGroup={dataDashboard?.groupCount ?? [0,0,0,0]}/>
         </Grid>
         <Grid item xs={12} md={6} >
           <UserOverview listActivity={dataDashboard?.activeUserCount ??  [0,0,0,0,0]}/>

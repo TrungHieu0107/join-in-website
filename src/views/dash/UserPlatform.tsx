@@ -60,7 +60,7 @@ const UserPlatform = (props: { totalUser: number; tiktokUser: number; facebookUs
   return (
     <Card>
       <CardHeader
-        title='Total User'
+        title='Number of Registrations'
         titleTypographyProps={{ sx: { lineHeight: '1.6 !important', letterSpacing: '0.15px !important' } }}
         subheader='The number of users registered through the social networking platform'
       />
