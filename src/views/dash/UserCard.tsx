@@ -31,7 +31,7 @@ const UserCard = (props: { totalUser: number; freeUser: number; preUser: number;
         subheader={
           <Typography variant='body2'>
             <Box component='span' sx={{ fontWeight: 600, color: 'text.primary' }}>
-              Total {props.growthRate}% growth
+              Total {props.growthRate.toFixed(2)}% growth
             </Box>{' '}
             😎 this week
           </Typography>
