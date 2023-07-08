@@ -82,7 +82,7 @@ const GroupChart = (props: { listDataGroup: number[]}) => {
   return (
     <Card>
       <CardHeader
-        title={'Group Statistics' + totalGroup}
+        title={'Group Statistics (total group: ' + totalGroup + ')'}
         titleTypographyProps={{
           sx: { lineHeight: '2rem !important', letterSpacing: '0.15px !important' }
         }}
