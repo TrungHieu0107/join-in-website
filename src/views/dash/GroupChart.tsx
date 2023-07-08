@@ -14,7 +14,7 @@ import ReactApexcharts from 'src/@core/components/react-apexcharts'
 const GroupChart = (props: { listDataGroup: number[]}) => {
   // ** Hook
   const theme = useTheme()
-
+  const totalGroup = props.listDataGroup.reduce((total, num) => total + num, 0);
 
   const options: ApexOptions = {
     chart: {
@@ -82,7 +82,7 @@ const GroupChart = (props: { listDataGroup: number[]}) => {
   return (
     <Card>
       <CardHeader
-        title='Group Statistics'
+        title={'Group Statistics' + totalGroup}
         titleTypographyProps={{
           sx: { lineHeight: '2rem !important', letterSpacing: '0.15px !important' }
         }}

@@ -11,7 +11,7 @@ export class DashboardType {
   private _activeUserCount: number[] | undefined
   private _tiktokUser: number | undefined
   private _facebookUser: number | undefined
-  private _unknowUser: number | undefined
+  private _unknownUser: number | undefined
   private _groupCount: number[] | undefined
 
   constructor(value?: any) {
@@ -23,7 +23,7 @@ export class DashboardType {
     this.freeUserCount = value?.freeUserCount
     this.preUserCount = value?.preUserCount
     this.activeUserCount = value?.activeUserCount
-    this.unknowUser = value?.unknowUser
+    this.unknownUser = value?.unknownUser
     this.tiktokUser = value?.tiktokUser
     this.facebookUser = value?.facebookUser
     this.groupCount = value?.groupCount
@@ -109,12 +109,12 @@ export class DashboardType {
     this._facebookUser = val
   }
 
-  get unknowUser() {
-    return this._unknowUser
+  get unknownUser() {
+    return this._unknownUser
   }
 
-  set unknowUser(val: number | undefined) {
-    this._unknowUser = val
+  set unknownUser(val: number | undefined) {
+    this._unknownUser = val
   }
 
   get groupCount() {

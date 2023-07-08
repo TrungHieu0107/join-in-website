@@ -51,7 +51,7 @@ const Dashboard = () => {
           <UserPlatform  totalUser={dataDashboard?.totalUser ?? 0}
           facebookUser={dataDashboard?.facebookUser ?? 0}
           tiktokUser={dataDashboard?.tiktokUser ?? 0}
-          unknowUser={dataDashboard?.unknowUser ?? 0}
+          unknowUser={dataDashboard?.unknownUser ?? 0}
           />
         </Grid>
         <Grid item xs={12} md={8}>
