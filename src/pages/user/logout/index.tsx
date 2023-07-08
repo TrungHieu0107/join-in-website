@@ -2,16 +2,32 @@ import { useRouter } from 'next/router'
 import * as React from 'react'
 import { userDBDexie } from 'src/models/db/UserDB'
 import { Backdrop, CircularProgress } from '@mui/material'
+import { signOut } from 'next-auth/react'
 
 export default function LogoutPage() {
   const router = useRouter()
+  const query = router.query
 
   React.useEffect(() => {
+    console.log(query)
+
     handleLogout()
   })
 
   const handleLogout = async () => {
-    await userDBDexie.clearToken().then(() => router.push('/user/login?back=1', '/user/login'))
+    await signOut()
+    await userDBDexie.clearToken().then(() =>
+      router.push(
+        {
+          pathname: '/user/login',
+          query: {
+            back: 1,
+            ...query
+          }
+        },
+        `/user/login?utm_source=${query.utm_source}`
+      )
+    )
   }
 
   return (

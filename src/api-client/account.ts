@@ -13,13 +13,15 @@ export const authAPI = {
     return axiosClient.get('profile')
   },
 
-  signUp(payload: any) {
-    return axiosClient.post('/register', payload)
+  signUp(payload: any, platForm: string | undefined) {
+    return axiosClient.post(`/register?Platform=${platForm}`, payload)
   },
-  sendVerifyEmail(email: string) {
-    return axiosClient.get('/users/send-email-verification', {
+
+  sendVerifyEmail(email: string, platForm: string) {
+    return axiosClient.get(`/users/send-email-verification`, {
       params: {
-        email: email
+        email: email,
+        Platform: platForm
       }
     })
   },
