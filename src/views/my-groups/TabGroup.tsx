@@ -377,7 +377,7 @@ export default function TabGroup({ renderType, handleError }: GroupRenderProps) 
             </TableRow>
           </TableHead>
           <TableBody>
-            {listGroup.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+            {listGroup.map((row, index) => {
               return (
                 <TableRow hover role='checkbox' tabIndex={-1} key={row.id} onClick={() => handleViewDetail(row)}>
                   <TableCell align='center' sx={{ minWidth: '20px' }}>
