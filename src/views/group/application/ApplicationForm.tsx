@@ -18,7 +18,6 @@ import { useToasts } from 'react-toast-notifications'
 import { applicationAPI, groupAPI } from 'src/api-client'
 import { GroupMajor } from 'src/models/class'
 import { CommonResponse } from 'src/models/common/CommonResponse'
-import { groupDBDexie } from 'src/models/db/GroupDB'
 import { ApplicationRequest } from 'src/models/query-models/ApplicationRequest'
 import Editor from 'src/views/dialog/editor'
 import { useRouter } from 'next/router'
@@ -26,7 +25,7 @@ import { useRouter } from 'next/router'
 // ** Icons Imports
 
 interface ChildComponentProps {
-  onButtonClick: () => void
+  onButtonClick: () => void;
 }
 
 const ApplicationForm: FC<ChildComponentProps> = ({ onButtonClick }) => {
@@ -44,15 +43,26 @@ const ApplicationForm: FC<ChildComponentProps> = ({ onButtonClick }) => {
 
   const getListRecruiting = async () => {
     try {
-      await groupDBDexie.getGroup().then(async groupData => {
-        if (groupData?.id) {
-          await groupAPI.getListRecruiting(groupData?.id).then(res => {
-            const data = new CommonResponse(res)
-            const list: GroupMajor[] = data.data
-            setListRecruiting(list)
-          })
-        } else {
-          const query = router.query.group as string
+      // await groupDBDexie.getGroup().then(async groupData => {
+      //   if (groupData?.id) {
+      //     await groupAPI.getListRecruiting(groupData?.id).then(res => {
+      //       const data = new CommonResponse(res)
+      //       const list: GroupMajor[] = data.data
+      //       setListRecruiting(list)
+      //     })
+      //   } else {
+      //     const query = router.query.group as string
+      //     if (query) {
+      //       await groupAPI.getListRecruiting(query).then(res => {
+      //         const data = new CommonResponse(res)
+      //         const list: GroupMajor[] = data.data
+      //         setListRecruiting(list)
+      //       })
+      //     }
+      //   }
+      // })
+
+      const query = router.query.group as string
           if (query) {
             await groupAPI.getListRecruiting(query).then(res => {
               const data = new CommonResponse(res)
@@ -60,8 +70,6 @@ const ApplicationForm: FC<ChildComponentProps> = ({ onButtonClick }) => {
               setListRecruiting(list)
             })
           }
-        }
-      })
     } catch (err) {
       console.log(err)
     }
@@ -80,15 +88,15 @@ const ApplicationForm: FC<ChildComponentProps> = ({ onButtonClick }) => {
 
   const sendApplication = async () => {
     try {
-      let groupId = ''
-      const groupData = await groupDBDexie.getGroup()
-      const query = router.query.group as string
-      if (query) {
-        groupId = query
-      } else {
-        groupId = groupData?.id ?? ''
-      }
-
+      // let groupId = ''
+      // const groupData = await groupDBDexie.getGroup()
+      // const query = router.query.group as string
+      // if (query) {
+      //   groupId = query
+      // } else {
+      //   groupId = groupData?.id ?? ''
+      // }
+      const groupId = router.query.group as string
       const application: ApplicationRequest = {
         Description: description,
         GroupId: groupId,

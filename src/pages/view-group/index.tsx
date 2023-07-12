@@ -150,7 +150,7 @@ const GroupView = () => {
           </DialogActions>
         </Box>
         <DialogContent>
-          <ApplicationForm onButtonClick={() => setOpen(false)} />
+          <ApplicationForm onButtonClick={() => setOpen(false)}  />
         </DialogContent>
       </Dialog>
     </>
