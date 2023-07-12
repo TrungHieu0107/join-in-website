@@ -125,16 +125,17 @@ const FindingGroupsPage = () => {
 
   const handlePageChange = (event: ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page)
-    router.push(
-      {
-        pathname: `/finding-groups`,
-        query: {
-          page
-        }
-      },
-      `/finding-groups?page=${page}`,
-      { shallow: true }
-    )
+
+    // router.push(
+    //   {
+    //     pathname: `/finding-groups`,
+    //     query: {
+    //       page
+    //     }
+    //   },
+    //   `/finding-groups?page=${page}`,
+    //   { shallow: true }
+    // )
   }
 
   return (
