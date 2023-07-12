@@ -6,7 +6,6 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { Autocomplete, Box, Button, Card, Grid, InputAdornment, Pagination, TextField, Typography } from '@mui/material'
 import CardGroup from 'src/views/finding-groups/CardGroup'
 import { Magnify } from 'mdi-material-ui'
-import { useRouter } from 'next/router'
 import withAuth from '../withAuth'
 import { QueryGroupListModel } from 'src/models/query-models/QueryGroupListModel'
 import { groupAPI, majorAPI } from 'src/api-client'
@@ -26,7 +25,6 @@ const FindingGroupsPage = () => {
   const [storeSearchName, setStoreSearchName] = useState<string>('')
   const [listMajors, setListMajors] = useState<Major[]>([])
   const [selectedValues, setSelectedValues] = useState<Major[]>([])
-  const router = useRouter()
   const addToast = useToasts()
   const [updateUI, setUpdateUI] = useState<boolean>(true)
 
