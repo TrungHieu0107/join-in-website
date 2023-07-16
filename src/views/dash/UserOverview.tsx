@@ -59,9 +59,9 @@ const UserOverview = (props: { listActivity : number[]}) => {
       }
     },
     xaxis: {
-      categories: ['Week 12-18/6', 'Week 19-25/6', 'Week 26/6-2/7', 'Week 3-9/7', 'Week 10-16/7'],
+      categories: ['12-18/6', '19-25/6', '26/6-2/7', '3-9/7', '10-16/7','17-23/7','24-30/7'],
       tickPlacement: 'on',
-      labels: { show: false },
+      labels: { show: true },
       axisTicks: { show: false },
       axisBorder: { show: false }
     },

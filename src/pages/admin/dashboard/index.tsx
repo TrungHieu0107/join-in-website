@@ -55,13 +55,13 @@ const Dashboard = () => {
           />
         </Grid>
         <Grid item xs={12} md={8}>
-          <RevenueOverview listFreeUser={dataDashboard?.freeUserCount ?? [0,0,0,0,0]} listPreUser={dataDashboard?.preUserCount ?? [0,0,0,0,0]} />
-        </Grid>
-        <Grid item xs={12} md={6}>
           <GroupChart listDataGroup={dataDashboard?.groupCount ?? [0,0,0,0]}/>
         </Grid>
-        <Grid item xs={12} md={6} >
-          <UserOverview listActivity={dataDashboard?.activeUserCount ??  [0,0,0,0,0]}/>
+        <Grid item xs={12} md={12}>
+          <RevenueOverview listFreeUser={dataDashboard?.freeUserCount ?? [0,0,0,0,0,0,0]} listPreUser={dataDashboard?.preUserCount ?? [0,0,0,0,0,0,0]} />
+        </Grid>
+        <Grid item xs={12} md={12} >
+          <UserOverview listActivity={dataDashboard?.activeUserCount ??  [0,0,0,0,0,0,0]}/>
         </Grid>
 
       </Grid>
