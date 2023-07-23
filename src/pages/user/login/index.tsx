@@ -141,17 +141,17 @@ const LoginPage = () => {
     authAPI
       .getTokenLoginGoogle(gooleToken)
       .then(async res => {
-        const token: string = new CommonResponse(res).data
+        const commonResponse = new CommonResponse(res)
+        const token: string = commonResponse.data
         if (token === 'Unverify') {
           notify('Your account is not verify. Email verify is sent', 'warning')
           authAPI.sendVerifyEmail(values.email, source as unknown as string)
         } else {
-          const tmp: string = res as unknown as string 
-          if (tmp.indexOf('/profile/initialization') > -1) {
-            console.log(tmp)
-            const url = `${tmp}&utm_source=${source}`
+          if (token.indexOf('/profile/initialization') > -1) {
+            const url = `${token}&utm_source=${source}`
             router.push(url)
           } else if (await userDBDexie.saveToken(token)) {
+            debugger
             const tokenModel = new JWTModel(jwt_decode(token ?? ''))
             await getUserInforToSaveDB(token)
             if (tokenModel.role === 'Admin') {
