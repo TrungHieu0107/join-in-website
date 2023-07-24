@@ -121,7 +121,7 @@ const ModalAddEditMAjor = ({
             title={
               <>
                 <Typography textAlign={'left'} fontWeight={600} pt={0}>
-                  {edit ? 'Add new major' : 'Edit major'}
+                  {edit ? 'Edit major' : 'Add new major'}
                 </Typography>
                 <IconButton
                   aria-label='close'

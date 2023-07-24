@@ -327,6 +327,7 @@ const SubTaskPage = () => {
                       })
                       .then(() => {
                         notify('Comment successfully.', 'success')
+                        setComment('');
                         getCommentOfTask(data.id || '')
                       })
                   }}

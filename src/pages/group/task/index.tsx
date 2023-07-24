@@ -148,6 +148,7 @@ const TaskListPage = () => {
   const [groupId, setGroupId] = useState<string>('')
   const [name, setName] = useState<string>('')
   const [data, setData] = useState<Task[]>([])
+  const [updateUI, setUpdateUI] = useState(false)
   const addToast = useToasts()
   const router = useRouter()
 
@@ -157,7 +158,7 @@ const TaskListPage = () => {
 
   useEffect(() => {
     fetchdata()
-  }, [])
+  }, [updateUI])
   useEffect(() => {
     searchTask()
   }, [queryTask])
@@ -201,6 +202,10 @@ const TaskListPage = () => {
           console.log(error)
         }
       })
+  }
+
+  const updateUIPage = () =>{
+    setUpdateUI(!updateUI)
   }
 
   const searchTask = async () => {
@@ -260,7 +265,7 @@ const TaskListPage = () => {
           </Button>
         </Grid>
       </Grid>
-      <TableTaskCollapse column={column} row={data} query={queryTask} setQuery={setQueryTask}></TableTaskCollapse>
+      <TableTaskCollapse column={column} row={data} query={queryTask} setQuery={setQueryTask} onSuccess={updateUIPage}></TableTaskCollapse>
       <Modal
         open={addNewModal}
         onClose={handleClose}

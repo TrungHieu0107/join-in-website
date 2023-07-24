@@ -20,9 +20,10 @@ import { QueryTaskListsModel } from 'src/models/query-models/QueryTaskListsModel
 export interface ITableTaskCollapseProps {
   column: Column[]
   row: Task[] | undefined
-  onSuccess?: () => Promise<void>
+  onSuccess?: () => void
   query?: QueryTaskListsModel
   setQuery?: (value: QueryTaskListsModel) => void
+
 }
 function Row(props: {
   row: Task
@@ -31,8 +32,9 @@ function Row(props: {
   index: number
   column: Column[]
   clicktoDetail: any
+  onSuccess: any
 }) {
-  const { row, page, rowsPerPage, index, column, clicktoDetail } = props
+  const { row, page, rowsPerPage, index, column, clicktoDetail, onSuccess } = props
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedRow, setSelectedRow] = useState<Task>()
   const data: any = row
@@ -64,6 +66,7 @@ function Row(props: {
       (await taskAPI
         .delete(selectedRow?.id)
         .then(res => {
+          onSuccess();
           console.log(res)
         })
         .catch(error => {
@@ -189,6 +192,7 @@ export default function TableTaskCollapse(props: ITableTaskCollapseProps) {
                   index={index}
                   column={values.column}
                   clicktoDetail={handleClickToTaskDetail}
+                  onSuccess={props.onSuccess}
                 ></Row>
               )
             })}

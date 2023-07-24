@@ -60,13 +60,21 @@ const DialogCreateNewTask = (props: DialogCreateNewTask) => {
     addToast.addToast(message, { appearance: type })
   }
 
+  const convertToVietnamTime = (date : Date) => {
+    const vietnamTimeOffset = 7;
+    const vietnamTime = new Date(date.getTime() + vietnamTimeOffset * 60 * 60 * 1000);
+
+    return vietnamTime;
+  }
+
   // const [selectedValues, setSelectedValues] = useState<Option[]>([])
   const handleButtonSubmitClick = async () => {
+
     const newTask = taskValidation(
       new CreateTaskModel({
         name: name,
-        startDateDeadline: from?.toISOString(),
-        endDateDeadline: to?.toISOString(),
+        startDateDeadline: convertToVietnamTime(from ?? new Date())?.toISOString(),
+        endDateDeadline: convertToVietnamTime(to ?? new Date())?.toISOString(),
         impotantLevel: importantLevel[importantLv]?.valueNumber,
         estimatedDays: estimatedDays,
         description: description,
