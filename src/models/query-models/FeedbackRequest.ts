@@ -4,5 +4,5 @@ export interface FeedbackRequest {
   Rating?: number|null
   Content?: string
   GroupId?: string
-  FeedbackedForId?: string
+  MemberId?: string
 }

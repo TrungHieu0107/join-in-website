@@ -47,7 +47,7 @@ const FeedbackForm : FC<ChildComponentProps> = ({ onButtonClick,member }) => {
   const [content, setContent] = useState<string>('')
 
   const addToast = useToasts();
-
+  console.log(member);
   const handleSubmit = () =>{
     submitFeedback();
     onButtonClick()
@@ -58,7 +58,7 @@ const FeedbackForm : FC<ChildComponentProps> = ({ onButtonClick,member }) => {
       const groupData = await groupDBDexie.getGroup()
       const feedbackRequest : FeedbackRequest =
       {
-        FeedbackedForId: member?.id,
+        MemberId: member?.id,
         GroupId: groupData?.id,
         Content: content,
         Rating: valueRating
