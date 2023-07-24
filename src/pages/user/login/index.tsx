@@ -43,7 +43,7 @@ import { CommonResponse } from 'src/models/common/CommonResponse'
 import { userDBDexie } from 'src/models/db/UserDB'
 import { useRouter } from 'next/router'
 import { useToasts } from 'react-toast-notifications'
-import { useSession, signIn } from 'next-auth/react'
+import { useSession, signIn, signOut } from 'next-auth/react'
 import { Backdrop, CircularProgress } from '@mui/material'
 import jwt_decode from 'jwt-decode'
 import { JWTModel } from 'src/models/common/JWTModel'
@@ -94,47 +94,52 @@ const LoginPage = () => {
   }
 
   useEffect(() => {
-    setIsLoading(true)
-    userDBDexie.getToken().then(value => {
-      if (value?.length !== 0) {
-        const tokenModel = new JWTModel(jwt_decode(value ?? ''))
-        if (router.pathname.startsWith('/admin')) {
-          if (tokenModel.role !== 'Admin') {
-            userDBDexie.clearToken().then(() => {
-              setIsLoading(false)
-              router.push('/user/login?back=1', '/user/login')
-            })
+    try {
+      setIsLoading(true)
+      userDBDexie.getToken().then(value => {
+        if (value?.length !== 0) {
+          const tokenModel = new JWTModel(jwt_decode(value ?? ''))
+          if (router.pathname.startsWith('/admin')) {
+            if (tokenModel.role !== 'Admin') {
+              userDBDexie.clearToken().then(() => {
+                setIsLoading(false)
+                router.push('/user/login?back=1', '/user/login')
+              })
 
-            return
+              return
+            }
+            router.push('/admin/dashboard/')
+          } else {
+            if (tokenModel.role !== 'User') {
+              userDBDexie.clearToken().then(() => {
+                setIsLoading(false)
+                router.push('/user/login?back=1', '/user/login')
+              })
+
+              return
+            }
+            router.push('/my-groups')
           }
-          router.push('/admin/dashboard/')
         } else {
-          if (tokenModel.role !== 'User') {
-            userDBDexie.clearToken().then(() => {
-              setIsLoading(false)
-              router.push('/user/login?back=1', '/user/login')
-            })
-
-            return
-          }
-          router.push('/my-groups')
-        }
-      } else {
-        userDBDexie.getGoogleToken().then(res => {
-          if (res?.length !== 0) {
-            getToken(res ?? '')
-          } else if (!router.query.back) {
-            if (data?.user?.name && status === 'authenticated') {
-              getToken(data.user.name)
+          userDBDexie.getGoogleToken().then(res => {
+            if (res?.length !== 0) {
+              getToken(res ?? '')
+            } else if (!router.query.back) {
+              if (data?.user?.name && status === 'authenticated') {
+                getToken(data.user.name)
+              } else {
+                setIsLoading(false)
+              }
             } else {
               setIsLoading(false)
             }
-          } else {
-            setIsLoading(false)
-          }
-        })
-      }
-    })
+          })
+        }
+      })
+    } catch (err) {
+      console.error(err)
+      handleError();
+    }
   }, [data, status])
 
   const getToken = (gooleToken: string) => {
@@ -292,6 +297,13 @@ const LoginPage = () => {
       setIsLoading(false)
       console.log('login page', error)
     }
+  }
+
+  const handleError = async () => {
+    if (status === 'authenticated') {
+      await signOut()
+    }
+    await userDBDexie.clearToken()
   }
 
   const handleSignIn = async () => {
